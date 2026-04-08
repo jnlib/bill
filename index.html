@@ -93,8 +93,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .gauge-fill.ok{background:linear-gradient(90deg,var(--green),#66bb6a)}
 .gauge-fill.warn{background:linear-gradient(90deg,var(--yellow),#fdd835)}
 .gauge-fill.over{background:linear-gradient(90deg,var(--red),#ef5350)}
-.gauge-label{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--txt-m)}
-.gauge-predict{position:absolute;top:0;height:100%;border-right:2px dashed rgba(0,0,0,.3);transition:left .5s}
+.gauge-label{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--txt-m)}
+.gauge-bar-m{display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--border);gap:1px}
+.seg{transition:all .3s;position:relative}
+.seg-actual{background:var(--green);opacity:.8}
+.seg-predict{background:var(--green);opacity:.25}
+.seg-over{background:var(--red) !important}
+.seg:hover{opacity:1;transform:scaleY(1.15)}
+.gauge-months{display:flex;margin-top:2px}
+.gauge-months span{text-align:center;font-size:9px;color:var(--txt-l);font-weight:500}
+.ok{--ok:var(--green)}.warn{--warn:var(--yellow)}.over{--over:var(--red)}
 
 @media(max-width:768px){
   .summary{grid-template-columns:1fr 1fr}
@@ -154,7 +162,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   <div class="grid">
     <!-- 차트 -->
     <div class="card">
-      <div class="card-title">사용량 추이</div>
+      <div class="card-title">사용량 · 기온 비교</div>
       <div class="chart-wrap"><canvas id="chartUsage"></canvas></div>
     </div>
     <div class="card">
@@ -193,6 +201,12 @@ var D = {
   '전기':{2023:{},2024:{},2025:{},budget:{}},
   '가스':{2023:{},2024:{},2025:{},budget:{}},
   '수도':{2023:{},2024:{},2025:{},budget:{}}
+};
+
+// 기온 데이터
+var W = {
+  2024:{1:-2.1,2:0.8,3:7.2,4:13.5,5:18.9,6:23.4,7:26.8,8:27.2,9:22.1,10:15.3,11:7.8,12:0.2},
+  2025:{1:-3.5,2:-0.2,3:6.8}
 };
 
 // 샘플 데이터
@@ -261,30 +275,45 @@ function renderSummary(){
   }
 }
 
-// ── 예산 게이지 ──
+// ── 예산 게이지 (월별 구간) ──
 function renderGauge(){
   var data=D[T][Y]||{};
   var prev=D[T][Y-1]||{};
   var budget=D[T].budget[Y]||0;
   if(!budget){$('gauge').innerHTML='<div style="text-align:center;color:var(--txt-l);font-size:13px;padding:8px">아래 표에서 연간 예산을 입력하세요</div>';return}
 
-  var spent=0,predictTotal=0;
-  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
+  // 월별 누적 계산
+  var cumul=0,predictCumul=0;
+  var segments='';
+  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:13;
+  var monthLabels='';
+
   for(var m=1;m<=12;m++){
-    if(data[m]){spent+=data[m].a||0;predictTotal+=data[m].a||0}
-    else if(prev[m]){predictTotal+=Math.round((prev[m].a||0)*1.03)}
+    var amt=0,isPredicted=false;
+    if(data[m]){amt=data[m].a||0}
+    else if(prev[m]){amt=Math.round((prev[m].a||0)*1.03);isPredicted=true}
+    predictCumul+=amt;
+    if(!isPredicted) cumul+=amt;
+
+    var w=100/12;
+    var cls=isPredicted?'seg-predict':'seg-actual';
+    // 누적이 예산 넘으면 빨간색
+    if(predictCumul>budget) cls+=' seg-over';
+    segments+='<div class="seg '+cls+'" style="width:'+w+'%" title="'+m+'월: '+won(amt)+'"></div>';
+    monthLabels+='<span style="width:'+w+'%">'+m+'</span>';
   }
 
-  var pctSpent=Math.min(spent/budget*100,100);
-  var pctPredict=Math.min(predictTotal/budget*100,120);
-  var cls=pctPredict<=85?'ok':pctPredict<=100?'warn':'over';
+  var pctSpent=Math.round(cumul/budget*100);
+  var pctPredict=Math.round(predictCumul/budget*100);
+  var statusCls=pctPredict<=85?'ok':pctPredict<=100?'warn':'over';
 
   $('gauge').innerHTML=
-    '<div class="gauge-bar"><div class="gauge-fill '+cls+'" style="width:'+pctSpent+'%"></div>'
-    +'<div class="gauge-predict" style="left:'+Math.min(pctPredict,100)+'%"></div></div>'
-    +'<div class="gauge-label"><span>사용: '+won(spent)+' ('+Math.round(pctSpent)+'%)</span>'
-    +'<span style="color:var(--txt-l)">예상: '+won(predictTotal)+' ('+Math.round(pctPredict)+'%)</span>'
-    +'<span>예산: '+won(budget)+'</span></div>';
+    '<div class="gauge-bar-m">'+segments+'</div>'
+    +'<div class="gauge-months">'+monthLabels+'</div>'
+    +'<div class="gauge-label">'
+    +'<span><b style="color:var(--'+statusCls+')">'+pctSpent+'%</b> 집행 ('+won(cumul)+')</span>'
+    +'<span style="color:var(--txt-l)">예상 '+pctPredict+'% ('+won(predictCumul)+')</span>'
+    +'<span>예산 '+won(budget)+'</span></div>';
 }
 
 // ── 데이터 테이블 ──
@@ -362,16 +391,21 @@ function renderCharts(){
   if(charts.usage) charts.usage.destroy();
   if(charts.cost) charts.cost.destroy();
 
-  var uData=[],pData=[];
+  var uData=[],pData=[],wData=[],wpData=[];
+  var wd=W[Y]||{};var wpd=W[Y-1]||{};
   for(var m=1;m<=12;m++){
     uData.push(data[m]?data[m].u:null);
     pData.push(prev[m]?prev[m].u:null);
+    wData.push(wd[m]!=null?wd[m]:null);
+    wpData.push(wpd[m]!=null?wpd[m]:null);
   }
   charts.usage=new Chart($('chartUsage'),{
     type:'bar',data:{labels:months,datasets:[
-      {label:Y+'년',data:uData,backgroundColor:c.main+'cc',borderRadius:4},
-      {label:(Y-1)+'년',data:pData,backgroundColor:c.light+'88',borderRadius:4}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true}}}
+      {label:Y+'년 사용량',data:uData,backgroundColor:c.main+'cc',borderRadius:4,yAxisID:'y'},
+      {label:(Y-1)+'년 사용량',data:pData,backgroundColor:c.light+'88',borderRadius:4,yAxisID:'y'},
+      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',backgroundColor:'#e5393515',tension:.3,pointRadius:4,yAxisID:'y1',borderWidth:2},
+      {label:(Y-1)+'년 기온',data:wpData,type:'line',borderColor:'#e5393555',borderDash:[4,4],tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:1.5}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}}}
   });
 
   var aData=[],apData=[];
