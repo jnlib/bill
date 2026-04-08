@@ -2,710 +2,475 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>공과금 관리 — 종로도서관</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 :root{
-  --navy:#0a1929;--blue:#1976d2;--blue-l:#42a5f5;--blue-bg:rgba(25,118,210,.06);
-  --teal:#00897b;--teal-bg:rgba(0,137,123,.06);
-  --orange:#ef6c00;--orange-bg:rgba(239,108,0,.06);
-  --bg:#f5f7fa;--surface:#fff;--surface2:#f8f9fb;
+  --navy:#0a1929;
+  --elec:#1976d2;--elec-l:#bbdefb;--elec-bg:#e3f2fd;
+  --gas:#ef6c00;--gas-l:#ffe0b2;--gas-bg:#fff3e0;
+  --water:#00897b;--water-l:#b2dfdb;--water-bg:#e0f2f1;
+  --bg:#f0f2f5;--surface:#fff;
   --txt:#1a2a3a;--txt-m:#5a6a7a;--txt-l:#94a4b4;
-  --border:#e3e8ef;--shadow:0 2px 12px rgba(0,0,0,.06);
-  --radius:14px;
-  --green:#2e7d32;--green-bg:#e8f5e9;
-  --red:#c62828;--red-bg:#ffebee;
+  --border:#e0e4ea;--shadow:0 2px 8px rgba(0,0,0,.05);
+  --green:#2e7d32;--red:#c62828;--yellow:#f9a825;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)}
 
-/* ── 헤더 ── */
-.hdr{background:var(--navy);padding:20px 24px;color:#fff}
-.hdr-top{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto}
-.hdr-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
-.hdr-title img{height:24px;filter:brightness(10)}
-.hdr-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
-.hdr-year{display:flex;align-items:center;gap:8px}
-.hdr-year button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;transition:.15s}
-.hdr-year button:hover{background:rgba(255,255,255,.2)}
-.hdr-year span{font-size:18px;font-weight:700;min-width:60px;text-align:center}
+.hdr{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.hdr-left{display:flex;align-items:center;gap:12px;color:#fff}
+.hdr-left img{height:22px;filter:brightness(10)}
+.hdr-title{font-size:18px;font-weight:700}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-right button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:14px}
+.hdr-right button:hover{background:rgba(255,255,255,.2)}
+.hdr-right span{color:#fff;font-size:16px;font-weight:700;min-width:56px;text-align:center}
+
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
 
 /* ── 탭 ── */
-.tabs{display:flex;max-width:960px;margin:0 auto;padding:0 24px;gap:4px;transform:translateY(-1px)}
-.tab{flex:1;text-align:center;padding:14px;font-size:15px;font-weight:600;cursor:pointer;border-radius:12px 12px 0 0;transition:.2s;border:1px solid transparent;border-bottom:none;background:rgba(255,255,255,.5);color:var(--txt-m)}
-.tab:hover{background:rgba(255,255,255,.8)}
-.tab.on{background:var(--surface);color:var(--blue);border-color:var(--border)}
-.tab[data-type="전기"].on{color:var(--blue)}
-.tab[data-type="가스"].on{color:var(--orange)}
-.tab[data-type="수도"].on{color:var(--teal)}
-.tab .icon{font-size:18px;margin-right:6px}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tab{flex:1;padding:12px;text-align:center;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;transition:.15s;border:2px solid transparent;background:var(--surface)}
+.tab:hover{transform:translateY(-1px)}
+.tab[data-t="전기"]{color:var(--elec)}.tab[data-t="전기"].on{background:var(--elec-bg);border-color:var(--elec)}
+.tab[data-t="가스"]{color:var(--gas)}.tab[data-t="가스"].on{background:var(--gas-bg);border-color:var(--gas)}
+.tab[data-t="수도"]{color:var(--water)}.tab[data-t="수도"].on{background:var(--water-bg);border-color:var(--water)}
 
-/* ── 컨테이너 ── */
-.container{max-width:960px;margin:0 auto;padding:0 24px 40px}
-.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:16px;box-shadow:var(--shadow)}
-.section-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.section-title .icon{font-size:20px}
+/* ── 요약 카드 ── */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.s-card{background:var(--surface);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.s-label{font-size:12px;color:var(--txt-l);font-weight:500;margin-bottom:6px}
+.s-value{font-size:22px;font-weight:900}
+.s-sub{font-size:11px;margin-top:4px}
+.s-up{color:var(--red)}.s-down{color:var(--green)}.s-neutral{color:var(--txt-l)}
 
-/* ── 업로드 ── */
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:.2s;position:relative}
-.upload-zone:hover{border-color:var(--blue);background:var(--blue-bg)}
-.upload-zone.dragover{border-color:var(--blue);background:rgba(25,118,210,.1)}
-.upload-icon{font-size:36px;margin-bottom:8px;color:var(--txt-l)}
-.upload-txt{font-size:15px;color:var(--txt-m);margin-bottom:4px}
-.upload-sub{font-size:12px;color:var(--txt-l)}
-.upload-input{display:none}
+/* ── 메인 그리드 ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--surface);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
+.card-full{grid-column:1/-1}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 
-/* ── OCR 미리보기 ── */
-.ocr-preview{display:none;margin-top:16px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.ocr-preview.on{display:block}
-.ocr-img-area{display:flex;gap:8px;padding:16px;overflow-x:auto;background:var(--surface2)}
-.ocr-img-area img{height:160px;border-radius:8px;border:1px solid var(--border);object-fit:contain;flex-shrink:0}
-.ocr-form{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ocr-field{display:flex;flex-direction:column;gap:4px}
-.ocr-field label{font-size:12px;font-weight:600;color:var(--txt-m)}
-.ocr-field input,.ocr-field select{padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:inherit;outline:none;transition:.2s}
-.ocr-field input:focus,.ocr-field select:focus{border-color:var(--blue)}
-.ocr-actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
-.ocr-loading{display:none;padding:24px;text-align:center;color:var(--txt-m);font-size:14px}
-.ocr-loading.on{display:block}
+/* ── 데이터 테이블 (직접 편집) ── */
+.dtable{width:100%;border-collapse:collapse;font-size:13px}
+.dtable th{padding:8px 4px;font-size:11px;font-weight:600;color:var(--txt-l);text-align:center;border-bottom:2px solid var(--border);background:var(--bg)}
+.dtable td{padding:0;text-align:center;border-bottom:1px solid #f0f0f0;height:36px}
+.dtable .rlabel{font-size:11px;font-weight:700;color:var(--txt-m);background:var(--bg);text-align:left;padding:8px 8px;white-space:nowrap}
+.dtable input{width:100%;height:100%;border:none;text-align:right;font-size:13px;font-family:inherit;padding:6px 8px;background:transparent;outline:none;color:var(--txt)}
+.dtable input:focus{background:#e8f0fe;font-weight:700}
+.dtable input::placeholder{color:var(--txt-l);font-style:italic}
+.dtable .total-cell{font-weight:900;padding:8px 8px;background:var(--bg);text-align:right}
+.dtable .budget-row input{color:var(--elec)}
+.dtable .budget-row td{background:rgba(25,118,210,.02)}
 
-/* ── 12개월 표 ── */
-.year-table{width:100%;border-collapse:collapse;font-size:14px}
-.year-table th{padding:10px 6px;text-align:center;font-weight:600;font-size:12px;color:var(--txt-m);background:var(--surface2);border-bottom:2px solid var(--border)}
-.year-table td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;position:relative}
-.year-table td:hover{background:var(--blue-bg)}
-.year-table td.empty{color:var(--txt-l);font-style:italic}
-.year-table td.predicted{color:var(--blue);font-style:italic;background:rgba(25,118,210,.03)}
-.year-table td input{width:100%;border:1.5px solid var(--blue);border-radius:6px;padding:6px;font-size:14px;text-align:center;font-family:inherit;outline:none}
-.year-table .month-label{font-weight:600;color:var(--txt);background:var(--surface2);cursor:default}
-.year-table .month-label:hover{background:var(--surface2)}
-.year-table .row-label{font-weight:600;color:var(--txt-m);font-size:12px;background:var(--surface2);text-align:left;padding-left:12px;cursor:default}
-.year-table .row-label:hover{background:var(--surface2)}
-.year-table .total{font-weight:700;background:var(--surface2);color:var(--txt)}
+/* 예산 상태 색상 */
+.budget-ok{background:var(--elec-bg) !important}
+.budget-warn{background:#fff8e1 !important}
+.budget-over{background:#ffebee !important}
+.budget-bar{height:4px;border-radius:2px;margin-top:4px;background:var(--border)}
+.budget-fill{height:100%;border-radius:2px;transition:width .3s}
 
 /* ── 차트 ── */
-.chart-tabs{display:flex;gap:6px;margin-bottom:16px}
-.chart-tab{padding:8px 16px;font-size:13px;font-weight:500;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;background:var(--surface);transition:.15s;font-family:inherit;color:var(--txt-m)}
-.chart-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.chart-wrap{position:relative;height:280px}
+.chart-wrap{position:relative;height:220px}
 
-/* ── AI 분석 ── */
-.ai-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.ai-btn{padding:12px 20px;font-size:14px;font-weight:600;border-radius:10px;border:none;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:6px}
-.ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
-.ai-btn:active{transform:scale(.97)}
-.ai-btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-l));color:#fff}
-.ai-btn.secondary{background:var(--surface2);color:var(--txt);border:1px solid var(--border)}
-.ai-result{display:none;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.ai-result.on{display:block}
-.ai-result-hdr{background:linear-gradient(135deg,var(--navy),#1a3a5c);color:#fff;padding:16px 20px;font-size:15px;font-weight:700}
-.ai-result-body{padding:20px}
-.ai-card{background:var(--surface2);border-radius:10px;padding:14px 16px;margin-bottom:10px}
-.ai-card:last-child{margin-bottom:0}
-.ai-card-title{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.ai-card-txt{font-size:14px;line-height:1.8;color:var(--txt-m)}
-.ai-loading{display:none;text-align:center;padding:32px;color:var(--txt-m)}
-.ai-loading.on{display:block}
-.spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:8px}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── AI 패널 ── */
+.ai-btn{padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:.15s;background:var(--navy);color:#fff}
+.ai-btn:hover{opacity:.85}
+.ai-result{margin-top:14px;font-size:13px;line-height:1.9;color:var(--txt-m);white-space:pre-line;background:var(--bg);border-radius:8px;padding:14px}
 
-/* ── 버튼 공통 ── */
-.btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.15s}
-.btn-primary{background:var(--blue);color:#fff}
-.btn-primary:hover{background:var(--blue-l)}
-.btn-outline{background:none;border:1.5px solid var(--border);color:var(--txt-m)}
-.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
-.btn-danger{background:var(--red);color:#fff}
-.btn-sm{padding:6px 12px;font-size:12px}
+/* ── 업로드 ── */
+.upload-bar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.upload-btn{padding:10px 18px;font-size:13px;font-weight:600;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;font-family:inherit;background:var(--surface);color:var(--txt-m);transition:.15s}
+.upload-btn:hover{border-color:var(--elec);color:var(--elec);background:var(--elec-bg)}
+.upload-status{font-size:12px;color:var(--txt-l)}
 
-/* ── 반응형 ── */
-@media(max-width:640px){
-  .hdr{padding:16px}
-  .container{padding:0 12px 30px}
-  .section{padding:16px}
-  .tabs{padding:0 12px}
-  .year-table{font-size:12px}
-  .year-table th,.year-table td{padding:6px 3px}
-  .ocr-form{grid-template-columns:1fr}
-  .chart-wrap{height:220px}
+/* ── 예산 게이지 ── */
+.gauge{margin-top:12px}
+.gauge-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;position:relative}
+.gauge-fill{height:100%;border-radius:10px;transition:width .5s}
+.gauge-fill.ok{background:linear-gradient(90deg,var(--green),#66bb6a)}
+.gauge-fill.warn{background:linear-gradient(90deg,var(--yellow),#fdd835)}
+.gauge-fill.over{background:linear-gradient(90deg,var(--red),#ef5350)}
+.gauge-label{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--txt-m)}
+.gauge-predict{position:absolute;top:0;height:100%;border-right:2px dashed rgba(0,0,0,.3);transition:left .5s}
+
+@media(max-width:768px){
+  .summary{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr}
+  .dtable{font-size:11px}
+  .dtable input{font-size:11px;padding:4px 3px}
+  .s-value{font-size:18px}
 }
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div class="hdr-top">
-    <div>
-      <div class="hdr-title">
-        <img src="https://jnlib.sen.go.kr/resources/homepage/jnlib/img/jnlib_logo.png" alt="">
-        공과금 관리
-      </div>
-      <div class="hdr-sub">종로도서관 전기 · 가스 · 수도 고지서 통합 관리</div>
-    </div>
-    <div class="hdr-year">
-      <button onclick="changeYear(-1)">&lt;</button>
-      <span id="yearLabel">2025</span>
-      <button onclick="changeYear(1)">&gt;</button>
-    </div>
+  <div class="hdr-left">
+    <img src="https://jnlib.sen.go.kr/resources/homepage/jnlib/img/jnlib_logo.png" alt="">
+    <span class="hdr-title">공과금 관리</span>
+  </div>
+  <div class="hdr-right">
+    <button onclick="chgYear(-1)">&lt;</button>
+    <span id="yLabel">2025년</span>
+    <button onclick="chgYear(1)">&gt;</button>
   </div>
 </div>
 
-<div class="tabs">
-  <div class="tab on" data-type="전기" onclick="switchTab('전기')"><span class="icon">&#9889;</span>전기</div>
-  <div class="tab" data-type="가스" onclick="switchTab('가스')"><span class="icon">&#128293;</span>가스</div>
-  <div class="tab" data-type="수도" onclick="switchTab('수도')"><span class="icon">&#128167;</span>수도</div>
-</div>
+<div class="wrap">
 
-<div class="container">
-
-  <!-- ── 고지서 업로드 ── -->
-  <div class="section">
-    <div class="section-title"><span class="icon">&#128247;</span>고지서 업로드</div>
-    <div class="upload-zone" id="uploadZone" onclick="$('fileInput').click()">
-      <div class="upload-icon">&#128196;</div>
-      <div class="upload-txt">고지서 사진 또는 PDF를 올려주세요</div>
-      <div class="upload-sub">클릭하거나 파일을 끌어다 놓으세요 · 여러 장 가능</div>
-      <input type="file" class="upload-input" id="fileInput" accept="image/*,.pdf" multiple onchange="handleFiles(this.files)">
-    </div>
-    <div class="ocr-loading" id="ocrLoading">
-      <div class="spinner"></div>
-      <div>AI가 고지서를 분석하고 있어요...</div>
-    </div>
-    <div class="ocr-preview" id="ocrPreview">
-      <div class="ocr-img-area" id="ocrImages"></div>
-      <div class="ocr-form" id="ocrForm">
-        <div class="ocr-field">
-          <label>종류</label>
-          <select id="ocrType">
-            <option>전기</option><option>가스</option><option>수도</option>
-          </select>
-        </div>
-        <div class="ocr-field">
-          <label>청구 연월</label>
-          <div style="display:flex;gap:6px">
-            <input id="ocrYear" type="number" placeholder="2025" style="flex:1">
-            <input id="ocrMonth" type="number" placeholder="1" min="1" max="12" style="width:60px">
-          </div>
-        </div>
-        <div class="ocr-field">
-          <label>사용량</label>
-          <div style="display:flex;gap:6px">
-            <input id="ocrUsage" type="number" placeholder="0" style="flex:1">
-            <input id="ocrUnit" type="text" placeholder="kWh" style="width:70px">
-          </div>
-        </div>
-        <div class="ocr-field">
-          <label>청구금액 (원)</label>
-          <input id="ocrAmount" type="number" placeholder="0">
-        </div>
-        <div class="ocr-actions">
-          <button class="btn btn-outline" onclick="cancelOcr()">취소</button>
-          <button class="btn btn-primary" onclick="saveOcr()">저장</button>
-        </div>
-      </div>
-    </div>
+  <div class="tabs">
+    <div class="tab on" data-t="전기" onclick="setTab('전기')">&#9889; 전기</div>
+    <div class="tab" data-t="가스" onclick="setTab('가스')">&#128293; 가스</div>
+    <div class="tab" data-t="수도" onclick="setTab('수도')">&#128167; 수도</div>
   </div>
 
-  <!-- ── 12개월 표 ── -->
-  <div class="section">
-    <div class="section-title"><span class="icon">&#128203;</span><span id="tableTitle">전기 사용 현황</span></div>
+  <!-- 요약 -->
+  <div class="summary" id="summary"></div>
+
+  <!-- 예산 게이지 -->
+  <div class="card" id="gaugeCard" style="margin-bottom:16px">
+    <div class="card-title">예산 집행 현황</div>
+    <div class="gauge" id="gauge"></div>
+  </div>
+
+  <!-- 업로드 + 테이블 -->
+  <div class="card card-full" style="margin-bottom:16px">
+    <div class="card-title">
+      <span>월별 데이터</span>
+      <div class="upload-bar">
+        <label class="upload-btn" for="fileIn">&#128247; 고지서 업로드</label>
+        <input type="file" id="fileIn" accept="image/*,.pdf" multiple onchange="handleUpload(this.files)" style="display:none">
+        <span class="upload-status" id="uploadStatus"></span>
+      </div>
+    </div>
     <div style="overflow-x:auto">
-      <table class="year-table" id="yearTable">
-        <thead>
-          <tr>
-            <th style="width:60px"></th>
-            <th>1월</th><th>2월</th><th>3월</th><th>4월</th><th>5월</th><th>6월</th>
-            <th>7월</th><th>8월</th><th>9월</th><th>10월</th><th>11월</th><th>12월</th>
-            <th style="width:70px">합계</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+      <table class="dtable" id="dataTable"></table>
     </div>
   </div>
 
-  <!-- ── 차트 ── -->
-  <div class="section">
-    <div class="section-title"><span class="icon">&#128200;</span>시각화</div>
-    <div class="chart-tabs">
-      <button class="chart-tab on" onclick="switchChart('usage')">사용량</button>
-      <button class="chart-tab" onclick="switchChart('cost')">요금</button>
-      <button class="chart-tab" onclick="switchChart('weather')">날씨 비교</button>
+  <div class="grid">
+    <!-- 차트 -->
+    <div class="card">
+      <div class="card-title">사용량 추이</div>
+      <div class="chart-wrap"><canvas id="chartUsage"></canvas></div>
     </div>
-    <div class="chart-wrap">
-      <canvas id="mainChart"></canvas>
+    <div class="card">
+      <div class="card-title">요금 추이 (전년 비교)</div>
+      <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
     </div>
-  </div>
 
-  <!-- ── AI 분석 ── -->
-  <div class="section">
-    <div class="section-title"><span class="icon">&#129302;</span>AI 분석</div>
-    <div class="ai-btns">
-      <button class="ai-btn primary" onclick="runAnalysis()">&#9889; 현황 분석</button>
-      <button class="ai-btn secondary" onclick="runPredict()">&#128200; 예상 금액</button>
+    <!-- AI -->
+    <div class="card card-full">
+      <div class="card-title">
+        <span>&#129302; AI 분석</span>
+        <button class="ai-btn" onclick="runAI()">분석 실행</button>
+      </div>
+      <div class="ai-result" id="aiResult" style="display:none"></div>
     </div>
-    <div class="ai-loading" id="aiLoading">
-      <div class="spinner"></div>
-      <div>AI가 데이터를 분석하고 있어요...</div>
-    </div>
-    <div class="ai-result" id="aiResult"></div>
   </div>
 
 </div>
 
 <script>
 var WORKER = 'https://bill-worker.hdh1231.workers.dev';
-var currentYear = new Date().getFullYear();
-var currentType = '전기';
-var currentChart = 'usage';
-var billData = {}; // {type: {year: [{month,usage_amount,bill_amount}]}}
-var weatherData = {};
-var chart = null;
-var editingCell = null;
+var Y = new Date().getFullYear();
+var T = '전기';
+var charts = {};
 
-var $ = function(id) { return document.getElementById(id); };
-
-// ── 샘플 데이터 (DB 연동 전 테스트용) ──
-var SAMPLE = {
-  '전기': {
-    2024: [
-      {month:1,usage_amount:12400,bill_amount:1860000},{month:2,usage_amount:11800,bill_amount:1770000},
-      {month:3,usage_amount:9600,bill_amount:1440000},{month:4,usage_amount:7200,bill_amount:1080000},
-      {month:5,usage_amount:6800,bill_amount:1020000},{month:6,usage_amount:8900,bill_amount:1335000},
-      {month:7,usage_amount:14200,bill_amount:2130000},{month:8,usage_amount:15600,bill_amount:2340000},
-      {month:9,usage_amount:11200,bill_amount:1680000},{month:10,usage_amount:7800,bill_amount:1170000},
-      {month:11,usage_amount:8400,bill_amount:1260000},{month:12,usage_amount:11600,bill_amount:1740000},
-    ],
-    2025: [
-      {month:1,usage_amount:13100,bill_amount:1965000},{month:2,usage_amount:12200,bill_amount:1830000},
-      {month:3,usage_amount:9900,bill_amount:1485000},
-    ]
-  },
-  '가스': {
-    2024: [
-      {month:1,usage_amount:4200,bill_amount:3780000},{month:2,usage_amount:3800,bill_amount:3420000},
-      {month:3,usage_amount:2600,bill_amount:2340000},{month:4,usage_amount:1200,bill_amount:1080000},
-      {month:5,usage_amount:400,bill_amount:360000},{month:6,usage_amount:200,bill_amount:180000},
-      {month:7,usage_amount:150,bill_amount:135000},{month:8,usage_amount:120,bill_amount:108000},
-      {month:9,usage_amount:300,bill_amount:270000},{month:10,usage_amount:1400,bill_amount:1260000},
-      {month:11,usage_amount:2800,bill_amount:2520000},{month:12,usage_amount:3900,bill_amount:3510000},
-    ],
-    2025: [
-      {month:1,usage_amount:4500,bill_amount:4050000},{month:2,usage_amount:4000,bill_amount:3600000},
-      {month:3,usage_amount:2800,bill_amount:2520000},
-    ]
-  },
-  '수도': {
-    2024: [
-      {month:1,usage_amount:320,bill_amount:480000},{month:2,usage_amount:310,bill_amount:465000},
-      {month:3,usage_amount:340,bill_amount:510000},{month:4,usage_amount:360,bill_amount:540000},
-      {month:5,usage_amount:380,bill_amount:570000},{month:6,usage_amount:420,bill_amount:630000},
-      {month:7,usage_amount:480,bill_amount:720000},{month:8,usage_amount:510,bill_amount:765000},
-      {month:9,usage_amount:440,bill_amount:660000},{month:10,usage_amount:370,bill_amount:555000},
-      {month:11,usage_amount:330,bill_amount:495000},{month:12,usage_amount:320,bill_amount:480000},
-    ],
-    2025: [
-      {month:1,usage_amount:330,bill_amount:495000},{month:2,usage_amount:320,bill_amount:480000},
-      {month:3,usage_amount:350,bill_amount:525000},
-    ]
-  }
+var $ = function(id){return document.getElementById(id)};
+var UNITS = {'전기':'kWh','가스':'m³','수도':'m³'};
+var COLORS = {
+  '전기':{main:'#1976d2',light:'#90caf9',bg:'#e3f2fd'},
+  '가스':{main:'#ef6c00',light:'#ffcc80',bg:'#fff3e0'},
+  '수도':{main:'#00897b',light:'#80cbc4',bg:'#e0f2f1'}
 };
 
-var SAMPLE_WEATHER = {
-  2024: [
-    {month:1,avg_temp:-2.1},{month:2,avg_temp:0.8},{month:3,avg_temp:7.2},{month:4,avg_temp:13.5},
-    {month:5,avg_temp:18.9},{month:6,avg_temp:23.4},{month:7,avg_temp:26.8},{month:8,avg_temp:27.2},
-    {month:9,avg_temp:22.1},{month:10,avg_temp:15.3},{month:11,avg_temp:7.8},{month:12,avg_temp:0.2}
-  ],
-  2025: [
-    {month:1,avg_temp:-3.5},{month:2,avg_temp:-0.2},{month:3,avg_temp:6.8}
-  ]
+// 데이터 저장소
+var D = {
+  '전기':{2023:{},2024:{},2025:{},budget:{}},
+  '가스':{2023:{},2024:{},2025:{},budget:{}},
+  '수도':{2023:{},2024:{},2025:{},budget:{}}
 };
 
-// ── 초기화 ──
-function init() {
-  billData = SAMPLE;
-  weatherData = SAMPLE_WEATHER;
-  $('yearLabel').textContent = currentYear + '년';
-  renderTable();
-  renderChart();
-}
-
-// ── 탭 전환 ──
-function switchTab(type) {
-  currentType = type;
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.classList.toggle('on', t.dataset.type === type);
-  });
-  var units = {'전기':'kWh','가스':'m³','수도':'m³'};
-  $('ocrType').value = type;
-  $('ocrUnit').value = units[type] || '';
-  $('tableTitle').textContent = type + ' 사용 현황';
-  renderTable();
-  renderChart();
-}
-
-// ── 연도 전환 ──
-function changeYear(delta) {
-  currentYear += delta;
-  $('yearLabel').textContent = currentYear + '년';
-  renderTable();
-  renderChart();
-}
-
-// ── 12개월 표 렌더 ──
-function renderTable() {
-  var data = (billData[currentType] && billData[currentType][currentYear]) || [];
-  var units = {'전기':'kWh','가스':'m³','수도':'m³'};
-  var unit = units[currentType];
-  var now = new Date();
-  var isThisYear = currentYear === now.getFullYear();
-  var currentMonth = now.getMonth() + 1;
-
-  var usageRow = '<td class="row-label">사용량<br><span style="font-size:10px;color:var(--txt-l)">' + unit + '</span></td>';
-  var costRow = '<td class="row-label">요금<br><span style="font-size:10px;color:var(--txt-l)">원</span></td>';
-  var totalUsage = 0, totalCost = 0;
-
-  for (var m = 1; m <= 12; m++) {
-    var d = data.find(function(x) { return x.month === m; });
-    var isFuture = isThisYear && m > currentMonth;
-    var cls = '';
-    if (isFuture) cls = 'predicted';
-    else if (!d) cls = 'empty';
-
-    if (d) {
-      totalUsage += d.usage_amount || 0;
-      totalCost += d.bill_amount || 0;
-      usageRow += '<td class="'+cls+'" onclick="editCell(this,\'usage_amount\','+m+')">' + fmtNum(d.usage_amount) + '</td>';
-      costRow += '<td class="'+cls+'" onclick="editCell(this,\'bill_amount\','+m+')">' + fmtWon(d.bill_amount) + '</td>';
-    } else {
-      usageRow += '<td class="'+cls+'" onclick="editCell(this,\'usage_amount\','+m+')">-</td>';
-      costRow += '<td class="'+cls+'" onclick="editCell(this,\'bill_amount\','+m+')">-</td>';
+// 샘플 데이터
+(function loadSample(){
+  var s = {
+    '전기':{
+      2024:{1:{u:12400,a:1860000},2:{u:11800,a:1770000},3:{u:9600,a:1440000},4:{u:7200,a:1080000},5:{u:6800,a:1020000},6:{u:8900,a:1335000},7:{u:14200,a:2130000},8:{u:15600,a:2340000},9:{u:11200,a:1680000},10:{u:7800,a:1170000},11:{u:8400,a:1260000},12:{u:11600,a:1740000}},
+      2025:{1:{u:13100,a:1965000},2:{u:12200,a:1830000},3:{u:9900,a:1485000}},
+      budget:{2024:18000000,2025:19000000}
+    },
+    '가스':{
+      2024:{1:{u:4200,a:3780000},2:{u:3800,a:3420000},3:{u:2600,a:2340000},4:{u:1200,a:1080000},5:{u:400,a:360000},6:{u:200,a:180000},7:{u:150,a:135000},8:{u:120,a:108000},9:{u:300,a:270000},10:{u:1400,a:1260000},11:{u:2800,a:2520000},12:{u:3900,a:3510000}},
+      2025:{1:{u:4500,a:4050000},2:{u:4000,a:3600000},3:{u:2800,a:2520000}},
+      budget:{2024:20000000,2025:21000000}
+    },
+    '수도':{
+      2024:{1:{u:320,a:480000},2:{u:310,a:465000},3:{u:340,a:510000},4:{u:360,a:540000},5:{u:380,a:570000},6:{u:420,a:630000},7:{u:480,a:720000},8:{u:510,a:765000},9:{u:440,a:660000},10:{u:370,a:555000},11:{u:330,a:495000},12:{u:320,a:480000}},
+      2025:{1:{u:330,a:495000},2:{u:320,a:480000},3:{u:350,a:525000}},
+      budget:{2024:7500000,2025:8000000}
+    }
+  };
+  for(var t in s){
+    for(var y in s[t]){
+      if(y==='budget'){D[t].budget=s[t].budget;continue}
+      D[t][y]={};
+      for(var m in s[t][y]) D[t][y][m]=s[t][y][m];
     }
   }
+})();
 
-  usageRow += '<td class="total">' + fmtNum(totalUsage) + '</td>';
-  costRow += '<td class="total">' + fmtWon(totalCost) + '</td>';
+function setTab(t){T=t;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
+function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
 
-  $('tableBody').innerHTML = '<tr>' + usageRow + '</tr><tr>' + costRow + '</tr>';
+function render(){
+  renderSummary();
+  renderGauge();
+  renderTable();
+  renderCharts();
 }
 
-// ── 셀 인라인 편집 ──
-function editCell(td, field, month) {
-  if (editingCell) return;
-  editingCell = td;
-  var data = (billData[currentType] && billData[currentType][currentYear]) || [];
-  var d = data.find(function(x) { return x.month === month; });
-  var val = d ? (d[field] || '') : '';
+// ── 요약 카드 ──
+function renderSummary(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
 
-  var orig = td.textContent;
-  td.innerHTML = '<input type="number" value="' + val + '" onblur="saveCell(this,\'' + field + '\',' + month + ')" onkeydown="if(event.key===\'Enter\')this.blur()">';
-  td.querySelector('input').focus();
+  var totalA=0,totalU=0,prevA=0,cnt=0;
+  for(var m=1;m<=12;m++){
+    if(data[m]){totalA+=data[m].a||0;totalU+=data[m].u||0;cnt++}
+    if(prev[m]&&m<=cnt) prevA+=prev[m].a||0;
+  }
+  var change=prevA>0?Math.round((totalA-prevA)/prevA*100):0;
+  var avgA=cnt>0?Math.round(totalA/cnt):0;
+  var budget=D[T].budget[Y]||0;
+  var remain=budget-totalA;
+
+  var col=COLORS[T].main;
+  $('summary').innerHTML=
+    card('누적 사용요금',won(totalA),(change>0?'+':'')+change+'% 전년비',change>0?'s-up':change<0?'s-down':'s-neutral',col)
+    +card('월 평균',won(avgA),'('+cnt+'개월 기준)','s-neutral',col)
+    +card('연간 예산',won(budget),budget?'잔액 '+won(remain):'미설정','s-neutral',col)
+    +card('사용량 합계',fnum(totalU)+' '+UNITS[T],cnt+'개월 집계','s-neutral',col);
+
+  function card(label,value,sub,cls,color){
+    return '<div class="s-card"><div class="s-label">'+label+'</div><div class="s-value" style="color:'+color+'">'+value+'</div><div class="s-sub '+cls+'">'+sub+'</div></div>';
+  }
 }
 
-function saveCell(input, field, month) {
-  var val = parseInt(input.value) || 0;
-  if (!billData[currentType]) billData[currentType] = {};
-  if (!billData[currentType][currentYear]) billData[currentType][currentYear] = [];
+// ── 예산 게이지 ──
+function renderGauge(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var budget=D[T].budget[Y]||0;
+  if(!budget){$('gauge').innerHTML='<div style="text-align:center;color:var(--txt-l);font-size:13px;padding:8px">아래 표에서 연간 예산을 입력하세요</div>';return}
 
-  var data = billData[currentType][currentYear];
-  var d = data.find(function(x) { return x.month === month; });
-  if (d) {
-    d[field] = val;
-  } else {
-    var entry = { month: month };
-    entry[field] = val;
-    data.push(entry);
-    data.sort(function(a, b) { return a.month - b.month; });
+  var spent=0,predictTotal=0;
+  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
+  for(var m=1;m<=12;m++){
+    if(data[m]){spent+=data[m].a||0;predictTotal+=data[m].a||0}
+    else if(prev[m]){predictTotal+=Math.round((prev[m].a||0)*1.03)}
   }
 
-  editingCell = null;
-  renderTable();
-  renderChart();
-  // TODO: API 저장
+  var pctSpent=Math.min(spent/budget*100,100);
+  var pctPredict=Math.min(predictTotal/budget*100,120);
+  var cls=pctPredict<=85?'ok':pctPredict<=100?'warn':'over';
+
+  $('gauge').innerHTML=
+    '<div class="gauge-bar"><div class="gauge-fill '+cls+'" style="width:'+pctSpent+'%"></div>'
+    +'<div class="gauge-predict" style="left:'+Math.min(pctPredict,100)+'%"></div></div>'
+    +'<div class="gauge-label"><span>사용: '+won(spent)+' ('+Math.round(pctSpent)+'%)</span>'
+    +'<span style="color:var(--txt-l)">예상: '+won(predictTotal)+' ('+Math.round(pctPredict)+'%)</span>'
+    +'<span>예산: '+won(budget)+'</span></div>';
+}
+
+// ── 데이터 테이블 ──
+function renderTable(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var unit=UNITS[T];
+  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
+  var budget=D[T].budget[Y]||'';
+
+  var h='<thead><tr><th></th>';
+  for(var m=1;m<=12;m++) h+='<th>'+m+'월</th>';
+  h+='<th>합계</th></tr></thead><tbody>';
+
+  // 사용량 행
+  var tU=0;
+  h+='<tr><td class="rlabel">사용량<br>('+unit+')</td>';
+  for(m=1;m<=12;m++){
+    var v=data[m]?data[m].u:'';
+    if(v) tU+=v;
+    var bg=data[m]?'':'';
+    h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'u\',this.value)"></td>';
+  }
+  h+='<td class="total-cell">'+fnum(tU)+'</td></tr>';
+
+  // 요금 행
+  var tA=0;
+  h+='<tr><td class="rlabel">요금<br>(원)</td>';
+  for(m=1;m<=12;m++){
+    var v=data[m]?data[m].a:'';
+    if(v) tA+=v;
+    h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'a\',this.value)"></td>';
+  }
+  h+='<td class="total-cell">'+won(tA)+'</td></tr>';
+
+  // 전년 요금 행 (참고)
+  var tP=0;
+  h+='<tr style="opacity:.5"><td class="rlabel">전년요금</td>';
+  for(m=1;m<=12;m++){
+    var pv=prev[m]?prev[m].a:0;
+    tP+=pv;
+    h+='<td style="padding:6px 4px;font-size:11px;color:var(--txt-l);text-align:right">'+(pv?won(pv):'-')+'</td>';
+  }
+  h+='<td class="total-cell" style="font-size:11px">'+won(tP)+'</td></tr>';
+
+  // 예산 행
+  h+='<tr class="budget-row"><td class="rlabel" style="color:var(--elec)">연간예산</td>';
+  h+='<td colspan="12" style="text-align:left;padding:6px 8px"><input type="number" value="'+(budget||'')+'" placeholder="연간 예산 입력 (원)" style="width:200px;text-align:left;font-weight:700;color:var(--elec)" onchange="setBudget(this.value)"></td>';
+  h+='<td class="total-cell" style="color:var(--elec)">'+(budget?won(budget):'-')+'</td></tr>';
+
+  h+='</tbody>';
+  $('dataTable').innerHTML=h;
+}
+
+function setVal(month,field,val){
+  var v=parseFloat(val)||0;
+  if(!D[T][Y]) D[T][Y]={};
+  if(!D[T][Y][month]) D[T][Y][month]={u:0,a:0};
+  D[T][Y][month][field]=v;
+  render();
+}
+
+function setBudget(val){
+  D[T].budget[Y]=parseInt(val)||0;
+  render();
 }
 
 // ── 차트 ──
-function switchChart(type) {
-  currentChart = type;
-  document.querySelectorAll('.chart-tab').forEach(function(t) {
-    t.classList.toggle('on', false);
+function renderCharts(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  var c=COLORS[T];
+
+  if(charts.usage) charts.usage.destroy();
+  if(charts.cost) charts.cost.destroy();
+
+  var uData=[],pData=[];
+  for(var m=1;m<=12;m++){
+    uData.push(data[m]?data[m].u:null);
+    pData.push(prev[m]?prev[m].u:null);
+  }
+  charts.usage=new Chart($('chartUsage'),{
+    type:'bar',data:{labels:months,datasets:[
+      {label:Y+'년',data:uData,backgroundColor:c.main+'cc',borderRadius:4},
+      {label:(Y-1)+'년',data:pData,backgroundColor:c.light+'88',borderRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true}}}
   });
-  event.target.classList.add('on');
-  renderChart();
+
+  var aData=[],apData=[];
+  for(m=1;m<=12;m++){
+    aData.push(data[m]?data[m].a:null);
+    apData.push(prev[m]?prev[m].a:null);
+  }
+  charts.cost=new Chart($('chartCost'),{
+    type:'line',data:{labels:months,datasets:[
+      {label:Y+'년',data:aData,borderColor:c.main,backgroundColor:c.main+'22',fill:true,tension:.3,pointRadius:4},
+      {label:(Y-1)+'년',data:apData,borderColor:c.light,borderDash:[5,5],tension:.3,pointRadius:3}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}}
+  });
 }
 
-function renderChart() {
-  if (chart) chart.destroy();
-  var ctx = $('mainChart').getContext('2d');
-  var months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  var data = (billData[currentType] && billData[currentType][currentYear]) || [];
-  var prevData = (billData[currentType] && billData[currentType][currentYear - 1]) || [];
-  var colors = {'전기':['#1976d2','#90caf9'],'가스':['#ef6c00','#ffcc80'],'수도':['#00897b','#80cbc4']};
-  var c = colors[currentType] || colors['전기'];
-
-  if (currentChart === 'usage') {
-    chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: months,
-        datasets: [
-          { label: currentYear + '년', data: months.map(function(_,i) { var d = data.find(function(x){return x.month===i+1}); return d ? d.usage_amount : null; }), backgroundColor: c[0] + 'cc', borderRadius: 6 },
-          { label: (currentYear-1) + '년', data: months.map(function(_,i) { var d = prevData.find(function(x){return x.month===i+1}); return d ? d.usage_amount : null; }), backgroundColor: c[1] + '88', borderRadius: 6 }
-        ]
-      },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true}} }
-    });
-  } else if (currentChart === 'cost') {
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [
-          { label: currentYear + '년', data: months.map(function(_,i) { var d = data.find(function(x){return x.month===i+1}); return d ? d.bill_amount : null; }), borderColor: c[0], backgroundColor: c[0] + '22', fill: true, tension: .3, pointRadius: 5 },
-          { label: (currentYear-1) + '년', data: months.map(function(_,i) { var d = prevData.find(function(x){return x.month===i+1}); return d ? d.bill_amount : null; }), borderColor: c[1], borderDash: [5,5], tension: .3, pointRadius: 4 }
-        ]
-      },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true,ticks:{callback:function(v){return fmtWon(v)}}}} }
-    });
-  } else if (currentChart === 'weather') {
-    var wData = weatherData[currentYear] || [];
-    var wPrev = weatherData[currentYear - 1] || [];
-    chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: months,
-        datasets: [
-          { label: '사용량 ('+currentYear+')', data: months.map(function(_,i) { var d = data.find(function(x){return x.month===i+1}); return d ? d.usage_amount : null; }), backgroundColor: c[0] + 'aa', borderRadius: 6, yAxisID: 'y' },
-          { label: '평균기온 ('+currentYear+')', data: months.map(function(_,i) { var d = wData.find(function(x){return x.month===i+1}); return d ? d.avg_temp : null; }), type: 'line', borderColor: '#e53935', backgroundColor: '#e5393522', tension: .3, pointRadius: 5, yAxisID: 'y1' },
-          { label: '평균기온 ('+(currentYear-1)+')', data: months.map(function(_,i) { var d = wPrev.find(function(x){return x.month===i+1}); return d ? d.avg_temp : null; }), type: 'line', borderColor: '#e5393566', borderDash: [5,5], tension: .3, pointRadius: 3, yAxisID: 'y1' }
-        ]
-      },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'top'}},
-        scales:{
-          y:{beginAtZero:true,position:'left',title:{display:true,text:'사용량'}},
-          y1:{position:'right',title:{display:true,text:'기온(°C)'},grid:{drawOnChartArea:false}}
-        }
+// ── 업로드 ──
+async function handleUpload(files){
+  if(!files||!files.length) return;
+  $('uploadStatus').textContent='분석 중...';
+  for(var i=0;i<files.length;i++){
+    var file=files[i];
+    try{
+      var dataUrl=await readFile(file);
+      var base64=dataUrl.split(',')[1];
+      var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:base64,billType:T})});
+      var d=await r.json();
+      if(d.ocr&&d.ocr.year&&d.ocr.month){
+        var yr=d.ocr.year,mo=d.ocr.month;
+        if(!D[T][yr]) D[T][yr]={};
+        if(!D[T][yr][mo]) D[T][yr][mo]={u:0,a:0};
+        if(d.ocr.usage_amount) D[T][yr][mo].u=d.ocr.usage_amount;
+        if(d.ocr.bill_amount) D[T][yr][mo].a=d.ocr.bill_amount;
+        $('uploadStatus').textContent=(i+1)+'/'+files.length+' 완료 ('+yr+'년 '+mo+'월)';
+        Y=yr;$('yLabel').textContent=Y+'년';
+      } else {
+        $('uploadStatus').textContent='인식 실패 — 직접 입력해주세요';
       }
-    });
+    }catch(e){$('uploadStatus').textContent='오류: '+e.message}
   }
+  render();
+  setTimeout(function(){$('uploadStatus').textContent=''},3000);
 }
 
-// ── 파일 업로드 (이미지 + PDF) ──
-async function handleFiles(files) {
-  if (!files || files.length === 0) return;
-  var images = [];
-  $('ocrLoading').classList.add('on');
-  $('ocrPreview').classList.remove('on');
-
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    if (file.type === 'application/pdf') {
-      // PDF → 페이지별 이미지 변환
-      var pages = await pdfToImages(file);
-      images = images.concat(pages);
-    } else if (file.type.startsWith('image/')) {
-      var dataUrl = await fileToDataUrl(file);
-      images.push(dataUrl);
-    }
-  }
-
-  if (images.length === 0) {
-    $('ocrLoading').classList.remove('on');
-    alert('지원하지 않는 파일 형식입니다.');
-    return;
-  }
-
-  // 이미지 미리보기 표시
-  $('ocrImages').innerHTML = images.map(function(src) {
-    return '<img src="' + src + '">';
-  }).join('');
-
-  // OCR 요청 (첫 번째 이미지로)
-  try {
-    var base64 = images[0].split(',')[1];
-    var r = await fetch(WORKER + '/ocr', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ image: base64, billType: currentType })
-    });
-    var d = await r.json();
-    if (d.ocr) {
-      $('ocrYear').value = d.ocr.year || currentYear;
-      $('ocrMonth').value = d.ocr.month || '';
-      $('ocrUsage').value = d.ocr.usage_amount || '';
-      $('ocrUnit').value = d.ocr.usage_unit || ({'전기':'kWh','가스':'m³','수도':'m³'})[currentType];
-      $('ocrAmount').value = d.ocr.bill_amount || '';
-    }
-  } catch(e) {
-    console.log('OCR 실패, 수동 입력:', e);
-  }
-
-  $('ocrLoading').classList.remove('on');
-  $('ocrPreview').classList.add('on');
-  $('ocrType').value = currentType;
-}
-
-async function pdfToImages(file) {
-  var arrayBuffer = await file.arrayBuffer();
-  var pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-  var pages = pdf.getPages();
-  var images = [];
-  // PDF 페이지를 canvas로 렌더링 (pdf-lib은 렌더 불가, 대신 첫 페이지를 base64로)
-  // 간단히 파일 자체를 base64로 전달
-  var base64 = await fileToDataUrl(file);
-  images.push(base64);
-  return images;
-}
-
-function fileToDataUrl(file) {
-  return new Promise(function(resolve) {
-    var reader = new FileReader();
-    reader.onload = function() { resolve(reader.result); };
-    reader.readAsDataURL(file);
-  });
-}
-
-function cancelOcr() {
-  $('ocrPreview').classList.remove('on');
-  $('fileInput').value = '';
-}
-
-function saveOcr() {
-  var type = $('ocrType').value;
-  var year = parseInt($('ocrYear').value);
-  var month = parseInt($('ocrMonth').value);
-  var usage = parseFloat($('ocrUsage').value) || 0;
-  var amount = parseInt($('ocrAmount').value) || 0;
-
-  if (!year || !month) { alert('연도와 월을 입력해주세요.'); return; }
-
-  if (!billData[type]) billData[type] = {};
-  if (!billData[type][year]) billData[type][year] = [];
-  var data = billData[type][year];
-  var d = data.find(function(x) { return x.month === month; });
-  if (d) {
-    d.usage_amount = usage;
-    d.bill_amount = amount;
-  } else {
-    data.push({ month: month, usage_amount: usage, bill_amount: amount });
-    data.sort(function(a, b) { return a.month - b.month; });
-  }
-
-  // 현재 탭/연도로 전환
-  currentType = type;
-  currentYear = year;
-  switchTab(type);
-  $('yearLabel').textContent = year + '년';
-  cancelOcr();
-  renderTable();
-  renderChart();
-  // TODO: API 저장
-}
+function readFile(f){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result)};r.readAsDataURL(f)})}
 
 // ── AI 분석 ──
-function runAnalysis() {
-  var data = (billData[currentType] && billData[currentType][currentYear]) || [];
-  var prevData = (billData[currentType] && billData[currentType][currentYear - 1]) || [];
-  var weather = (weatherData[currentYear] || []).concat(weatherData[currentYear - 1] || []);
+function runAI(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var budget=D[T].budget[Y]||0;
+  var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({month:m,usage:data[m].u,amount:data[m].a});
+  if(!arr.length){alert('데이터가 없습니다');return}
 
-  if (data.length === 0) { alert('데이터가 없습니다.'); return; }
+  var el=$('aiResult');el.style.display='block';el.textContent='AI가 분석 중...';
 
-  $('aiLoading').classList.add('on');
-  $('aiResult').classList.remove('on');
+  // 로컬 분석
+  var totalA=arr.reduce(function(s,d){return s+d.amount},0);
+  var totalPrev=0;for(m=1;m<=arr.length;m++) if(prev[m]) totalPrev+=prev[m].a||0;
+  var change=totalPrev>0?Math.round((totalA-totalPrev)/totalPrev*100):0;
+  var maxM=arr.reduce(function(a,b){return b.amount>a.amount?b:a});
+  var minM=arr.reduce(function(a,b){return b.amount<a.amount?b:a});
+  var avgA=Math.round(totalA/arr.length);
 
-  // 로컬 분석 (DB 연동 전)
-  setTimeout(function() {
-    var totalThis = data.reduce(function(s, d) { return s + (d.bill_amount || 0); }, 0);
-    var totalPrev = prevData.reduce(function(s, d) { return s + (d.bill_amount || 0); }, 0);
-    var change = totalPrev > 0 ? Math.round((totalThis - totalPrev) / totalPrev * 100) : 0;
-    var monthCount = data.length;
+  // 예측
+  var predictTotal=totalA;
+  var lastMonth=arr[arr.length-1].month;
+  for(m=lastMonth+1;m<=12;m++){
+    if(prev[m]) predictTotal+=Math.round(prev[m].a*1.03);
+    else predictTotal+=avgA;
+  }
 
-    var avgThis = Math.round(totalThis / monthCount);
-    var maxMonth = data.reduce(function(a, b) { return (b.bill_amount || 0) > (a.bill_amount || 0) ? b : a; });
-    var minMonth = data.reduce(function(a, b) { return (b.bill_amount || 0) < (a.bill_amount || 0) ? b : a; });
+  var lines=[];
+  lines.push('[ '+T+' '+Y+'년 분석 결과 ]\n');
+  lines.push('● 현재까지 '+arr.length+'개월 총 '+won(totalA)+' 사용');
+  if(totalPrev>0) lines.push('  → 전년 동기 대비 '+(change>0?'+':'')+change+'%');
+  lines.push('● 월 평균: '+won(avgA));
+  lines.push('● 최고: '+maxM.month+'월 '+won(maxM.amount)+' / 최저: '+minM.month+'월 '+won(minM.amount));
+  lines.push('');
+  lines.push('● 연말 예상 총액: '+won(predictTotal));
+  if(budget){
+    var diff=budget-predictTotal;
+    if(diff>0) lines.push('  → 예산 대비 '+won(diff)+' 여유 ('+Math.round(predictTotal/budget*100)+'% 사용 예상)');
+    else lines.push('  → 예산 '+won(Math.abs(diff))+' 초과 예상! ('+Math.round(predictTotal/budget*100)+'%)');
+  }
+  lines.push('\n※ DB·날씨 API 연동 후 AI 심층 분석이 제공됩니다');
 
-    $('aiLoading').classList.remove('on');
-    $('aiResult').className = 'ai-result on';
-    $('aiResult').innerHTML = '<div class="ai-result-hdr">' + currentType + ' 현황 분석 · ' + currentYear + '년</div>'
-      + '<div class="ai-result-body">'
-      + '<div class="ai-card"><div class="ai-card-title">요약</div><div class="ai-card-txt">'
-      + currentYear + '년 ' + monthCount + '개월간 총 ' + fmtWon(totalThis) + ' 사용했어요. '
-      + (totalPrev > 0 ? '전년 동기간 대비 ' + (change > 0 ? change + '% 증가' : Math.abs(change) + '% 감소') + '했어요.' : '')
-      + '</div></div>'
-      + '<div class="ai-card"><div class="ai-card-title">월평균</div><div class="ai-card-txt">'
-      + '월 평균 요금은 ' + fmtWon(avgThis) + '이에요.'
-      + '</div></div>'
-      + '<div class="ai-card"><div class="ai-card-title">최고 / 최저</div><div class="ai-card-txt">'
-      + '가장 많이 나온 달: ' + maxMonth.month + '월 (' + fmtWon(maxMonth.bill_amount) + ')<br>'
-      + '가장 적게 나온 달: ' + minMonth.month + '월 (' + fmtWon(minMonth.bill_amount) + ')'
-      + '</div></div>'
-      + '<div style="text-align:center;padding:8px;font-size:12px;color:var(--txt-l)">DB 연동 후 AI 심층 분석이 제공됩니다</div>'
-      + '</div>';
-  }, 800);
+  el.textContent=lines.join('\n');
 }
 
-function runPredict() {
-  var data = (billData[currentType] && billData[currentType][currentYear]) || [];
-  if (data.length === 0) { alert('데이터가 없습니다.'); return; }
-
-  var lastMonth = data[data.length - 1].month;
-  var nextMonth = lastMonth + 1;
-  var nextYear = currentYear;
-  if (nextMonth > 12) { nextMonth = 1; nextYear++; }
-
-  var prevYearData = (billData[currentType] && billData[currentType][currentYear - 1]) || [];
-  var sameMonthPrev = prevYearData.find(function(d) { return d.month === nextMonth; });
-
-  $('aiLoading').classList.add('on');
-  $('aiResult').classList.remove('on');
-
-  setTimeout(function() {
-    var predicted = sameMonthPrev ? Math.round(sameMonthPrev.bill_amount * 1.05) : Math.round(data[data.length - 1].bill_amount);
-
-    $('aiLoading').classList.remove('on');
-    $('aiResult').className = 'ai-result on';
-    $('aiResult').innerHTML = '<div class="ai-result-hdr">' + currentType + ' ' + nextYear + '년 ' + nextMonth + '월 예상 금액</div>'
-      + '<div class="ai-result-body">'
-      + '<div class="ai-card"><div class="ai-card-title">예상 금액</div><div class="ai-card-txt" style="font-size:24px;font-weight:900;color:var(--blue)">'
-      + fmtWon(predicted)
-      + '</div></div>'
-      + '<div class="ai-card"><div class="ai-card-title">산출 근거</div><div class="ai-card-txt">'
-      + (sameMonthPrev ? '전년 ' + nextMonth + '월 요금(' + fmtWon(sameMonthPrev.bill_amount) + ') 기준 약 5% 상승 반영' : '직전월 요금 기준 추정')
-      + '</div></div>'
-      + '<div style="text-align:center;padding:8px;font-size:12px;color:var(--txt-l)">DB + 날씨 API 연동 후 AI 예측이 제공됩니다</div>'
-      + '</div>';
-  }, 600);
+// ── 포맷 ──
+function fnum(n){return n?Number(n).toLocaleString():'-'}
+function won(n){
+  if(!n&&n!==0) return '-';
+  if(Math.abs(n)>=100000000) return (n/100000000).toFixed(1)+'억';
+  if(Math.abs(n)>=10000) return Math.round(n/10000).toLocaleString()+'만원';
+  return Number(n).toLocaleString()+'원';
 }
 
-// ── 포맷팅 ──
-function fmtNum(n) {
-  if (!n && n !== 0) return '-';
-  return Number(n).toLocaleString();
-}
-
-function fmtWon(n) {
-  if (!n && n !== 0) return '-';
-  if (n >= 10000) return Math.round(n / 10000).toLocaleString() + '만원';
-  return Number(n).toLocaleString() + '원';
-}
-
-// ── 드래그앤드롭 ──
-var zone = $('uploadZone');
-zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
-zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
-zone.addEventListener('drop', function(e) {
-  e.preventDefault();
-  zone.classList.remove('dragover');
-  handleFiles(e.dataTransfer.files);
-});
-
-init();
+render();
 </script>
 </body>
 </html>
