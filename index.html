@@ -9,129 +9,117 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
-:root{
-  --navy:#0a1929;
-  --elec:#1976d2;--elec-l:#bbdefb;--elec-bg:#e3f2fd;
-  --gas:#ef6c00;--gas-l:#ffe0b2;--gas-bg:#fff3e0;
-  --water:#00897b;--water-l:#b2dfdb;--water-bg:#e0f2f1;
-  --bg:#f0f2f5;--surface:#fff;
-  --txt:#1a2a3a;--txt-m:#5a6a7a;--txt-l:#94a4b4;
-  --border:#e0e4ea;--shadow:0 2px 8px rgba(0,0,0,.05);
-  --green:#2e7d32;--red:#c62828;--yellow:#f9a825;
-}
+:root{--navy:#0a1929;--elec:#1976d2;--elec-l:#bbdefb;--elec-bg:#e3f2fd;--gas:#ef6c00;--gas-l:#ffe0b2;--gas-bg:#fff3e0;--water:#00897b;--water-l:#b2dfdb;--water-bg:#e0f2f1;--bg:#f0f2f5;--surface:#fff;--txt:#1a2a3a;--txt-m:#5a6a7a;--txt-l:#94a4b4;--border:#e0e4ea;--shadow:0 2px 8px rgba(0,0,0,.05);--green:#2e7d32;--red:#c62828;--yellow:#f9a825;--radius:12px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
 
-/* ── 헤더 ── */
-.hdr{background:var(--navy);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.hdr-left{display:flex;align-items:center;gap:12px;color:#fff}
-.hdr-left img{height:20px;filter:brightness(10)}
-.hdr-title{font-size:17px;font-weight:700}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-right button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 11px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px}
-.hdr-right button:hover{background:rgba(255,255,255,.2)}
-.hdr-right .yr{color:#fff;font-size:15px;font-weight:700;min-width:52px;text-align:center}
-.hdr-weather{color:rgba(255,255,255,.7);font-size:13px;margin-left:16px}
+.hdr{background:var(--navy);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.hdr-left{display:flex;align-items:center;gap:10px;color:#fff}
+.hdr-left img{height:18px;filter:brightness(10)}
+.hdr-title{font-size:16px;font-weight:700}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.hdr-right button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px}
+.hdr-right .yr{color:#fff;font-size:14px;font-weight:700;min-width:50px;text-align:center}
 
-.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.wrap{max-width:1200px;margin:0 auto;padding:12px}
+
+/* ── 상단 3-섹션 ── */
+.top3{display:grid;grid-template-columns:260px 1fr 300px;gap:12px;margin-bottom:12px}
+@media(max-width:900px){.top3{grid-template-columns:1fr}}
+
+.panel{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);overflow:hidden}
+.panel-title{font-size:11px;font-weight:700;color:var(--txt-l);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* 날씨 패널 */
+.weather-big{text-align:center;margin-bottom:12px}
+.wb-emoji{font-size:48px;line-height:1}
+.wb-temp{font-size:32px;font-weight:900;color:var(--txt)}
+.wb-text{font-size:13px;color:var(--txt-m)}
+.w-compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
+.w-compare-item{text-align:center;padding:8px 4px;background:var(--bg);border-radius:8px}
+.wci-label{font-size:9px;color:var(--txt-l);font-weight:600}
+.wci-value{font-size:18px;font-weight:900;margin:2px 0}
+.wci-sub{font-size:9px}
+.wci-hot{color:var(--red)}.wci-cold{color:var(--elec)}.wci-normal{color:var(--txt-m)}
+
+/* 요금현황 패널 */
+.bill-hero{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.bh-light{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0}
+.bh-light.ok{background:var(--green)}.bh-light.warn{background:var(--yellow)}.bh-light.over{background:var(--red)}
+.bh-amount{font-size:28px;font-weight:900}
+.bh-sub{font-size:12px;color:var(--txt-m);margin-top:2px}
+.bh-trend{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700;margin-left:8px}
+.bh-trend.up{background:#ffebee;color:var(--red)}.bh-trend.down{background:#e8f5e9;color:var(--green)}.bh-trend.flat{background:#f5f5f5;color:var(--txt-l)}
+.bill-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:6px;position:relative}
+.bb-actual{height:100%;border-radius:5px;position:absolute;left:0;top:0;transition:width .5s}
+.bb-predict{height:100%;border-radius:5px;position:absolute;left:0;top:0;opacity:.25;transition:width .5s}
+.bill-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--txt-l);margin-bottom:10px}
+.anomaly-list{max-height:90px;overflow-y:auto}
+.anomaly-item{font-size:11px;padding:4px 8px;margin-bottom:3px;border-radius:6px;display:flex;align-items:center;gap:6px}
+.anomaly-item.bad{background:#fff5f5;color:var(--red)}.anomaly-item.good{background:#f0fff4;color:var(--green)}
+
+/* AI 패널 */
+.ai-panel{font-size:12px;line-height:1.7;color:var(--txt-m);max-height:220px;overflow-y:auto}
+.ai-loading{text-align:center;padding:20px;color:var(--txt-l);font-size:12px}
 
 /* ── 탭 ── */
-.tabs{display:flex;gap:6px;margin-bottom:16px}
-.tab{flex:1;padding:11px;text-align:center;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;transition:.15s;border:2px solid transparent;background:var(--surface)}
-.tab:hover{transform:translateY(-1px)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;border:2px solid transparent;background:var(--surface)}
 .tab[data-t="전기"]{color:var(--elec)}.tab[data-t="전기"].on{background:var(--elec-bg);border-color:var(--elec)}
 .tab[data-t="가스"]{color:var(--gas)}.tab[data-t="가스"].on{background:var(--gas-bg);border-color:var(--gas)}
 .tab[data-t="수도"]{color:var(--water)}.tab[data-t="수도"].on{background:var(--water-bg);border-color:var(--water)}
 
-/* ── 히어로 ── */
-.hero{background:var(--surface);border-radius:16px;padding:28px 32px;box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0}
-.hero.st-ok::before{background:var(--green)}.hero.st-warn::before{background:var(--yellow)}.hero.st-over::before{background:var(--red)}
-.hero-top{display:flex;align-items:center;gap:20px;margin-bottom:20px}
-.hero-light{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;flex-shrink:0}
-.hero-light.ok{background:var(--green)}.hero-light.warn{background:var(--yellow)}.hero-light.over{background:var(--red)}
-.hero-main{flex:1}
-.hero-amount{font-size:36px;font-weight:900;line-height:1.1}
-.hero-sub{font-size:13px;color:var(--txt-m);margin-top:4px;line-height:1.5}
-.hero-trend{display:inline-block;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:700;margin-left:12px}
-.hero-trend.up{background:#ffebee;color:var(--red)}.hero-trend.down{background:#e8f5e9;color:var(--green)}.hero-trend.flat{background:#f5f5f5;color:var(--txt-l)}
-.hero-bar{margin-bottom:10px}
-.hero-bar-track{height:14px;background:var(--border);border-radius:7px;overflow:hidden;position:relative}
-.hero-bar-actual{height:100%;border-radius:7px;transition:width .6s;position:absolute;left:0;top:0}
-.hero-bar-predict{height:100%;border-radius:7px;transition:width .6s;position:absolute;left:0;top:0;opacity:.25}
-.hero-bar-limit{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--red);border-radius:2px}
-.hero-bar-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--txt-m)}
-.hero-forecast{font-size:12px;color:var(--txt-m);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:8px;line-height:1.6}
+/* ── 메인 2-컬럼 ── */
+.main2{display:grid;grid-template-columns:1fr 340px;gap:12px;margin-bottom:12px}
+@media(max-width:900px){.main2{grid-template-columns:1fr}}
 
-/* ── 12월 카드 그리드 ── */
-.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin-bottom:16px}
-.m-card{background:var(--surface);border-radius:10px;padding:10px 6px;text-align:center;box-shadow:var(--shadow);cursor:default;transition:.15s;border:2px solid transparent;min-height:110px;display:flex;flex-direction:column;justify-content:center}
-.m-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1)}
-.m-card.anomaly{border-color:var(--red);box-shadow:0 0 12px rgba(198,40,40,.15)}
-.m-card.saving{border-color:var(--green)}
-.m-card.empty{background:#f8f9fb;border:2px dashed var(--border);cursor:pointer;opacity:.7}
-.m-card.empty:hover{border-color:var(--elec);opacity:1}
-.m-card.predicted{border:2px dashed var(--border);opacity:.65}
-.m-month{font-size:11px;font-weight:700;color:var(--txt-l);margin-bottom:4px}
-.m-amount{font-size:15px;font-weight:900;line-height:1.2}
-.m-usage{font-size:10px;color:var(--txt-l);margin-top:2px}
-.m-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:700;margin-top:4px}
-.m-badge.up{background:#ffebee;color:var(--red)}.m-badge.down{background:#e8f5e9;color:var(--green)}.m-badge.flat{background:#f5f5f5;color:var(--txt-l)}
-.m-tag{font-size:9px;color:var(--red);font-weight:600;margin-top:2px}
-.m-empty-text{font-size:10px;color:var(--txt-l)}
-.m-predict-text{font-size:10px;color:var(--txt-l);font-style:italic}
+/* 월별 상세 */
+.month-detail{position:relative}
+.md-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.md-nav button{background:var(--bg);border:1px solid var(--border);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.md-nav button:hover{background:var(--border)}
+.md-month{font-size:20px;font-weight:900}
+.md-kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.md-kv-item{background:var(--bg);border-radius:8px;padding:10px}
+.md-kv-label{font-size:10px;color:var(--txt-l);font-weight:600}
+.md-kv-value{font-size:18px;font-weight:900;margin-top:2px}
+.md-kv-sub{font-size:10px;margin-top:1px}
+.md-chart{height:140px;position:relative}
+.md-note{font-size:11px;color:var(--txt-m);padding:8px 10px;background:var(--bg);border-radius:8px;margin-top:8px;line-height:1.6}
 
+/* 차트 */
+.chart-wrap{position:relative;height:260px}
+
+/* ── 12월 그리드 ── */
+.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-bottom:12px}
+.mg-card{background:var(--surface);border-radius:8px;padding:8px 4px;text-align:center;box-shadow:var(--shadow);cursor:pointer;transition:.15s;border:2px solid transparent;min-height:80px;display:flex;flex-direction:column;justify-content:center}
+.mg-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.mg-card.active{border-color:var(--elec);box-shadow:0 0 0 3px rgba(25,118,210,.2)}
+.mg-card.anomaly{border-color:var(--red);background:#fff8f8}.mg-card.saving{border-color:var(--green);background:#f8fff8}
+.mg-card.empty{background:#f8f9fb;border:2px dashed var(--border);opacity:.6}
+.mg-card.predicted{border:2px dashed var(--border);opacity:.55}
+.mg-month{font-size:10px;font-weight:700;color:var(--txt-l);margin-bottom:2px}
+.mg-amount{font-size:12px;font-weight:900;line-height:1.2}
+.mg-badge{display:inline-block;padding:1px 5px;border-radius:6px;font-size:8px;font-weight:700;margin-top:2px}
+.mg-badge.up{background:#ffebee;color:var(--red)}.mg-badge.down{background:#e8f5e9;color:var(--green)}
+.mg-tag{font-size:8px;color:var(--red);font-weight:600}
 @media(max-width:900px){.month-grid{grid-template-columns:repeat(6,1fr)}}
-@media(max-width:500px){.month-grid{grid-template-columns:repeat(4,1fr)}}
 
-/* ── 편집 영역 (접힘) ── */
-.edit-toggle{background:none;border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--txt-m);margin-bottom:16px;display:flex;align-items:center;gap:6px}
-.edit-toggle:hover{background:var(--bg)}
-.edit-panel{display:none;margin-bottom:16px}
-.edit-panel.open{display:block}
-.card{background:var(--surface);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
-
-/* ── 테이블 ── */
-.dtable{width:100%;border-collapse:collapse;font-size:13px}
-.dtable th{padding:8px 4px;font-size:11px;font-weight:600;color:var(--txt-l);text-align:center;border-bottom:2px solid var(--border);background:var(--bg)}
-.dtable td{padding:0;text-align:center;border-bottom:1px solid #f0f0f0;height:36px}
-.dtable .rlabel{font-size:11px;font-weight:700;color:var(--txt-m);background:var(--bg);text-align:left;padding:8px 8px;white-space:nowrap}
-.dtable input{width:100%;height:100%;border:none;text-align:right;font-size:13px;font-family:inherit;padding:6px 8px;background:transparent;outline:none;color:var(--txt)}
+/* ── 편집 ── */
+.edit-toggle{background:none;border:1px solid var(--border);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;color:var(--txt-m);margin-bottom:12px}
+.edit-panel{display:none;margin-bottom:12px}.edit-panel.open{display:block}
+.dtable{width:100%;border-collapse:collapse;font-size:12px}
+.dtable th{padding:6px 3px;font-size:10px;font-weight:600;color:var(--txt-l);text-align:center;border-bottom:2px solid var(--border);background:var(--bg)}
+.dtable td{padding:0;text-align:center;border-bottom:1px solid #f0f0f0;height:32px}
+.dtable .rlabel{font-size:10px;font-weight:700;color:var(--txt-m);background:var(--bg);text-align:left;padding:6px;white-space:nowrap}
+.dtable input{width:100%;height:100%;border:none;text-align:right;font-size:12px;font-family:inherit;padding:4px 6px;background:transparent;outline:none}
 .dtable input:focus{background:#e8f0fe;font-weight:700}
-.dtable input::placeholder{color:var(--txt-l);font-style:italic}
-.dtable .total-cell{font-weight:900;padding:8px 8px;background:var(--bg);text-align:right}
-.dtable .budget-row input{color:var(--elec)}
-.dtable .budget-row td{background:rgba(25,118,210,.02)}
-
-/* ── 차트 ── */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.chart-wrap{position:relative;height:220px}
-
-/* ── AI ── */
-.ai-btn{padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:.15s;background:var(--navy);color:#fff}
-.ai-btn:hover{opacity:.85}
-.ai-result{margin-top:14px;font-size:13px;line-height:1.9;color:var(--txt-m);background:var(--bg);border-radius:8px;padding:14px}
-
-/* ── 업로드 ── */
+.dtable .total-cell{font-weight:900;padding:6px;background:var(--bg);text-align:right;font-size:11px}
 .upload-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.upload-btn{padding:10px 18px;font-size:13px;font-weight:600;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;font-family:inherit;background:var(--surface);color:var(--txt-m);transition:.15s}
+.upload-btn{padding:8px 14px;font-size:12px;font-weight:600;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;font-family:inherit;background:var(--surface);color:var(--txt-m)}
 .upload-btn:hover{border-color:var(--elec);color:var(--elec);background:var(--elec-bg)}
-.upload-status{font-size:12px;color:var(--txt-l)}
-
-/* ── 토스트 ── */
 .ocr-toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:360px;line-height:1.6;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── 이상치 팝업 ── */
-.anomaly-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border-radius:16px;padding:24px;box-shadow:0 16px 60px rgba(0,0,0,.2);z-index:998;max-width:380px;width:90%}
-.anomaly-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:997}
-
-@media(max-width:768px){
-  .grid{grid-template-columns:1fr}
-  .hero-amount{font-size:28px}
-  .hero-top{flex-wrap:wrap}
-}
 </style>
 </head>
 <body>
@@ -140,7 +128,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   <div class="hdr-left">
     <img src="https://jnlib.sen.go.kr/resources/homepage/jnlib/img/jnlib_logo.png" alt="">
     <span class="hdr-title">공과금 관리</span>
-    <span class="hdr-weather" id="hdrWeather"></span>
   </div>
   <div class="hdr-right">
     <button onclick="chgYear(-1)">&lt;</button>
@@ -150,518 +137,308 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 </div>
 
 <div class="wrap">
-  <div class="tabs">
-    <div class="tab on" data-t="전기" onclick="setTab('전기')">&#9889; 전기</div>
-    <div class="tab" data-t="가스" onclick="setTab('가스')">&#128293; 가스</div>
-    <div class="tab" data-t="수도" onclick="setTab('수도')">&#128167; 수도</div>
+
+  <!-- 상단 3-섹션 -->
+  <div class="top3">
+    <div class="panel" id="panelWeather">
+      <div class="panel-title">🌤️ 날씨 현황</div>
+      <div id="weatherContent"><div class="ai-loading">로딩 중...</div></div>
+    </div>
+    <div class="panel" id="panelBill">
+      <div class="panel-title">💰 요금 현황 · 이상치</div>
+      <div id="billContent"></div>
+    </div>
+    <div class="panel" id="panelAI">
+      <div class="panel-title">🤖 AI 종합 분석</div>
+      <div class="ai-panel" id="aiContent"><div class="ai-loading">데이터 입력 후 자동 분석</div></div>
+    </div>
   </div>
 
-  <!-- 히어로 -->
-  <div class="hero" id="hero"></div>
+  <!-- 탭 -->
+  <div class="tabs">
+    <div class="tab on" data-t="전기" onclick="setTab('전기')">⚡ 전기</div>
+    <div class="tab" data-t="가스" onclick="setTab('가스')">🔥 가스</div>
+    <div class="tab" data-t="수도" onclick="setTab('수도')">💧 수도</div>
+  </div>
 
-  <!-- 12개월 카드 그리드 -->
+  <!-- 메인: 연간 차트 + 월별 상세 -->
+  <div class="main2">
+    <div class="panel">
+      <div class="panel-title">📊 연간 사용량 · 요금 · 기온</div>
+      <div class="chart-wrap"><canvas id="chartMain"></canvas></div>
+    </div>
+    <div class="panel month-detail">
+      <div class="md-nav">
+        <button onclick="chgFocus(-1)">&lt;</button>
+        <span class="md-month" id="focusLabel">3월</span>
+        <button onclick="chgFocus(1)">&gt;</button>
+      </div>
+      <div id="focusContent"></div>
+      <div class="md-chart"><canvas id="chartFocus"></canvas></div>
+      <div class="md-note" id="focusNote"></div>
+    </div>
+  </div>
+
+  <!-- 12개월 그리드 -->
   <div class="month-grid" id="monthGrid"></div>
 
-  <!-- 편집 토글 -->
-  <button class="edit-toggle" onclick="toggleEdit()">
-    <span id="editIcon">&#9998;</span> <span id="editLabel">데이터 편집 · 업로드</span>
-  </button>
-
-  <!-- 편집 패널 (접힘) -->
+  <!-- 편집 -->
+  <button class="edit-toggle" onclick="toggleEdit()">✏️ <span id="editLabel">데이터 편집 · 업로드</span></button>
   <div class="edit-panel" id="editPanel">
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title">
-        <span>월별 데이터</span>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <b style="font-size:13px">월별 데이터</b>
         <div class="upload-bar">
-          <label class="upload-btn" for="fileIn">&#128247; 고지서 업로드 (이미지·PDF 통합)</label>
+          <label class="upload-btn" for="fileIn">📷 고지서 업로드 (이미지·PDF)</label>
           <input type="file" id="fileIn" accept="image/*,.pdf" multiple onchange="handleUpload(this.files)" style="display:none">
-          <span class="upload-status" id="uploadStatus"></span>
+          <span id="uploadStatus" style="font-size:11px;color:var(--txt-l)"></span>
         </div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="dtable" id="dataTable"></table>
-      </div>
+      <div style="overflow-x:auto"><table class="dtable" id="dataTable"></table></div>
     </div>
   </div>
 
-  <!-- 차트 -->
-  <div class="grid">
-    <div class="card">
-      <div class="card-title">
-        <span>사용량 · 기온 비교</span>
-        <span id="corrBadge" style="font-size:11px;font-weight:500;color:var(--txt-l)"></span>
-      </div>
-      <div class="chart-wrap"><canvas id="chartUsage"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">
-        <span>요금 추이 (예측 포함)</span>
-        <span style="font-size:10px;font-weight:500;color:var(--txt-l)">━ 실측 / ┅ 예측</span>
-      </div>
-      <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
-    </div>
-  </div>
-
-  <!-- AI -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title">
-      <span>&#129302; AI 종합 분석</span>
-      <button class="ai-btn" onclick="runAI()">분석 실행</button>
-    </div>
-    <div class="ai-result" id="aiResult" style="display:none"></div>
-  </div>
 </div>
 
-<!-- 이상치 팝업 컨테이너 -->
-<div id="popupContainer"></div>
-
 <script>
-var WORKER = 'https://bill-worker.hdh1231.workers.dev';
-var Y = new Date().getFullYear();
-var T = '전기';
-var charts = {};
-var editOpen = false;
+var WORKER='https://bill-worker.hdh1231.workers.dev';
+var Y=new Date().getFullYear(), T='전기', FM=new Date().getMonth()+1; // FM = focus month
+var charts={}, editOpen=false;
+var $=function(id){return document.getElementById(id)};
+var UNITS={'전기':'kWh','가스':'m³','수도':'m³'};
+var COLORS={'전기':{main:'#1976d2',light:'#90caf9',bg:'#e3f2fd'},'가스':{main:'#ef6c00',light:'#ffcc80',bg:'#fff3e0'},'수도':{main:'#00897b',light:'#80cbc4',bg:'#e0f2f1'}};
+var D={'전기':{budget:{}},'가스':{budget:{}},'수도':{budget:{}}};
+var W={},wLoading={},CURRENT_W=null,curLoading=null,NORMALS=null,nLoading=null;
 
-var $ = function(id){return document.getElementById(id)};
-var UNITS = {'전기':'kWh','가스':'m³','수도':'m³'};
-var COLORS = {
-  '전기':{main:'#1976d2',light:'#90caf9',bg:'#e3f2fd'},
-  '가스':{main:'#ef6c00',light:'#ffcc80',bg:'#fff3e0'},
-  '수도':{main:'#00897b',light:'#80cbc4',bg:'#e0f2f1'}
-};
-
-var D = {
-  '전기':{2023:{},2024:{},2025:{},2026:{},budget:{}},
-  '가스':{2023:{},2024:{},2025:{},2026:{},budget:{}},
-  '수도':{2023:{},2024:{},2025:{},2026:{},budget:{}}
-};
-var W = {};
-var wLoading = {};
-var CURRENT_W = null;
-var curLoading = null;
-var NORMALS = null;
-var nLoading = null;
+// ══ 샘플 데이터 (DB 비어있을 때 보기용) ══
+(function(){
+  var s={'전기':{2024:{1:{u:12400,a:1860000},2:{u:11800,a:1770000},3:{u:9600,a:1440000},4:{u:7200,a:1080000},5:{u:6800,a:1020000},6:{u:8900,a:1335000},7:{u:14200,a:2130000},8:{u:15600,a:2340000},9:{u:11200,a:1680000},10:{u:7800,a:1170000},11:{u:8400,a:1260000},12:{u:11600,a:1740000}},2025:{1:{u:13100,a:1965000},2:{u:12200,a:1830000},3:{u:9900,a:1485000}},budget:{2024:18000000,2025:19000000}},'가스':{2024:{1:{u:4200,a:3780000},2:{u:3800,a:3420000},3:{u:2600,a:2340000},4:{u:1200,a:1080000},5:{u:400,a:360000},6:{u:200,a:180000},7:{u:150,a:135000},8:{u:120,a:108000},9:{u:300,a:270000},10:{u:1400,a:1260000},11:{u:2800,a:2520000},12:{u:3900,a:3510000}},2025:{1:{u:4500,a:4050000},2:{u:4000,a:3600000},3:{u:2800,a:2520000}},budget:{2024:20000000,2025:21000000}},'수도':{2024:{1:{u:320,a:480000},2:{u:310,a:465000},3:{u:340,a:510000},4:{u:360,a:540000},5:{u:380,a:570000},6:{u:420,a:630000},7:{u:480,a:720000},8:{u:510,a:765000},9:{u:440,a:660000},10:{u:370,a:555000},11:{u:330,a:495000},12:{u:320,a:480000}},2025:{1:{u:330,a:495000},2:{u:320,a:480000},3:{u:350,a:525000}},budget:{2024:7500000,2025:8000000}}};
+  for(var t in s){for(var y in s[t]){if(y==='budget'){D[t].budget=s[t].budget;continue}if(!D[t][y])D[t][y]={};for(var m in s[t][y])D[t][y][m]=s[t][y][m];}}
+})();
 
 // ══ DB ══
-var dataLoaded = {};
-async function loadFromDB(type) {
-  if (dataLoaded[type]) return;
-  try {
-    var r = await fetch(WORKER + '/load?type=' + encodeURIComponent(type));
-    var d = await r.json();
-    if (d.error) return;
-    (d.bills || []).forEach(function(b) {
-      if (!D[type][b.year]) D[type][b.year] = {};
-      D[type][b.year][b.month] = { u: parseFloat(b.usage_amount) || 0, a: parseInt(b.bill_amount) || 0, id: b.id };
-    });
-    (d.budgets || []).forEach(function(b) { D[type].budget[b.year] = parseInt(b.amount) || 0; });
-    dataLoaded[type] = true;
-  } catch(e) {}
-}
-async function saveBillToDB(type, year, month, usage, amount) {
-  try { await fetch(WORKER + '/bills', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([{ bill_type: type, year: year, month: month, usage_amount: usage || null, usage_unit: UNITS[type], bill_amount: amount || null }]) }); } catch(e) {}
-}
-async function saveBudgetToDB(type, year, amount) {
-  try { await fetch(WORKER + '/budgets', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([{ bill_type: type, year: year, amount: amount || 0 }]) }); } catch(e) {}
-}
+var dataLoaded={};
+async function loadFromDB(type){if(dataLoaded[type])return;try{var r=await fetch(WORKER+'/load?type='+encodeURIComponent(type));var d=await r.json();if(d.error)return;(d.bills||[]).forEach(function(b){if(!D[type][b.year])D[type][b.year]={};D[type][b.year][b.month]={u:parseFloat(b.usage_amount)||0,a:parseInt(b.bill_amount)||0};});(d.budgets||[]).forEach(function(b){D[type].budget[b.year]=parseInt(b.amount)||0;});dataLoaded[type]=true;}catch(e){}}
+async function saveBillToDB(type,yr,mo,u,a){try{await fetch(WORKER+'/bills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,month:mo,usage_amount:u||null,usage_unit:UNITS[type],bill_amount:a||null}])});}catch(e){}}
+async function saveBudgetToDB(type,yr,amt){try{await fetch(WORKER+'/budgets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,amount:amt||0}])});}catch(e){}}
 
 // ══ Weather ══
-function loadWeather(year){
-  if(W[year]) return Promise.resolve(W[year]);
-  if(wLoading[year]) return wLoading[year];
-  wLoading[year] = fetch(WORKER+'/weather?year='+year).then(function(r){return r.json()}).then(function(rows){
-    var map = {};
-    if(Array.isArray(rows)) rows.forEach(function(r){ map[r.month] = {avg:r.avg_temp,max:r.max_temp,min:r.min_temp,hdd:r.heating_degree_days,cdd:r.cooling_degree_days}; });
-    W[year] = map; delete wLoading[year]; return map;
-  }).catch(function(){ W[year]={}; delete wLoading[year]; return {}; });
-  return wLoading[year];
-}
-function loadCurrentWeather(){
-  if(CURRENT_W) return Promise.resolve(CURRENT_W);
-  if(curLoading) return curLoading;
-  curLoading = fetch(WORKER+'/weather/now').then(function(r){return r.json()}).then(function(d){
-    CURRENT_W=d||{}; curLoading=null;
-    var el=$('hdrWeather');
-    if(el && d.emoji) el.textContent = d.emoji + ' ' + Math.round(d.temp) + '°C';
-    return CURRENT_W;
-  }).catch(function(){curLoading=null;return {}});
-  return curLoading;
-}
-function loadNormals(){
-  if(NORMALS) return Promise.resolve(NORMALS);
-  if(nLoading) return nLoading;
-  nLoading = fetch(WORKER+'/weather/normals').then(function(r){return r.json()}).then(function(rows){
-    var map={}; if(Array.isArray(rows)) rows.forEach(function(r){map[r.month]=r;}); NORMALS=map; nLoading=null; return NORMALS;
-  }).catch(function(){nLoading=null;NORMALS={};return NORMALS;});
-  return nLoading;
-}
+function loadWeather(year){if(W[year])return Promise.resolve(W[year]);if(wLoading[year])return wLoading[year];wLoading[year]=fetch(WORKER+'/weather?year='+year).then(function(r){return r.json()}).then(function(rows){var m={};if(Array.isArray(rows))rows.forEach(function(r){m[r.month]={avg:r.avg_temp,max:r.max_temp,min:r.min_temp,hdd:r.heating_degree_days,cdd:r.cooling_degree_days};});W[year]=m;delete wLoading[year];return m;}).catch(function(){W[year]={};delete wLoading[year];return{};});return wLoading[year];}
+function loadCurrentWeather(){if(CURRENT_W)return Promise.resolve(CURRENT_W);if(curLoading)return curLoading;curLoading=fetch(WORKER+'/weather/now').then(function(r){return r.json()}).then(function(d){CURRENT_W=d||{};curLoading=null;return CURRENT_W;}).catch(function(){curLoading=null;return{};});return curLoading;}
+function loadNormals(){if(NORMALS)return Promise.resolve(NORMALS);if(nLoading)return nLoading;nLoading=fetch(WORKER+'/weather/normals').then(function(r){return r.json()}).then(function(rows){var m={};if(Array.isArray(rows))rows.forEach(function(r){m[r.month]=r;});NORMALS=m;nLoading=null;return NORMALS;}).catch(function(){nLoading=null;NORMALS={};return NORMALS;});return nLoading;}
 
-// ══ Prediction ══
-function predictMonth(month){
-  var prev=D[T][Y-1]||{};var twoY=D[T][Y-2]||{};var lm=prev[month];
-  if(!lm) return null;
-  var u=lm.u||0, a=lm.a||0;
-  var tm=twoY[month];
-  if(tm && tm.a>0){ var gr=(lm.a-tm.a)/tm.a; a=Math.round(a*(1+gr)); if(tm.u>0){var ug=(lm.u-tm.u)/tm.u;u=Math.round(u*(1+ug));} }
-  var thisW=(W[Y]||{})[month]; var prevW=(W[Y-1]||{})[month];
-  if(thisW && prevW && thisW.avg!=null && prevW.avg!=null){
-    var diff=thisW.avg-prevW.avg;
-    if(T==='전기'){ if(month>=6&&month<=9) a=Math.round(a*(1+diff*0.035)); else if(month>=11||month<=3) a=Math.round(a*(1-diff*0.015)); }
-    else if(T==='가스'){ if(month>=11||month<=3) a=Math.round(a*(1-diff*0.045)); }
-  }
-  return {u:u, a:a};
-}
-function correlation(){
-  var data=D[T][Y]||{};var wd=W[Y]||{};var xs=[],ys=[];
-  for(var m=1;m<=12;m++){if(data[m]&&data[m].u&&wd[m]&&wd[m].avg!=null){xs.push(wd[m].avg);ys.push(data[m].u);}}
-  if(xs.length<3) return null;
-  var mx=xs.reduce(function(a,b){return a+b},0)/xs.length; var my=ys.reduce(function(a,b){return a+b},0)/ys.length;
-  var num=0,dx=0,dy=0;for(var i=0;i<xs.length;i++){num+=(xs[i]-mx)*(ys[i]-my);dx+=(xs[i]-mx)*(xs[i]-mx);dy+=(ys[i]-my)*(ys[i]-my);}
-  if(dx===0||dy===0) return null; return num/Math.sqrt(dx*dy);
-}
+// ══ Predict ══
+function predictMonth(mo){var prev=D[T][Y-1]||{},tw=D[T][Y-2]||{},lm=prev[mo];if(!lm)return null;var u=lm.u||0,a=lm.a||0;var tm=tw[mo];if(tm&&tm.a>0){var gr=(lm.a-tm.a)/tm.a;a=Math.round(a*(1+gr));if(tm.u>0){u=Math.round(u*(1+(lm.u-tm.u)/tm.u));}}var tw2=(W[Y]||{})[mo],pw=(W[Y-1]||{})[mo];if(tw2&&pw&&tw2.avg!=null&&pw.avg!=null){var d=tw2.avg-pw.avg;if(T==='전기'){if(mo>=6&&mo<=9)a=Math.round(a*(1+d*.035));else if(mo>=11||mo<=3)a=Math.round(a*(1-d*.015));}else if(T==='가스'){if(mo>=11||mo<=3)a=Math.round(a*(1-d*.045));}}return{u:u,a:a};}
 
-// ══ Navigation ══
-function setTab(t){T=t;dataLoaded[t]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
-function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
-function toggleEdit(){editOpen=!editOpen;$('editPanel').classList.toggle('open',editOpen);$('editLabel').textContent=editOpen?'편집 닫기':'데이터 편집 · 업로드'}
-function setVal(month,field,val){
-  var v=parseFloat(val)||0;if(!D[T][Y]) D[T][Y]={};if(!D[T][Y][month]) D[T][Y][month]={u:0,a:0};
-  D[T][Y][month][field]=v; var d=D[T][Y][month]; saveBillToDB(T,Y,month,d.u,d.a); render();
-}
-function setBudget(val){ D[T].budget[Y]=parseInt(val)||0; saveBudgetToDB(T,Y,D[T].budget[Y]); render(); }
+// ══ Nav ══
+function setTab(t){T=t;dataLoaded[t]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render();}
+function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render();}
+function chgFocus(d){FM+=d;if(FM<1)FM=12;if(FM>12)FM=1;renderFocus();renderMonthGrid();}
+function toggleEdit(){editOpen=!editOpen;$('editPanel').classList.toggle('open',editOpen);$('editLabel').textContent=editOpen?'편집 닫기':'데이터 편집 · 업로드';}
+function setVal(mo,f,v){v=parseFloat(v)||0;if(!D[T][Y])D[T][Y]={};if(!D[T][Y][mo])D[T][Y][mo]={u:0,a:0};D[T][Y][mo][f]=v;var dd=D[T][Y][mo];saveBillToDB(T,Y,mo,dd.u,dd.a);render();}
+function setBudget(v){D[T].budget[Y]=parseInt(v)||0;saveBudgetToDB(T,Y,D[T].budget[Y]);render();}
 
 // ══ RENDER ══
 async function render(){
   await loadFromDB(T);
-  renderHero();
-  renderMonthGrid();
+  renderBillPanel();
   renderTable();
-  renderCharts();
+  renderMainChart();
+  renderFocus();
+  renderMonthGrid();
   Promise.all([loadWeather(Y),loadWeather(Y-1),loadNormals(),loadCurrentWeather()]).then(function(){
-    renderHero();
-    renderMonthGrid();
-    renderCharts();
+    renderWeatherPanel();
+    renderMainChart();
+    renderFocus();
+    autoAI();
   });
 }
 
-// ── 히어로 ──
-function renderHero(){
-  var el=$('hero'); if(!el) return;
-  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{}; var budget=D[T].budget[Y]||0;
-  var c=COLORS[T];
+// ── 날씨 패널 ──
+function renderWeatherPanel(){
+  var el=$('weatherContent');if(!el)return;
+  var now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  var curT=CURRENT_W?CURRENT_W.temp:null;
+  var curEmoji=CURRENT_W?CURRENT_W.emoji:'🌡️';
+  var curText=CURRENT_W?CURRENT_W.text:'로딩 중';
+  var thisAvg=(W[cy]||{})[cm]?W[cy][cm].avg:null;
+  var prevAvg=(W[cy-1]||{})[cm]?W[cy-1][cm].avg:null;
+  var normAvg=(NORMALS||{})[cm]?NORMALS[cm].avg_temp:null;
 
-  // 집계
-  var totalA=0, totalU=0, cnt=0, prevA=0;
-  for(var m=1;m<=12;m++){
-    if(data[m]){totalA+=data[m].a||0;totalU+=data[m].u||0;cnt++;}
-    if(prev[m]&&m<=cnt) prevA+=prev[m].a||0;
-  }
-  var change = prevA>0 ? Math.round((totalA-prevA)/prevA*100) : 0;
+  function tempColor(t,ref){if(t==null||ref==null)return 'wci-normal';var d=t-ref;return d>1?'wci-hot':d<-1?'wci-cold':'wci-normal';}
+  function diffText(t,ref){if(t==null||ref==null)return'';var d=Math.round((t-ref)*10)/10;return(d>0?'+':'')+d+'°C';}
 
-  // 예측 총액
-  var predictTotal=0;
-  for(m=1;m<=12;m++){
-    if(data[m]&&data[m].a) predictTotal+=data[m].a;
-    else { var p=predictMonth(m); if(p) predictTotal+=p.a; }
-  }
+  el.innerHTML='<div class="weather-big"><div class="wb-emoji">'+curEmoji+'</div>'
+    +'<div class="wb-temp">'+(curT!=null?Math.round(curT)+'°C':'--')+'</div>'
+    +'<div class="wb-text">'+curText+' · 서울 종로</div></div>'
+    +'<div class="w-compare">'
+    +'<div class="w-compare-item"><div class="wci-label">오늘</div><div class="wci-value">'+(curT!=null?Math.round(curT)+'°':'--')+'</div><div class="wci-sub '+tempColor(curT,normAvg)+'">'+diffText(curT,normAvg)+'</div></div>'
+    +'<div class="w-compare-item"><div class="wci-label">'+cm+'월 평균</div><div class="wci-value '+(thisAvg!=null?tempColor(thisAvg,normAvg):'')+'">'+((thisAvg!=null)?thisAvg+'°':'--')+'</div><div class="wci-sub">예년 '+(normAvg!=null?normAvg+'°':'--')+'</div></div>'
+    +'<div class="w-compare-item"><div class="wci-label">작년 '+cm+'월</div><div class="wci-value">'+((prevAvg!=null)?prevAvg+'°':'--')+'</div><div class="wci-sub '+tempColor(thisAvg,prevAvg)+'">'+diffText(thisAvg,prevAvg)+'</div></div>'
+    +'</div>';
+}
 
-  // 상태 판정
-  var pctBudget = budget ? Math.round(predictTotal/budget*100) : 0;
-  var status = !budget ? 'ok' : (pctBudget>100 ? 'over' : (pctBudget>90 ? 'warn' : 'ok'));
-  var statusLabel = status==='over' ? '예산 초과 위험' : (status==='warn' ? '주의' : '정상');
-  var statusIcon = status==='over' ? '!' : (status==='warn' ? '!' : '✓');
+// ── 요금현황 패널 ──
+function renderBillPanel(){
+  var el=$('billContent');if(!el)return;
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},budget=D[T].budget[Y]||0,c=COLORS[T];
+  var totalA=0,cnt=0,prevA=0;
+  for(var m=1;m<=12;m++){if(data[m]){totalA+=data[m].a||0;cnt++;}if(prev[m]&&m<=cnt)prevA+=prev[m].a||0;}
+  var change=prevA>0?Math.round((totalA-prevA)/prevA*100):0;
+  var predictTotal=0;for(m=1;m<=12;m++){if(data[m]&&data[m].a)predictTotal+=data[m].a;else{var p=predictMonth(m);if(p)predictTotal+=p.a;}}
+  var pctB=budget?Math.round(predictTotal/budget*100):0;
+  var pctA=budget?Math.round(totalA/budget*100):0;
+  var status=!budget?'ok':(pctB>100?'over':(pctB>90?'warn':'ok'));
+  var statusIcon=status==='over'?'!':status==='warn'?'!':'✓';
+  var tCls=change>0?'up':(change<0?'down':'flat');
+  var tSign=change>0?'↑':(change<0?'↓':'→');
 
-  el.className = 'hero st-'+status;
+  // 이상치
+  var anomalies=[];
+  for(m=1;m<=12;m++){if(data[m]&&data[m].a&&prev[m]&&prev[m].a){var mp=Math.round((data[m].a-prev[m].a)/prev[m].a*100);if(Math.abs(mp)>15){var reason='';var wd=(W[Y]||{})[m],wp=(W[Y-1]||{})[m];if(wd&&wp&&wd.avg!=null&&wp.avg!=null){var td=Math.round((wd.avg-wp.avg)*10)/10;if(Math.abs(td)>1)reason=(td>0?'폭염 ':'한파 ')+(td>0?'+':'')+td+'°C';}anomalies.push({m:m,pct:mp,reason:reason});}}}
 
-  // 트렌드 화살표
-  var trendCls = change>0?'up':(change<0?'down':'flat');
-  var trendSign = change>0?'↑':(change<0?'↓':'→');
+  var anomalyHtml='';if(anomalies.length){anomalyHtml='<div class="anomaly-list">';anomalies.forEach(function(a){var cls=a.pct>0?'bad':'good';anomalyHtml+='<div class="anomaly-item '+cls+'">'+(a.pct>0?'⚠':'✅')+' <b>'+a.m+'월</b> '+(a.pct>0?'+':'')+a.pct+'%'+(a.reason?' · '+a.reason:'')+'</div>';});anomalyHtml+='</div>';}
 
-  // 프로그레스바
-  var barActualPct = budget ? Math.min(100, Math.round(totalA/budget*100)) : 0;
-  var barPredictPct = budget ? Math.min(100, pctBudget) : 0;
-
-  // 이상치 월 찾기
-  var anomalies = [];
-  for(m=1;m<=12;m++){
-    if(data[m]&&data[m].a&&prev[m]&&prev[m].a){
-      var mp=Math.round((data[m].a-prev[m].a)/prev[m].a*100);
-      if(Math.abs(mp)>20){
-        var reason='';
-        var wd=(W[Y]||{})[m]; var wp=(W[Y-1]||{})[m];
-        if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
-          var td=Math.round((wd.avg-wp.avg)*10)/10;
-          if(Math.abs(td)>1) reason=(td>0?'평년보다 따뜻(+':'한파(')+td+'°C)';
-        }
-        anomalies.push({m:m,pct:mp,reason:reason});
-      }
-    }
-  }
-
-  // 연말 전망
-  var forecastHtml='';
-  if(budget){
-    var diff=budget-predictTotal;
-    var fColor=diff>=0?'var(--green)':'var(--red)';
-    forecastHtml='<div class="hero-forecast">🔮 연말 예상 <b style="color:'+fColor+'">'+won(predictTotal)+'</b> / 예산 '+won(budget)
-      +(diff>=0 ? ' — 잔액 '+won(diff)+' 여유' : ' — <b style="color:var(--red)">'+won(Math.abs(diff))+' 초과!</b>')
-      +'</div>';
-  }
-
-  // 이상치 텍스트
-  var anomalyHtml='';
-  if(anomalies.length){
-    anomalyHtml='<div style="margin-top:8px;font-size:12px;color:var(--txt-m);line-height:1.6">';
-    anomalies.forEach(function(a){
-      var sign=a.pct>0?'+':'';
-      anomalyHtml+='<span style="color:'+(a.pct>0?'var(--red)':'var(--green)')+'">⚠ '+a.m+'월 '+sign+a.pct+'%</span>';
-      if(a.reason) anomalyHtml+=' <span style="color:var(--txt-l)">← '+a.reason+'</span>';
-      anomalyHtml+='&nbsp;&nbsp;';
-    });
-    anomalyHtml+='</div>';
-  }
-
-  el.innerHTML =
-    '<div class="hero-top">'
-    +'<div class="hero-light '+status+'">'+statusIcon+'</div>'
-    +'<div class="hero-main">'
-    +'<div class="hero-amount" style="color:'+c.main+'">'+won(totalA)
-    +'<span class="hero-trend '+trendCls+'">'+trendSign+(change>0?'+':'')+change+'% 전년비</span></div>'
-    +'<div class="hero-sub">'+cnt+'개월 누적'+(budget?' · 예산 대비 '+barActualPct+'%':'')+' · '+statusLabel+'</div>'
-    +'</div></div>'
-    +(budget?'<div class="hero-bar"><div class="hero-bar-track">'
-    +'<div class="hero-bar-predict" style="width:'+barPredictPct+'%;background:'+c.light+'"></div>'
-    +'<div class="hero-bar-actual" style="width:'+barActualPct+'%;background:'+c.main+'"></div>'
-    +(pctBudget>0?'<div class="hero-bar-limit" style="left:100%;display:'+(budget?'block':'none')+'"></div>':'')
-    +'</div><div class="hero-bar-labels"><span>0</span><span style="color:'+c.main+';font-weight:700">실측 '+barActualPct+'%</span><span style="color:'+c.light+'">예측 '+barPredictPct+'%</span><span>예산 '+won(budget)+'</span></div></div>':'')
-    +forecastHtml
+  el.innerHTML='<div class="bill-hero"><div class="bh-light '+status+'">'+statusIcon+'</div><div><div class="bh-amount" style="color:'+c.main+'">'+won(totalA)+'<span class="bh-trend '+tCls+'">'+tSign+(change>0?'+':'')+change+'%</span></div><div class="bh-sub">'+cnt+'개월 누적'+(budget?' · 예산 '+won(budget):'')+'</div></div></div>'
+    +(budget?'<div class="bill-bar"><div class="bb-predict" style="width:'+Math.min(100,pctB)+'%;background:'+c.light+'"></div><div class="bb-actual" style="width:'+Math.min(100,pctA)+'%;background:'+c.main+'"></div></div><div class="bill-bar-labels"><span>실측 '+pctA+'%</span><span>예측 '+pctB+'%</span><span>예산 '+won(budget)+'</span></div>':'')
     +anomalyHtml;
+}
+
+// ── AI 자동 분석 ──
+var aiTimer=null;
+function autoAI(){
+  if(aiTimer)clearTimeout(aiTimer);
+  aiTimer=setTimeout(function(){runAI();},500);
+}
+async function runAI(){
+  var data=D[T][Y]||{};var arr=[];for(var m=1;m<=12;m++)if(data[m])arr.push({year:Y,month:m,usage_amount:data[m].u,bill_amount:data[m].a});
+  var el=$('aiContent');if(!arr.length){el.innerHTML='<div class="ai-loading">데이터가 없습니다. 고지서를 입력해주세요.</div>';return;}
+  el.innerHTML='<div class="ai-loading">🤖 분석 중...</div>';
+  var wd=W[Y]||{};var wa=[];for(m=1;m<=12;m++)if(wd[m])wa.push({month:m,avg_temp:wd[m].avg});
+  try{var r=await fetch(WORKER+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({billType:T,bills:arr,weather:wa,budget:D[T].budget[Y]||0,year:Y})});var d=await r.json();if(d.error){el.innerHTML='<div style="color:var(--red)">'+d.error+'</div>';return;}var a=d.analysis||{};var h='';if(a.summary)h+='<div style="font-weight:700;margin-bottom:6px">'+a.summary+'</div>';if(a.trend)h+='<div>📈 '+a.trend+'</div>';if(a.correlation)h+='<div>🌡️ '+a.correlation+'</div>';if(a.anomalies)h+='<div>⚠️ '+a.anomalies+'</div>';if(a.suggestions)h+='<div>💡 '+a.suggestions+'</div>';if(a.forecast)h+='<div>🔮 '+a.forecast+'</div>';el.innerHTML=h||'분석 결과 없음';}catch(e){el.innerHTML='분석 실패: '+e.message;}
+}
+
+// ── 연간 통합 차트 (사용량 막대 + 요금 라인 + 기온 라인) ──
+function renderMainChart(){
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},c=COLORS[T];
+  var months=['1','2','3','4','5','6','7','8','9','10','11','12'];
+  if(charts.main)charts.main.destroy();
+  var uA=[],uP=[],aA=[],aP=[],wD=[],wpD=[];
+  var wd=W[Y]||{},wpd=W[Y-1]||{},lastM=0;
+  for(var m=1;m<=12;m++){
+    var d=data[m],isA=d&&(d.u||d.a);
+    if(isA){uA.push(d.u||null);aA.push(d.a||null);uP.push(null);aP.push(null);lastM=m;}
+    else{var pr=predictMonth(m);uA.push(null);aA.push(null);uP.push(pr?pr.u:null);aP.push(pr?pr.a:null);}
+    wD.push(wd[m]?wd[m].avg:null);wpD.push(wpd[m]?wpd[m].avg:null);
+  }
+  if(lastM>0&&lastM<12){aP[lastM-1]=aA[lastM-1];}
+
+  charts.main=new Chart($('chartMain'),{
+    type:'bar',data:{labels:months,datasets:[
+      {label:'사용량 실측',data:uA,backgroundColor:c.main+'bb',borderRadius:3,yAxisID:'y',order:3},
+      {label:'사용량 예측',data:uP,backgroundColor:c.main+'33',borderRadius:3,yAxisID:'y',order:3},
+      {label:'요금 실측',data:aA,type:'line',borderColor:c.main,borderWidth:2.5,pointRadius:4,pointBackgroundColor:c.main,tension:.3,yAxisID:'y2',order:1},
+      {label:'요금 예측',data:aP,type:'line',borderColor:c.main,borderDash:[6,4],borderWidth:2,pointRadius:3,pointStyle:'triangle',tension:.3,yAxisID:'y2',order:1},
+      {label:'기온 '+Y,data:wD,type:'line',borderColor:'#e53935',borderWidth:1.5,pointRadius:2,tension:.3,yAxisID:'y1',order:2},
+      {label:'기온 '+(Y-1),data:wpD,type:'line',borderColor:'#e5393544',borderDash:[3,3],borderWidth:1,pointRadius:0,tension:.3,yAxisID:'y1',order:2}
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{font:{size:9},boxWidth:8,padding:8}},tooltip:{callbacks:{label:function(ctx){var v=ctx.parsed.y;if(v==null)return null;var l=ctx.dataset.label;if(l.indexOf('기온')>=0)return l+': '+v+'°C';if(l.indexOf('요금')>=0)return l+': '+won(v);return l+': '+fnum(v)+' '+UNITS[T];}}}},scales:{y:{position:'left',beginAtZero:true,title:{display:true,text:UNITS[T],font:{size:9}},ticks:{font:{size:9}}},y1:{position:'right',title:{display:true,text:'°C',font:{size:9}},grid:{drawOnChartArea:false},ticks:{font:{size:9}}},y2:{position:'right',display:false,beginAtZero:true}}}
+  });
+}
+
+// ── 월별 상세 (오른쪽 패널) ──
+function renderFocus(){
+  $('focusLabel').textContent=FM+'월';
+  var el=$('focusContent');if(!el)return;
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},c=COLORS[T];
+  var d=data[FM],p=prev[FM],pred=d?null:predictMonth(FM);
+  var amount=d?(d.a||0):(pred?pred.a:0);
+  var usage=d?(d.u||0):(pred?pred.u:0);
+  var isPred=!d&&pred;
+  var prevAmt=p?p.a:0,prevUse=p?p.u:0;
+  var yoyA=prevAmt?Math.round((amount-prevAmt)/prevAmt*100):null;
+  var yoyU=prevUse?Math.round((usage-prevUse)/prevUse*100):null;
+  var temp=(W[Y]||{})[FM]?W[Y][FM].avg:null;
+  var prevTemp=(W[Y-1]||{})[FM]?W[Y-1][FM].avg:null;
+
+  function kvItem(label,value,sub,color){return '<div class="md-kv-item"><div class="md-kv-label">'+label+'</div><div class="md-kv-value" style="color:'+(color||'var(--txt)')+'">'+value+'</div>'+(sub?'<div class="md-kv-sub" style="color:var(--txt-m)">'+sub+'</div>':'')+'</div>';}
+
+  var subA=isPred?'예측값':'';
+  if(yoyA!=null)subA+=(subA?' · ':'')+'전년비 <b style="color:'+(yoyA>0?'var(--red)':'var(--green)')+'">'+(yoyA>0?'+':'')+yoyA+'%</b>';
+  var subU='';if(yoyU!=null)subU='전년비 '+(yoyU>0?'+':'')+yoyU+'%';
+  var subT='';if(prevTemp!=null&&temp!=null){var td=Math.round((temp-prevTemp)*10)/10;subT='작년 '+prevTemp+'°C ('+(td>0?'+':'')+td+'°C)';}
+
+  el.innerHTML='<div class="md-kv">'
+    +kvItem('요금',won(amount),subA,c.main)
+    +kvItem('사용량',fnum(usage)+' '+UNITS[T],subU,c.main)
+    +kvItem('평균기온',temp!=null?temp+'°C':'--',subT)
+    +kvItem('예산배분',D[T].budget[Y]?won(Math.round(D[T].budget[Y]/12))+'/월':'미설정')
+    +'</div>';
+
+  // 미니 차트: 올해 vs 작년 해당 월 비교 바
+  if(charts.focus)charts.focus.destroy();
+  charts.focus=new Chart($('chartFocus'),{
+    type:'bar',data:{labels:['요금','사용량'],datasets:[
+      {label:Y+'년',data:[amount,usage],backgroundColor:c.main+'cc',borderRadius:4},
+      {label:(Y-1)+'년',data:[prevAmt,prevUse],backgroundColor:c.light+'88',borderRadius:4}
+    ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:function(ctx){var v=ctx.parsed.x;return ctx.dataset.label+': '+(ctx.dataIndex===0?won(v):fnum(v)+' '+UNITS[T]);}}}},scales:{x:{beginAtZero:true,ticks:{display:false}},y:{ticks:{font:{size:11,weight:'bold'}}}}}
+  });
+
+  // 노트
+  var note=$('focusNote');
+  if(yoyA!=null&&Math.abs(yoyA)>15){
+    var reason='';if(temp!=null&&prevTemp!=null){var td2=Math.round((temp-prevTemp)*10)/10;if(Math.abs(td2)>1)reason=' 기온 변화('+(td2>0?'+':'')+td2+'°C)가 주요 원인으로 보여요.';}
+    note.innerHTML=(yoyA>0?'⚠️':'✅')+' '+FM+'월 요금이 전년 대비 <b>'+(yoyA>0?'+':'')+yoyA+'%</b>.'+reason;
+    note.style.display='block';
+  } else if(!d){
+    note.innerHTML='📷 '+FM+'월 데이터가 아직 없어요. 고지서를 업로드하거나 직접 입력해주세요.';
+    note.style.display='block';
+  } else {note.style.display='none';}
 }
 
 // ── 12개월 카드 그리드 ──
 function renderMonthGrid(){
-  var el=$('monthGrid'); if(!el) return;
-  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{}; var c=COLORS[T];
+  var el=$('monthGrid');if(!el)return;
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},c=COLORS[T];
   var html='';
   for(var m=1;m<=12;m++){
-    var d=data[m];
-    var hasActual = d && (d.u || d.a);
-    var pred = hasActual ? null : predictMonth(m);
-    var amount = hasActual ? (d.a||0) : (pred ? pred.a : 0);
-    var usage = hasActual ? (d.u||0) : (pred ? pred.u : 0);
+    var d=data[m],hasA=d&&(d.u||d.a),pred=hasA?null:predictMonth(m);
+    var amount=hasA?(d.a||0):(pred?pred.a:0);
+    var prevM=prev[m],yoy=null;
+    if(hasA&&prevM&&prevM.a)yoy=Math.round((d.a-prevM.a)/prevM.a*100);
+    var cls='';if(!hasA&&!pred)cls='empty';else if(!hasA&&pred)cls='predicted';else if(yoy!=null&&yoy>20)cls='anomaly';else if(yoy!=null&&yoy<-10)cls='saving';
+    if(m===FM)cls+=' active';
+    var badge='';if(yoy!=null){var bc=yoy>10?'up':(yoy<-5?'down':'');if(bc)badge='<div class="mg-badge '+bc+'">'+(yoy>0?'+':'')+yoy+'%</div>';}
 
-    // 전년비
-    var prevM = prev[m];
-    var yoyPct = null;
-    if(hasActual && prevM && prevM.a) yoyPct = Math.round((d.a - prevM.a)/prevM.a*100);
-
-    // 카드 클래스
-    var cls = 'data';
-    if(!hasActual && !pred) cls = 'empty';
-    else if(!hasActual && pred) cls = 'predicted';
-    else if(yoyPct != null && yoyPct > 20) cls = 'anomaly';
-    else if(yoyPct != null && yoyPct < -10) cls = 'saving';
-
-    // 이상치 원인
-    var tag='';
-    if(cls==='anomaly'){
-      var wd=(W[Y]||{})[m]; var wp=(W[Y-1]||{})[m];
-      if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
-        var td=Math.round((wd.avg-wp.avg)*10)/10;
-        if(td>1.5) tag='폭염';
-        else if(td<-1.5) tag='한파';
-      }
-      if(!tag) tag='점검필요';
-    }
-
-    // 전년비 뱃지
-    var badgeHtml='';
-    if(yoyPct!=null){
-      var bc=yoyPct>10?'up':(yoyPct<-5?'down':'flat');
-      badgeHtml='<div class="m-badge '+bc+'">'+(yoyPct>0?'+':'')+yoyPct+'%</div>';
-    }
-
-    var onclick = cls==='empty' ? ' onclick="toggleEdit();if(!editOpen)toggleEdit()"' : '';
-    if(cls==='anomaly') onclick = ' onclick="showAnomaly('+m+')" style="cursor:pointer"';
-
-    html += '<div class="m-card '+cls+'"'+onclick+'>'
-      +'<div class="m-month" style="color:'+c.main+'">'+m+'월</div>';
-
-    if(cls==='empty'){
-      html+='<div class="m-empty-text">미입력<br>📷</div>';
-    } else if(cls==='predicted'){
-      html+='<div class="m-amount" style="color:var(--txt-l)">'+won(amount)+'</div>'
-        +'<div class="m-predict-text">예측</div>';
-    } else {
-      html+='<div class="m-amount" style="color:'+c.main+'">'+won(amount)+'</div>'
-        +'<div class="m-usage">'+fnum(usage)+' '+UNITS[T]+'</div>'
-        +badgeHtml
-        +(tag?'<div class="m-tag">'+tag+'</div>':'');
-    }
+    html+='<div class="mg-card '+cls+'" onclick="FM='+m+';renderFocus();renderMonthGrid()">'
+      +'<div class="mg-month" style="color:'+c.main+'">'+m+'월</div>';
+    if(cls.indexOf('empty')>=0)html+='<div style="font-size:9px;color:var(--txt-l)">미입력</div>';
+    else if(cls.indexOf('predicted')>=0)html+='<div class="mg-amount" style="color:var(--txt-l)">'+won(amount)+'</div><div style="font-size:8px;color:var(--txt-l)">예측</div>';
+    else html+='<div class="mg-amount" style="color:'+c.main+'">'+won(amount)+'</div>'+badge;
     html+='</div>';
   }
   el.innerHTML=html;
 }
 
-// ── 이상치 팝업 ──
-function showAnomaly(month){
-  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{};
-  var d=data[month]; var p=prev[month];
-  if(!d||!p) return;
-  var pct=Math.round((d.a-p.a)/p.a*100);
-  var c=COLORS[T];
-
-  var reason='원인을 파악하지 못했어요.';
-  var wd=(W[Y]||{})[month]; var wp=(W[Y-1]||{})[month];
-  if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
-    var td=Math.round((wd.avg-wp.avg)*10)/10;
-    if(Math.abs(td)>1){
-      reason=month+'월 평균기온 '+wd.avg+'°C (작년 '+wp.avg+'°C, '+(td>0?'+':'')+td+'°C)'
-        +'<br>'+(td>0?'기온 상승으로 냉방':'한파로 난방')+' 부하 증가 추정.';
-    }
-  }
-
-  $('popupContainer').innerHTML=
-    '<div class="anomaly-overlay" onclick="closePopup()"></div>'
-    +'<div class="anomaly-popup">'
-    +'<div style="font-size:18px;font-weight:900;color:'+c.main+';margin-bottom:12px">'+T+' '+month+'월 이상치</div>'
-    +'<div style="display:flex;gap:20px;margin-bottom:16px">'
-    +'<div><div style="font-size:11px;color:var(--txt-l)">올해</div><div style="font-size:24px;font-weight:900;color:var(--red)">'+won(d.a)+'</div></div>'
-    +'<div><div style="font-size:11px;color:var(--txt-l)">작년</div><div style="font-size:24px;font-weight:900;color:var(--txt-l)">'+won(p.a)+'</div></div>'
-    +'<div><div style="font-size:11px;color:var(--txt-l)">변화</div><div style="font-size:24px;font-weight:900;color:var(--red)">'+(pct>0?'+':'')+pct+'%</div></div>'
-    +'</div>'
-    +'<div style="font-size:13px;line-height:1.7;color:var(--txt-m);padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px">🔍 '+reason+'</div>'
-    +'<button onclick="closePopup()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">닫기</button>'
-    +'</div>';
-}
-function closePopup(){$('popupContainer').innerHTML=''}
-
-// ── 데이터 테이블 ──
+// ── 테이블 ──
 function renderTable(){
-  var data=D[T][Y]||{};var prev=D[T][Y-1]||{};var unit=UNITS[T];var budget=D[T].budget[Y]||'';
-  var h='<thead><tr><th></th>';for(var m=1;m<=12;m++) h+='<th>'+m+'월</th>';h+='<th>합계</th></tr></thead><tbody>';
-  var tU=0;h+='<tr><td class="rlabel">사용량('+unit+')</td>';
-  for(m=1;m<=12;m++){var v=data[m]?data[m].u:'';if(v)tU+=v;h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'u\',this.value)"></td>';}
-  h+='<td class="total-cell">'+fnum(tU)+'</td></tr>';
-  var tA=0;h+='<tr><td class="rlabel">요금(원)</td>';
-  for(m=1;m<=12;m++){var v2=data[m]?data[m].a:'';if(v2)tA+=v2;h+='<td><input type="number" value="'+(v2||'')+'" placeholder="-" onchange="setVal('+m+',\'a\',this.value)"></td>';}
-  h+='<td class="total-cell">'+won(tA)+'</td></tr>';
-  h+='<tr class="budget-row"><td class="rlabel" style="color:var(--elec)">연간예산</td>';
-  h+='<td colspan="12" style="text-align:left;padding:6px 8px"><input type="number" value="'+(budget||'')+'" placeholder="연간 예산 입력 (원)" style="width:200px;text-align:left;font-weight:700;color:var(--elec)" onchange="setBudget(this.value)"></td>';
-  h+='<td class="total-cell" style="color:var(--elec)">'+(budget?won(budget):'-')+'</td></tr></tbody>';
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},unit=UNITS[T],budget=D[T].budget[Y]||'';
+  var h='<thead><tr><th></th>';for(var m=1;m<=12;m++)h+='<th>'+m+'월</th>';h+='<th>합계</th></tr></thead><tbody>';
+  var tU=0;h+='<tr><td class="rlabel">사용량('+unit+')</td>';for(m=1;m<=12;m++){var v=data[m]?data[m].u:'';if(v)tU+=v;h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'u\',this.value)"></td>';}h+='<td class="total-cell">'+fnum(tU)+'</td></tr>';
+  var tA=0;h+='<tr><td class="rlabel">요금(원)</td>';for(m=1;m<=12;m++){var v2=data[m]?data[m].a:'';if(v2)tA+=v2;h+='<td><input type="number" value="'+(v2||'')+'" placeholder="-" onchange="setVal('+m+',\'a\',this.value)"></td>';}h+='<td class="total-cell">'+won(tA)+'</td></tr>';
+  h+='<tr><td class="rlabel" style="color:var(--elec)">예산</td><td colspan="12" style="text-align:left;padding:4px 6px"><input type="number" value="'+(budget||'')+'" placeholder="연간 예산" style="width:180px;font-weight:700;color:var(--elec)" onchange="setBudget(this.value)"></td><td class="total-cell" style="color:var(--elec)">'+(budget?won(budget):'-')+'</td></tr></tbody>';
   $('dataTable').innerHTML=h;
 }
 
-// ── 차트 ──
-function renderCharts(){
-  var data=D[T][Y]||{};var prev=D[T][Y-1]||{};
-  var months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  var c=COLORS[T];
-  if(charts.usage) charts.usage.destroy();
-  if(charts.cost) charts.cost.destroy();
-
-  var uActual=[],uPredict=[],pData=[],aActual=[],aPredict=[],apData=[],wData=[],wpData=[];
-  var wd=W[Y]||{};var wpd=W[Y-1]||{};var lastM=0;
-  for(var m=1;m<=12;m++){
-    var d=data[m]; var isA=d&&(d.u||d.a);
-    if(isA){uActual.push(d.u||null);aActual.push(d.a||null);uPredict.push(null);aPredict.push(null);lastM=m;}
-    else{var pr=predictMonth(m);uActual.push(null);aActual.push(null);uPredict.push(pr?pr.u:null);aPredict.push(pr?pr.a:null);}
-    pData.push(prev[m]?prev[m].u:null);apData.push(prev[m]?prev[m].a:null);
-    wData.push(wd[m]?wd[m].avg:null);wpData.push(wpd[m]?wpd[m].avg:null);
-  }
-  if(lastM>0&&lastM<12){aPredict[lastM-1]=aActual[lastM-1];}
-
-  charts.usage=new Chart($('chartUsage'),{
-    type:'bar',data:{labels:months,datasets:[
-      {label:Y+'년 실측',data:uActual,backgroundColor:c.main+'cc',borderRadius:4,yAxisID:'y',order:2},
-      {label:Y+'년 예측',data:uPredict,backgroundColor:c.main+'33',borderColor:c.main+'aa',borderWidth:1.5,borderRadius:4,yAxisID:'y',order:2},
-      {label:(Y-1)+'년',data:pData,backgroundColor:c.light+'66',borderRadius:4,yAxisID:'y',order:3},
-      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:2,order:1},
-      {label:(Y-1)+'년 기온',data:wpData,type:'line',borderColor:'#e5393555',borderDash:[4,4],tension:.3,pointRadius:2,yAxisID:'y1',borderWidth:1.5,order:1}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}}}
-  });
-
-  charts.cost=new Chart($('chartCost'),{
-    type:'line',data:{labels:months,datasets:[
-      {label:(Y-1)+'년',data:apData,borderColor:'#c0c8d0',backgroundColor:'#e8ecf0',fill:'origin',tension:.3,pointRadius:0,borderWidth:0,order:3},
-      {label:Y+'년 실측',data:aActual,borderColor:c.main,fill:false,tension:.3,pointRadius:5,pointBackgroundColor:c.main,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:3.5,order:1},
-      {label:Y+'년 예측',data:aPredict,borderColor:c.main,fill:false,tension:.3,pointRadius:5,pointStyle:'triangle',pointBackgroundColor:c.main+'66',borderDash:[8,5],borderWidth:2.5,order:2}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:14,usePointStyle:true}},tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){var v=ctx.parsed.y;if(v==null)return null;return ctx.dataset.label+': '+won(v);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}}
-  });
-
-  var corr=correlation();
-  var cb=$('corrBadge');
-  if(cb){if(corr==null)cb.textContent='';else{var dir=corr>0?'↑양의 상관':'↓음의 상관';var s=Math.abs(corr);var l=s>0.7?'강함':s>0.4?'보통':'약함';var co=s>0.7?'#c62828':s>0.4?'#ef6c00':'#94a4b4';cb.innerHTML='기온↔사용량 <b style="color:'+co+'">'+dir+' '+l+'</b> (r='+corr.toFixed(2)+')';}}
-}
-
 // ── OCR ──
-async function handleUpload(files){
-  if(!files||!files.length) return;
-  var status=$('uploadStatus');status.textContent='분석 중...';var results=[],total=0;
-  for(var i=0;i<files.length;i++){
-    var file=files[i];var images=[];
-    try{
-      if(file.type==='application/pdf'){status.textContent='PDF 변환 중...';images=await pdfToImages(file);}
-      else{var du=await readFile(file);images=[du.split(',')[1]];}
-      for(var j=0;j<images.length;j++){total++;status.textContent='OCR 분석 중... ('+total+'번째)';var result=await ocrImage(images[j]);if(result) results.push(result);}
-    }catch(e){status.textContent='오류: '+e.message;}
-  }
-  if(results.length===0){status.textContent='인식 실패 — 직접 입력해주세요';}
-  else{
-    var msgs=[];
-    for(var k=0;k<results.length;k++){
-      var r=results[k];var type=r.bill_type||T;var yr=r.year,mo=r.month;if(!yr||!mo) continue;
-      if(!D[type]) D[type]={budget:{}};if(!D[type][yr]) D[type][yr]={};if(!D[type][yr][mo]) D[type][yr][mo]={u:0,a:0};
-      if(r.usage_amount) D[type][yr][mo].u=r.usage_amount;if(r.bill_amount) D[type][yr][mo].a=r.bill_amount;
-      await saveBillToDB(type,yr,mo,D[type][yr][mo].u,D[type][yr][mo].a);
-      msgs.push(type+' '+yr+'년 '+mo+'월 '+won(r.bill_amount||0));
-    }
-    status.textContent=results.length+'건 완료!';showOcrToast(msgs);
-    if(results[0].bill_type&&results[0].bill_type!==T){T=results[0].bill_type;dataLoaded[T]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===T)});}
-    if(results[0].year){Y=results[0].year;$('yLabel').textContent=Y+'년';}
-  }
-  render();$('fileIn').value='';setTimeout(function(){status.textContent=''},5000);
-}
-async function pdfToImages(file){
-  if(!window.pdfjsLib) throw new Error('PDF 지원 라이브러리 로딩 실패');
-  var ab=await file.arrayBuffer();var pdf=await pdfjsLib.getDocument({data:ab}).promise;var imgs=[];
-  for(var p=1;p<=Math.min(pdf.numPages,6);p++){var pg=await pdf.getPage(p);var vp=pg.getViewport({scale:2.0});var cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;imgs.push(cv.toDataURL('image/jpeg',0.85).split(',')[1]);}
-  return imgs;
-}
-async function ocrImage(base64){
-  try{var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:base64})});var d=await r.json();return(d.ocr&&(d.ocr.year||d.ocr.bill_amount))?d.ocr:null;}catch(e){return null}
-}
-function readFile(f){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result)};r.readAsDataURL(f)})}
-function showOcrToast(msgs){var ex=document.querySelector('.ocr-toast');if(ex)ex.remove();if(!msgs.length)return;var d=document.createElement('div');d.className='ocr-toast';d.innerHTML='<b>✅ 자동 인식 완료</b><br>'+msgs.join('<br>');document.body.appendChild(d);setTimeout(function(){d.remove()},6000);}
-
-// ── AI ──
-async function runAI(){
-  var data=D[T][Y]||{};var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({year:Y,month:m,usage_amount:data[m].u,bill_amount:data[m].a});
-  if(!arr.length){alert('데이터가 없습니다');return}
-  var el=$('aiResult');el.style.display='block';el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txt-l)">🤖 AI 분석 중... (10-15초)</div>';
-  var wd=W[Y]||{};var wa=[];for(m=1;m<=12;m++) if(wd[m]) wa.push({month:m,avg_temp:wd[m].avg});
-  try{
-    var r=await fetch(WORKER+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({billType:T,bills:arr,weather:wa,budget:D[T].budget[Y]||0,year:Y})});
-    var d=await r.json();if(d.error){el.textContent='오류: '+d.error;return}
-    var a=d.analysis||{};var h='<div style="line-height:2">';
-    if(a.summary) h+='<div style="font-size:15px;font-weight:700;margin-bottom:8px">📊 '+a.summary+'</div>';
-    if(a.trend) h+='<div><b>📈 추이:</b> '+a.trend+'</div>';
-    if(a.correlation) h+='<div><b>🌡️ 기온 상관:</b> '+a.correlation+'</div>';
-    if(a.anomalies) h+='<div><b>⚠️ 특이사항:</b> '+a.anomalies+'</div>';
-    if(a.suggestions) h+='<div><b>💡 절약 제안:</b> '+a.suggestions+'</div>';
-    if(a.forecast) h+='<div><b>🔮 향후 예상:</b> '+a.forecast+'</div>';
-    h+='</div>';el.innerHTML=h;
-  }catch(e){el.textContent='AI 분석 실패: '+e.message;}
-}
+async function handleUpload(files){if(!files||!files.length)return;var st=$('uploadStatus');st.textContent='분석 중...';var results=[],total=0;for(var i=0;i<files.length;i++){var file=files[i],images=[];try{if(file.type==='application/pdf'){st.textContent='PDF 변환 중...';images=await pdfToImages(file);}else{var du=await readFile(file);images=[du.split(',')[1]];}for(var j=0;j<images.length;j++){total++;st.textContent='OCR '+total+'번째...';var result=await ocrImage(images[j]);if(result)results.push(result);}}catch(e){st.textContent='오류: '+e.message;}}if(!results.length){st.textContent='인식 실패';}else{var msgs=[];for(var k=0;k<results.length;k++){var r=results[k],type=r.bill_type||T,yr=r.year,mo=r.month;if(!yr||!mo)continue;if(!D[type])D[type]={budget:{}};if(!D[type][yr])D[type][yr]={};if(!D[type][yr][mo])D[type][yr][mo]={u:0,a:0};if(r.usage_amount)D[type][yr][mo].u=r.usage_amount;if(r.bill_amount)D[type][yr][mo].a=r.bill_amount;await saveBillToDB(type,yr,mo,D[type][yr][mo].u,D[type][yr][mo].a);msgs.push(type+' '+yr+'년 '+mo+'월 '+won(r.bill_amount||0));}st.textContent=results.length+'건 완료!';showToast(msgs);if(results[0].bill_type&&results[0].bill_type!==T){T=results[0].bill_type;dataLoaded[T]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===T)});}if(results[0].year){Y=results[0].year;$('yLabel').textContent=Y+'년';}}render();$('fileIn').value='';setTimeout(function(){st.textContent='';},5000);}
+async function pdfToImages(file){if(!window.pdfjsLib)throw new Error('PDF 미지원');var ab=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:ab}).promise,imgs=[];for(var p=1;p<=Math.min(pdf.numPages,6);p++){var pg=await pdf.getPage(p),vp=pg.getViewport({scale:2}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;imgs.push(cv.toDataURL('image/jpeg',.85).split(',')[1]);}return imgs;}
+async function ocrImage(b64){try{var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});var d=await r.json();return(d.ocr&&(d.ocr.year||d.ocr.bill_amount))?d.ocr:null;}catch(e){return null;}}
+function readFile(f){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result)};r.readAsDataURL(f);})}
+function showToast(msgs){var ex=document.querySelector('.ocr-toast');if(ex)ex.remove();if(!msgs.length)return;var d=document.createElement('div');d.className='ocr-toast';d.innerHTML='<b>✅ 인식 완료</b><br>'+msgs.join('<br>');document.body.appendChild(d);setTimeout(function(){d.remove()},6000);}
 
 // ── 포맷 ──
 function fnum(n){return n?Number(n).toLocaleString():'-'}
-function won(n){
-  if(!n&&n!==0) return '-';
-  if(Math.abs(n)>=100000000) return (n/100000000).toFixed(1)+'억';
-  if(Math.abs(n)>=10000) return Math.round(n/10000).toLocaleString()+'만원';
-  return Number(n).toLocaleString()+'원';
-}
+function won(n){if(!n&&n!==0)return'-';if(Math.abs(n)>=1e8)return(n/1e8).toFixed(1)+'억';if(Math.abs(n)>=1e4)return Math.round(n/1e4).toLocaleString()+'만원';return Number(n).toLocaleString()+'원';}
 
 render();
 </script>
