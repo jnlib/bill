@@ -70,6 +70,45 @@ export default {
         return json({ ok: true });
       }
 
+      // ── 현재 날씨 (Open-Meteo current) ──
+      if (url.pathname === '/weather/now' && request.method === 'GET') {
+        const lat = 37.5665, lon = 126.9780;
+        const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,apparent_temperature&timezone=Asia%2FSeoul`;
+        try {
+          const r = await fetch(u);
+          const d = await r.json();
+          const cur = d.current || {};
+          const code = cur.weather_code;
+          return json({
+            temp: cur.temperature_2m,
+            feels_like: cur.apparent_temperature,
+            humidity: cur.relative_humidity_2m,
+            wind: cur.wind_speed_10m,
+            weather_code: code,
+            ...weatherCodeToText(code),
+            updated_at: cur.time || new Date().toISOString(),
+          });
+        } catch(e) {
+          return jsonErr('현재 날씨 조회 실패: ' + e.message, 500);
+        }
+      }
+
+      // ── 예년 평균 기온 (10년 평균, Supabase 캐시) ──
+      if (url.pathname === '/weather/normals' && request.method === 'GET') {
+        const cached = await supaGet(env, '/rest/v1/bill_weather_normals?order=month.asc');
+        if (Array.isArray(cached) && cached.length === 12) return json(cached);
+
+        // 캐시 없음 → 10년치 fetch 후 집계
+        const endY = new Date().getFullYear() - 1; // 작년까지
+        const startY = endY - 9; // 10년
+        const normals = await computeNormals(startY, endY);
+        if (normals.length === 12) {
+          await supaDelete(env, '/rest/v1/bill_weather_normals?month=gt.0');
+          await supaPost(env, '/rest/v1/bill_weather_normals', normals, true);
+        }
+        return json(normals);
+      }
+
       // ── 날씨 데이터 (Open-Meteo, API 키 불필요) ──
       if (url.pathname === '/weather' && request.method === 'GET') {
         const year = parseInt(url.searchParams.get('year'), 10);
@@ -320,6 +359,93 @@ async function fetchWeatherOpenMeteo(year) {
     });
   }
   return results;
+}
+
+// ── Open-Meteo weather_code → 텍스트/이모지 매핑 ──
+// WMO weather interpretation codes
+function weatherCodeToText(code) {
+  const map = {
+    0: { emoji: '☀️', text: '맑음' },
+    1: { emoji: '🌤️', text: '대체로 맑음' },
+    2: { emoji: '⛅', text: '구름 조금' },
+    3: { emoji: '☁️', text: '흐림' },
+    45: { emoji: '🌫️', text: '안개' },
+    48: { emoji: '🌫️', text: '짙은 안개' },
+    51: { emoji: '🌦️', text: '약한 이슬비' },
+    53: { emoji: '🌦️', text: '이슬비' },
+    55: { emoji: '🌧️', text: '강한 이슬비' },
+    56: { emoji: '🌧️', text: '얼어붙는 이슬비' },
+    57: { emoji: '🌧️', text: '강한 얼어붙는 이슬비' },
+    61: { emoji: '🌦️', text: '약한 비' },
+    63: { emoji: '🌧️', text: '비' },
+    65: { emoji: '🌧️', text: '강한 비' },
+    66: { emoji: '🌧️', text: '얼어붙는 비' },
+    67: { emoji: '🌧️', text: '강한 얼어붙는 비' },
+    71: { emoji: '🌨️', text: '약한 눈' },
+    73: { emoji: '❄️', text: '눈' },
+    75: { emoji: '❄️', text: '강한 눈' },
+    77: { emoji: '🌨️', text: '싸락눈' },
+    80: { emoji: '🌦️', text: '약한 소나기' },
+    81: { emoji: '🌧️', text: '소나기' },
+    82: { emoji: '⛈️', text: '강한 소나기' },
+    85: { emoji: '🌨️', text: '약한 눈 소나기' },
+    86: { emoji: '❄️', text: '눈 소나기' },
+    95: { emoji: '⛈️', text: '뇌우' },
+    96: { emoji: '⛈️', text: '우박 동반 뇌우' },
+    99: { emoji: '⛈️', text: '강한 우박 뇌우' },
+  };
+  return map[code] || { emoji: '🌡️', text: '알 수 없음' };
+}
+
+// ── 예년 평균 계산 (여러 연도 archive 데이터를 월별로 집계) ──
+async function computeNormals(startYear, endYear) {
+  const lat = 37.5665, lon = 126.9780;
+  const start = `${startYear}-01-01`;
+  const end = `${endYear}-12-31`;
+  const u = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul`;
+  try {
+    const r = await fetch(u);
+    const d = await r.json();
+    if (!d.daily || !d.daily.time) return [];
+
+    // 월별 집계
+    const byMonth = {};
+    for (let i = 0; i < d.daily.time.length; i++) {
+      const m = parseInt(d.daily.time[i].slice(5, 7), 10);
+      if (!byMonth[m]) byMonth[m] = { means: [], maxs: [], mins: [] };
+      if (d.daily.temperature_2m_mean[i] != null) byMonth[m].means.push(d.daily.temperature_2m_mean[i]);
+      if (d.daily.temperature_2m_max[i] != null) byMonth[m].maxs.push(d.daily.temperature_2m_max[i]);
+      if (d.daily.temperature_2m_min[i] != null) byMonth[m].mins.push(d.daily.temperature_2m_min[i]);
+    }
+
+    const results = [];
+    for (let m = 1; m <= 12; m++) {
+      const b = byMonth[m];
+      if (!b || b.means.length === 0) continue;
+      const avg = b.means.reduce((a, c) => a + c, 0) / b.means.length;
+      const mx = b.maxs.reduce((a, c) => a + c, 0) / b.maxs.length;
+      const mn = b.mins.reduce((a, c) => a + c, 0) / b.mins.length;
+      let hdd = 0, cdd = 0;
+      b.means.forEach(t => {
+        if (t < 18) hdd += (18 - t);
+        if (t > 24) cdd += (t - 24);
+      });
+      // 연도 수로 나눠서 "연평균 HDD/CDD"
+      const years = endYear - startYear + 1;
+      results.push({
+        month: m,
+        avg_temp: Math.round(avg * 10) / 10,
+        max_temp: Math.round(mx * 10) / 10,
+        min_temp: Math.round(mn * 10) / 10,
+        avg_hdd: Math.round(hdd / years),
+        avg_cdd: Math.round(cdd / years),
+        sample_years: years,
+      });
+    }
+    return results;
+  } catch(e) {
+    return [];
+  }
 }
 
 // ── Supabase 헬퍼 ──
