@@ -22,40 +22,76 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)}
 
-.hdr{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+/* ── 헤더 ── */
+.hdr{background:var(--navy);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
 .hdr-left{display:flex;align-items:center;gap:12px;color:#fff}
-.hdr-left img{height:22px;filter:brightness(10)}
-.hdr-title{font-size:18px;font-weight:700}
+.hdr-left img{height:20px;filter:brightness(10)}
+.hdr-title{font-size:17px;font-weight:700}
 .hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-right button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:14px}
+.hdr-right button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 11px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px}
 .hdr-right button:hover{background:rgba(255,255,255,.2)}
-.hdr-right span{color:#fff;font-size:16px;font-weight:700;min-width:56px;text-align:center}
+.hdr-right .yr{color:#fff;font-size:15px;font-weight:700;min-width:52px;text-align:center}
+.hdr-weather{color:rgba(255,255,255,.7);font-size:13px;margin-left:16px}
 
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 
 /* ── 탭 ── */
 .tabs{display:flex;gap:6px;margin-bottom:16px}
-.tab{flex:1;padding:12px;text-align:center;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;transition:.15s;border:2px solid transparent;background:var(--surface)}
+.tab{flex:1;padding:11px;text-align:center;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;transition:.15s;border:2px solid transparent;background:var(--surface)}
 .tab:hover{transform:translateY(-1px)}
 .tab[data-t="전기"]{color:var(--elec)}.tab[data-t="전기"].on{background:var(--elec-bg);border-color:var(--elec)}
 .tab[data-t="가스"]{color:var(--gas)}.tab[data-t="가스"].on{background:var(--gas-bg);border-color:var(--gas)}
 .tab[data-t="수도"]{color:var(--water)}.tab[data-t="수도"].on{background:var(--water-bg);border-color:var(--water)}
 
-/* ── 요약 카드 ── */
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.s-card{background:var(--surface);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
-.s-label{font-size:12px;color:var(--txt-l);font-weight:500;margin-bottom:6px}
-.s-value{font-size:22px;font-weight:900}
-.s-sub{font-size:11px;margin-top:4px}
-.s-up{color:var(--red)}.s-down{color:var(--green)}.s-neutral{color:var(--txt-l)}
+/* ── 히어로 ── */
+.hero{background:var(--surface);border-radius:16px;padding:28px 32px;box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0}
+.hero.st-ok::before{background:var(--green)}.hero.st-warn::before{background:var(--yellow)}.hero.st-over::before{background:var(--red)}
+.hero-top{display:flex;align-items:center;gap:20px;margin-bottom:20px}
+.hero-light{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;flex-shrink:0}
+.hero-light.ok{background:var(--green)}.hero-light.warn{background:var(--yellow)}.hero-light.over{background:var(--red)}
+.hero-main{flex:1}
+.hero-amount{font-size:36px;font-weight:900;line-height:1.1}
+.hero-sub{font-size:13px;color:var(--txt-m);margin-top:4px;line-height:1.5}
+.hero-trend{display:inline-block;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:700;margin-left:12px}
+.hero-trend.up{background:#ffebee;color:var(--red)}.hero-trend.down{background:#e8f5e9;color:var(--green)}.hero-trend.flat{background:#f5f5f5;color:var(--txt-l)}
+.hero-bar{margin-bottom:10px}
+.hero-bar-track{height:14px;background:var(--border);border-radius:7px;overflow:hidden;position:relative}
+.hero-bar-actual{height:100%;border-radius:7px;transition:width .6s;position:absolute;left:0;top:0}
+.hero-bar-predict{height:100%;border-radius:7px;transition:width .6s;position:absolute;left:0;top:0;opacity:.25}
+.hero-bar-limit{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--red);border-radius:2px}
+.hero-bar-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--txt-m)}
+.hero-forecast{font-size:12px;color:var(--txt-m);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:8px;line-height:1.6}
 
-/* ── 메인 그리드 ── */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+/* ── 12월 카드 그리드 ── */
+.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin-bottom:16px}
+.m-card{background:var(--surface);border-radius:10px;padding:10px 6px;text-align:center;box-shadow:var(--shadow);cursor:default;transition:.15s;border:2px solid transparent;min-height:110px;display:flex;flex-direction:column;justify-content:center}
+.m-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.m-card.anomaly{border-color:var(--red);box-shadow:0 0 12px rgba(198,40,40,.15)}
+.m-card.saving{border-color:var(--green)}
+.m-card.empty{background:#f8f9fb;border:2px dashed var(--border);cursor:pointer;opacity:.7}
+.m-card.empty:hover{border-color:var(--elec);opacity:1}
+.m-card.predicted{border:2px dashed var(--border);opacity:.65}
+.m-month{font-size:11px;font-weight:700;color:var(--txt-l);margin-bottom:4px}
+.m-amount{font-size:15px;font-weight:900;line-height:1.2}
+.m-usage{font-size:10px;color:var(--txt-l);margin-top:2px}
+.m-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:700;margin-top:4px}
+.m-badge.up{background:#ffebee;color:var(--red)}.m-badge.down{background:#e8f5e9;color:var(--green)}.m-badge.flat{background:#f5f5f5;color:var(--txt-l)}
+.m-tag{font-size:9px;color:var(--red);font-weight:600;margin-top:2px}
+.m-empty-text{font-size:10px;color:var(--txt-l)}
+.m-predict-text{font-size:10px;color:var(--txt-l);font-style:italic}
+
+@media(max-width:900px){.month-grid{grid-template-columns:repeat(6,1fr)}}
+@media(max-width:500px){.month-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* ── 편집 영역 (접힘) ── */
+.edit-toggle{background:none;border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--txt-m);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.edit-toggle:hover{background:var(--bg)}
+.edit-panel{display:none;margin-bottom:16px}
+.edit-panel.open{display:block}
 .card{background:var(--surface);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
-.card-full{grid-column:1/-1}
-.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 
-/* ── 데이터 테이블 (직접 편집) ── */
+/* ── 테이블 ── */
 .dtable{width:100%;border-collapse:collapse;font-size:13px}
 .dtable th{padding:8px 4px;font-size:11px;font-weight:600;color:var(--txt-l);text-align:center;border-bottom:2px solid var(--border);background:var(--bg)}
 .dtable td{padding:0;text-align:center;border-bottom:1px solid #f0f0f0;height:36px}
@@ -67,102 +103,34 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .dtable .budget-row input{color:var(--elec)}
 .dtable .budget-row td{background:rgba(25,118,210,.02)}
 
-/* 예산 상태 색상 */
-.budget-ok{background:var(--elec-bg) !important}
-.budget-warn{background:#fff8e1 !important}
-.budget-over{background:#ffebee !important}
-.budget-bar{height:4px;border-radius:2px;margin-top:4px;background:var(--border)}
-.budget-fill{height:100%;border-radius:2px;transition:width .3s}
-
 /* ── 차트 ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .chart-wrap{position:relative;height:220px}
 
-/* ── AI 패널 ── */
+/* ── AI ── */
 .ai-btn{padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:.15s;background:var(--navy);color:#fff}
 .ai-btn:hover{opacity:.85}
-.ai-result{margin-top:14px;font-size:13px;line-height:1.9;color:var(--txt-m);white-space:pre-line;background:var(--bg);border-radius:8px;padding:14px}
+.ai-result{margin-top:14px;font-size:13px;line-height:1.9;color:var(--txt-m);background:var(--bg);border-radius:8px;padding:14px}
 
 /* ── 업로드 ── */
-.upload-bar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.upload-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .upload-btn{padding:10px 18px;font-size:13px;font-weight:600;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;font-family:inherit;background:var(--surface);color:var(--txt-m);transition:.15s}
 .upload-btn:hover{border-color:var(--elec);color:var(--elec);background:var(--elec-bg)}
 .upload-status{font-size:12px;color:var(--txt-l)}
 
-/* ── 히어로 배너 (날씨 + 브리핑) ── */
-.hero{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:16px}
-.hero-weather{background:linear-gradient(135deg,#4a90e2,#7b68ee);border-radius:14px;padding:22px;color:#fff;box-shadow:0 4px 20px rgba(74,144,226,.25);position:relative;overflow:hidden}
-.hero-weather::before{content:'';position:absolute;top:-30%;right:-20%;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);pointer-events:none}
-.hw-emoji{font-size:56px;line-height:1;margin-bottom:4px}
-.hw-temp{font-size:40px;font-weight:900;line-height:1.1}
-.hw-text{font-size:14px;opacity:.92;margin-top:2px;font-weight:500}
-.hw-sub{font-size:11px;opacity:.78;margin-top:2px}
-.hw-divider{height:1px;background:rgba(255,255,255,.2);margin:14px 0 12px}
-.hw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px}
-.hw-row b{font-size:14px;font-weight:700}
-.hw-diff{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:4px}
-.hw-diff.hot{background:rgba(255,180,120,.3);color:#ffe9d6}
-.hw-diff.cold{background:rgba(160,220,255,.3);color:#e0f2ff}
-.hw-diff.normal{background:rgba(255,255,255,.18);color:#fff}
-
-.hero-briefing{background:var(--surface);border-radius:14px;padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--elec)}
-.hb-title{font-size:13px;font-weight:700;color:var(--txt-m);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.hb-title span:last-child{font-size:10px;color:var(--txt-l);font-weight:500;margin-left:auto}
-.hb-lead{font-size:15px;color:var(--txt);line-height:1.6;margin-bottom:12px;font-weight:500}
-.hb-kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.hb-kv-item{background:var(--bg);border-radius:8px;padding:10px 12px}
-.hb-kv-label{font-size:10px;color:var(--txt-l);font-weight:600;margin-bottom:2px}
-.hb-kv-value{font-size:16px;font-weight:900;color:var(--txt)}
-.hb-kv-sub{font-size:10px;color:var(--txt-m);margin-top:1px}
-.hb-advice{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
-.hb-advice-title{font-size:11px;font-weight:700;color:var(--elec);margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.hb-advice ul{list-style:none;padding:0;margin:0}
-.hb-advice li{font-size:12px;color:var(--txt-m);padding:3px 0 3px 16px;position:relative;line-height:1.5}
-.hb-advice li::before{content:'·';position:absolute;left:6px;font-weight:900;color:var(--elec)}
-.hb-none{font-size:12px;color:var(--txt-l);font-style:italic;padding:10px 0}
-
-@media(max-width:768px){
-  .hero{grid-template-columns:1fr}
-}
-
-/* ── 알림 ── */
-.alert-bar{margin-bottom:16px;border-radius:10px;overflow:hidden}
-.alert-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;border-bottom:1px solid rgba(0,0,0,.06)}
-.alert-item:last-child{border:none}
-.alert-warn{background:#fff8e1;color:#b8860b}
-.alert-error{background:#ffebee;color:#c62828}
-.alert-ok{background:#e8f5e9;color:#2e7d32}
-.alert-icon{font-size:18px;flex-shrink:0}
-.alert-text{flex:1;line-height:1.4}
-.alert-text b{font-weight:700}
-
-/* ── OCR 결과 토스트 ── */
+/* ── 토스트 ── */
 .ocr-toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:360px;line-height:1.6;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── 예산 게이지 ── */
-.gauge{margin-top:12px}
-.gauge-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;position:relative}
-.gauge-fill{height:100%;border-radius:10px;transition:width .5s}
-.gauge-fill.ok{background:linear-gradient(90deg,var(--green),#66bb6a)}
-.gauge-fill.warn{background:linear-gradient(90deg,var(--yellow),#fdd835)}
-.gauge-fill.over{background:linear-gradient(90deg,var(--red),#ef5350)}
-.gauge-label{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--txt-m)}
-.gauge-bar-m{display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--border);gap:1px}
-.seg{transition:all .3s;position:relative}
-.seg-actual{background:var(--green);opacity:.8}
-.seg-predict{background:var(--green);opacity:.25}
-.seg-over{background:var(--red) !important}
-.seg:hover{opacity:1;transform:scaleY(1.15)}
-.gauge-months{display:flex;margin-top:2px}
-.gauge-months span{text-align:center;font-size:9px;color:var(--txt-l);font-weight:500}
-.ok{--ok:var(--green)}.warn{--warn:var(--yellow)}.over{--over:var(--red)}
+/* ── 이상치 팝업 ── */
+.anomaly-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border-radius:16px;padding:24px;box-shadow:0 16px 60px rgba(0,0,0,.2);z-index:998;max-width:380px;width:90%}
+.anomaly-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:997}
 
 @media(max-width:768px){
-  .summary{grid-template-columns:1fr 1fr}
   .grid{grid-template-columns:1fr}
-  .dtable{font-size:11px}
-  .dtable input{font-size:11px;padding:4px 3px}
-  .s-value{font-size:18px}
+  .hero-amount{font-size:28px}
+  .hero-top{flex-wrap:wrap}
 }
 </style>
 </head>
@@ -172,65 +140,52 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   <div class="hdr-left">
     <img src="https://jnlib.sen.go.kr/resources/homepage/jnlib/img/jnlib_logo.png" alt="">
     <span class="hdr-title">공과금 관리</span>
+    <span class="hdr-weather" id="hdrWeather"></span>
   </div>
   <div class="hdr-right">
     <button onclick="chgYear(-1)">&lt;</button>
-    <span id="yLabel">2025년</span>
+    <span class="yr" id="yLabel">2025년</span>
     <button onclick="chgYear(1)">&gt;</button>
   </div>
 </div>
 
 <div class="wrap">
-
   <div class="tabs">
     <div class="tab on" data-t="전기" onclick="setTab('전기')">&#9889; 전기</div>
     <div class="tab" data-t="가스" onclick="setTab('가스')">&#128293; 가스</div>
     <div class="tab" data-t="수도" onclick="setTab('수도')">&#128167; 수도</div>
   </div>
 
-  <!-- 히어로: 오늘 날씨 + AI 브리핑 -->
-  <div class="hero">
-    <div class="hero-weather" id="heroWeather">
-      <div class="hw-emoji">🌡️</div>
-      <div class="hw-temp">--°C</div>
-      <div class="hw-text">날씨 로딩 중...</div>
-      <div class="hw-sub">서울 종로구</div>
-    </div>
-    <div class="hero-briefing" id="heroBriefing">
-      <div class="hb-title">📋 오늘의 브리핑 <span>자동 분석</span></div>
-      <div class="hb-lead">데이터를 분석하고 있어요...</div>
-    </div>
-  </div>
+  <!-- 히어로 -->
+  <div class="hero" id="hero"></div>
 
-  <!-- 알림 바 -->
-  <div id="alertBar" style="display:none"></div>
+  <!-- 12개월 카드 그리드 -->
+  <div class="month-grid" id="monthGrid"></div>
 
-  <!-- 요약 -->
-  <div class="summary" id="summary"></div>
+  <!-- 편집 토글 -->
+  <button class="edit-toggle" onclick="toggleEdit()">
+    <span id="editIcon">&#9998;</span> <span id="editLabel">데이터 편집 · 업로드</span>
+  </button>
 
-  <!-- 예산 게이지 -->
-  <div class="card" id="gaugeCard" style="margin-bottom:16px">
-    <div class="card-title">예산 집행 현황</div>
-    <div class="gauge" id="gauge"></div>
-  </div>
-
-  <!-- 업로드 + 테이블 -->
-  <div class="card card-full" style="margin-bottom:16px">
-    <div class="card-title">
-      <span>월별 데이터</span>
-      <div class="upload-bar">
-        <label class="upload-btn" for="fileIn">&#128247; 고지서 업로드</label>
-        <input type="file" id="fileIn" accept="image/*,.pdf" multiple onchange="handleUpload(this.files)" style="display:none">
-        <span class="upload-status" id="uploadStatus"></span>
+  <!-- 편집 패널 (접힘) -->
+  <div class="edit-panel" id="editPanel">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">
+        <span>월별 데이터</span>
+        <div class="upload-bar">
+          <label class="upload-btn" for="fileIn">&#128247; 고지서 업로드 (이미지·PDF 통합)</label>
+          <input type="file" id="fileIn" accept="image/*,.pdf" multiple onchange="handleUpload(this.files)" style="display:none">
+          <span class="upload-status" id="uploadStatus"></span>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dtable" id="dataTable"></table>
       </div>
     </div>
-    <div style="overflow-x:auto">
-      <table class="dtable" id="dataTable"></table>
-    </div>
   </div>
 
+  <!-- 차트 -->
   <div class="grid">
-    <!-- 사용량 + 기온 -->
     <div class="card">
       <div class="card-title">
         <span>사용량 · 기온 비교</span>
@@ -238,7 +193,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
       </div>
       <div class="chart-wrap"><canvas id="chartUsage"></canvas></div>
     </div>
-    <!-- 요금 추이 + 예측 -->
     <div class="card">
       <div class="card-title">
         <span>요금 추이 (예측 포함)</span>
@@ -246,23 +200,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
       </div>
       <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
     </div>
-    <!-- AI -->
-    <div class="card card-full">
-      <div class="card-title">
-        <span>&#129302; AI 분석</span>
-        <button class="ai-btn" onclick="runAI()">분석 실행</button>
-      </div>
-      <div class="ai-result" id="aiResult" style="display:none"></div>
-    </div>
   </div>
 
+  <!-- AI -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">
+      <span>&#129302; AI 종합 분석</span>
+      <button class="ai-btn" onclick="runAI()">분석 실행</button>
+    </div>
+    <div class="ai-result" id="aiResult" style="display:none"></div>
+  </div>
 </div>
+
+<!-- 이상치 팝업 컨테이너 -->
+<div id="popupContainer"></div>
 
 <script>
 var WORKER = 'https://bill-worker.hdh1231.workers.dev';
 var Y = new Date().getFullYear();
 var T = '전기';
 var charts = {};
+var editOpen = false;
 
 var $ = function(id){return document.getElementById(id)};
 var UNITS = {'전기':'kWh','가스':'m³','수도':'m³'};
@@ -272,906 +230,428 @@ var COLORS = {
   '수도':{main:'#00897b',light:'#80cbc4',bg:'#e0f2f1'}
 };
 
-// 데이터 저장소
 var D = {
-  '전기':{2023:{},2024:{},2025:{},budget:{}},
-  '가스':{2023:{},2024:{},2025:{},budget:{}},
-  '수도':{2023:{},2024:{},2025:{},budget:{}}
+  '전기':{2023:{},2024:{},2025:{},2026:{},budget:{}},
+  '가스':{2023:{},2024:{},2025:{},2026:{},budget:{}},
+  '수도':{2023:{},2024:{},2025:{},2026:{},budget:{}}
 };
-
-// 기온 데이터 (Worker /weather에서 Open-Meteo로 가져옴)
-// 형식: W[year][month] = {avg, max, min, hdd, cdd}
 var W = {};
-var wLoading = {}; // 중복 요청 방지
+var wLoading = {};
+var CURRENT_W = null;
+var curLoading = null;
+var NORMALS = null;
+var nLoading = null;
 
-// DB에서 데이터 로드 (탭 변경 시 호출)
+// ══ DB ══
 var dataLoaded = {};
 async function loadFromDB(type) {
   if (dataLoaded[type]) return;
   try {
     var r = await fetch(WORKER + '/load?type=' + encodeURIComponent(type));
     var d = await r.json();
-    if (d.error) { console.error('loadFromDB:', d.error); return; }
-    // bills → D[type][year][month]
+    if (d.error) return;
     (d.bills || []).forEach(function(b) {
       if (!D[type][b.year]) D[type][b.year] = {};
-      D[type][b.year][b.month] = {
-        u: parseFloat(b.usage_amount) || 0,
-        a: parseInt(b.bill_amount) || 0,
-        id: b.id
-      };
+      D[type][b.year][b.month] = { u: parseFloat(b.usage_amount) || 0, a: parseInt(b.bill_amount) || 0, id: b.id };
     });
-    // budgets → D[type].budget[year]
-    (d.budgets || []).forEach(function(b) {
-      D[type].budget[b.year] = parseInt(b.amount) || 0;
-    });
-    // memos → D[type].memo[year][month]
-    if (!D[type].memo) D[type].memo = {};
-    (d.memos || []).forEach(function(m) {
-      if (!D[type].memo[m.year]) D[type].memo[m.year] = {};
-      D[type].memo[m.year][m.month] = m.memo;
-    });
+    (d.budgets || []).forEach(function(b) { D[type].budget[b.year] = parseInt(b.amount) || 0; });
     dataLoaded[type] = true;
-  } catch(e) { console.error('DB load failed:', e); }
+  } catch(e) {}
 }
-
-// DB에 저장
 async function saveBillToDB(type, year, month, usage, amount) {
-  try {
-    await fetch(WORKER + '/bills', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify([{
-        bill_type: type, year: year, month: month,
-        usage_amount: usage || null,
-        usage_unit: UNITS[type],
-        bill_amount: amount || null
-      }])
-    });
-  } catch(e) { console.error('saveBill:', e); }
+  try { await fetch(WORKER + '/bills', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([{ bill_type: type, year: year, month: month, usage_amount: usage || null, usage_unit: UNITS[type], bill_amount: amount || null }]) }); } catch(e) {}
 }
-
 async function saveBudgetToDB(type, year, amount) {
-  try {
-    await fetch(WORKER + '/budgets', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify([{ bill_type: type, year: year, amount: amount || 0 }])
-    });
-  } catch(e) { console.error('saveBudget:', e); }
+  try { await fetch(WORKER + '/budgets', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([{ bill_type: type, year: year, amount: amount || 0 }]) }); } catch(e) {}
 }
 
-function setTab(t){T=t;dataLoaded[t]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
-function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
-
-// ── 날씨 데이터 로드 (Open-Meteo via Worker) ──
+// ══ Weather ══
 function loadWeather(year){
   if(W[year]) return Promise.resolve(W[year]);
   if(wLoading[year]) return wLoading[year];
-  wLoading[year] = fetch(WORKER+'/weather?year='+year)
-    .then(function(r){return r.json()})
-    .then(function(rows){
-      var map = {};
-      if(Array.isArray(rows)){
-        rows.forEach(function(r){
-          map[r.month] = {
-            avg: r.avg_temp,
-            max: r.max_temp,
-            min: r.min_temp,
-            hdd: r.heating_degree_days,
-            cdd: r.cooling_degree_days
-          };
-        });
-      }
-      W[year] = map;
-      delete wLoading[year];
-      return map;
-    })
-    .catch(function(){
-      W[year] = {};
-      delete wLoading[year];
-      return {};
-    });
+  wLoading[year] = fetch(WORKER+'/weather?year='+year).then(function(r){return r.json()}).then(function(rows){
+    var map = {};
+    if(Array.isArray(rows)) rows.forEach(function(r){ map[r.month] = {avg:r.avg_temp,max:r.max_temp,min:r.min_temp,hdd:r.heating_degree_days,cdd:r.cooling_degree_days}; });
+    W[year] = map; delete wLoading[year]; return map;
+  }).catch(function(){ W[year]={}; delete wLoading[year]; return {}; });
   return wLoading[year];
 }
-
-// ── 현재 날씨 (오늘) ──
-var CURRENT_W = null;
-var curLoading = null;
 function loadCurrentWeather(){
   if(CURRENT_W) return Promise.resolve(CURRENT_W);
   if(curLoading) return curLoading;
-  curLoading = fetch(WORKER+'/weather/now')
-    .then(function(r){return r.json()})
-    .then(function(d){
-      CURRENT_W = d || {};
-      curLoading = null;
-      renderWeatherWidget();
-      return CURRENT_W;
-    })
-    .catch(function(){ curLoading=null; return {}; });
+  curLoading = fetch(WORKER+'/weather/now').then(function(r){return r.json()}).then(function(d){
+    CURRENT_W=d||{}; curLoading=null;
+    var el=$('hdrWeather');
+    if(el && d.emoji) el.textContent = d.emoji + ' ' + Math.round(d.temp) + '°C';
+    return CURRENT_W;
+  }).catch(function(){curLoading=null;return {}});
   return curLoading;
 }
-
-// ── 예년 월평균 (10년 평균) ──
-var NORMALS = null;
-var nLoading = null;
 function loadNormals(){
   if(NORMALS) return Promise.resolve(NORMALS);
   if(nLoading) return nLoading;
-  nLoading = fetch(WORKER+'/weather/normals')
-    .then(function(r){return r.json()})
-    .then(function(rows){
-      var map = {};
-      if(Array.isArray(rows)) rows.forEach(function(r){ map[r.month] = r; });
-      NORMALS = map;
-      nLoading = null;
-      return NORMALS;
-    })
-    .catch(function(){ nLoading=null; NORMALS={}; return NORMALS; });
+  nLoading = fetch(WORKER+'/weather/normals').then(function(r){return r.json()}).then(function(rows){
+    var map={}; if(Array.isArray(rows)) rows.forEach(function(r){map[r.month]=r;}); NORMALS=map; nLoading=null; return NORMALS;
+  }).catch(function(){nLoading=null;NORMALS={};return NORMALS;});
   return nLoading;
 }
 
-// ── 오늘 날씨 위젯 ──
-function renderWeatherWidget(){
-  var el = $('heroWeather');
-  if(!el || !CURRENT_W || CURRENT_W.temp == null){
-    return;
-  }
-  var now = new Date();
-  var curMonth = now.getMonth()+1;
-  var curY = now.getFullYear();
-
-  // 이달 평균기온 (당해년)
-  var thisMonthAvg = null;
-  if(W[curY] && W[curY][curMonth]) thisMonthAvg = W[curY][curMonth].avg;
-
-  // 예년 평균
-  var normalAvg = (NORMALS && NORMALS[curMonth]) ? NORMALS[curMonth].avg_temp : null;
-
-  var diffHtml = '';
-  if(thisMonthAvg != null && normalAvg != null){
-    var diff = Math.round((thisMonthAvg - normalAvg) * 10) / 10;
-    var sign = diff > 0 ? '+' : '';
-    var cls = Math.abs(diff) < 0.5 ? 'normal' : (diff > 0 ? 'hot' : 'cold');
-    diffHtml = '<span class="hw-diff '+cls+'">예년 '+sign+diff+'°C</span>';
-  }
-
-  var thisMonthRow = '';
-  if(thisMonthAvg != null){
-    thisMonthRow = '<div class="hw-row"><span>'+curMonth+'월 평균기온</span><b>'+thisMonthAvg+'°C</b></div>';
-  }
-  var normalRow = '';
-  if(normalAvg != null){
-    normalRow = '<div class="hw-row"><span>예년 '+curMonth+'월 평균</span><b>'+normalAvg+'°C</b>'+diffHtml+'</div>';
-  }
-
-  el.innerHTML = '<div class="hw-emoji">'+(CURRENT_W.emoji||'🌡️')+'</div>'
-    +'<div class="hw-temp">'+Math.round(CURRENT_W.temp)+'°C</div>'
-    +'<div class="hw-text">'+(CURRENT_W.text||'-')+'</div>'
-    +'<div class="hw-sub">서울 종로구 · 체감 '+Math.round(CURRENT_W.feels_like||CURRENT_W.temp)+'°C · 습도 '+(CURRENT_W.humidity||0)+'%</div>'
-    +'<div class="hw-divider"></div>'
-    +thisMonthRow
-    +normalRow;
-}
-
-// ── 브리핑 생성 (룰 기반) ──
-function renderBriefing(){
-  var el = $('heroBriefing');
-  if(!el) return;
-
-  var now = new Date();
-  var curMonth = now.getMonth()+1;
-  var curY = now.getFullYear();
-  var isCurYear = Y === curY;
-  // 현재 관심 월: 현재 연도면 오늘 월, 과거 연도면 12월, 미래년이면 1월
-  var focusMonth = isCurYear ? curMonth : (Y < curY ? 12 : 1);
-
-  var data = D[T][Y] || {};
-  var prev = D[T][Y-1] || {};
-
-  // 이달 기온 (실측 있으면 그걸, 없으면 null)
-  var thisMonthAvg = (W[Y]||{})[focusMonth] ? W[Y][focusMonth].avg : null;
-  var normalAvg = (NORMALS && NORMALS[focusMonth]) ? NORMALS[focusMonth].avg_temp : null;
-  var tempDiff = (thisMonthAvg != null && normalAvg != null) ? Math.round((thisMonthAvg - normalAvg) * 10) / 10 : null;
-
-  // 이달 요금 (실측 or 예측)
-  var thisBill = null, isPredicted = false;
-  if(data[focusMonth] && data[focusMonth].a){
-    thisBill = data[focusMonth].a;
-  } else {
-    var p = predictMonth(focusMonth);
-    if(p) { thisBill = p.a; isPredicted = true; }
-  }
-
-  // 전년 동월
-  var prevBill = prev[focusMonth] ? prev[focusMonth].a : null;
-  var billDiff = (thisBill && prevBill) ? Math.round((thisBill - prevBill) / prevBill * 100) : null;
-
-  // 리드 문장
-  var lead = '';
-  if(CURRENT_W && CURRENT_W.text){
-    lead += '오늘 서울은 <b>'+CURRENT_W.text+' '+Math.round(CURRENT_W.temp||0)+'°C</b>';
-    if(tempDiff != null){
-      if(Math.abs(tempDiff) < 0.5){
-        lead += ', 이달은 예년과 비슷한 편이에요.';
-      } else if(tempDiff > 0){
-        lead += ', 이달은 예년보다 <b style="color:#ef6c00">'+tempDiff+'°C 따뜻</b>해요.';
-      } else {
-        lead += ', 이달은 예년보다 <b style="color:#1976d2">'+Math.abs(tempDiff)+'°C 추운</b> 편이에요.';
-      }
-    } else {
-      lead += '.';
-    }
-  } else {
-    lead = '데이터를 가져오는 중이에요...';
-  }
-
-  // KV 카드들
-  var kvHtml = '';
-  if(thisBill != null){
-    var billLabel = T+' '+focusMonth+'월 '+(isPredicted ? '예상' : '실측')+' 요금';
-    var billColor = billDiff == null ? '#1a2a3a' : (billDiff > 5 ? '#c62828' : (billDiff < -5 ? '#2e7d32' : '#1a2a3a'));
-    var diffText = billDiff != null ? '전년 대비 '+(billDiff>0?'+':'')+billDiff+'%' : '-';
-    kvHtml += '<div class="hb-kv-item"><div class="hb-kv-label">'+billLabel+'</div><div class="hb-kv-value" style="color:'+billColor+'">'+won(thisBill)+'</div><div class="hb-kv-sub">'+diffText+'</div></div>';
-  }
-
-  // 연말 예상 총액
-  var endTotal = 0;
-  for(var m=1;m<=12;m++){
-    if(data[m] && data[m].a) endTotal += data[m].a;
-    else {
-      var pp = predictMonth(m);
-      if(pp) endTotal += pp.a;
-    }
-  }
-  var budget = D[T].budget[Y] || 0;
-  if(endTotal > 0){
-    var pct = budget ? Math.round(endTotal/budget*100) : null;
-    var pctText = pct != null ? pct+'% 집행 예상' : '예산 미설정';
-    var pctColor = pct == null ? '#1a2a3a' : (pct > 100 ? '#c62828' : (pct > 90 ? '#ef6c00' : '#2e7d32'));
-    kvHtml += '<div class="hb-kv-item"><div class="hb-kv-label">연말 총액 예상</div><div class="hb-kv-value" style="color:'+pctColor+'">'+won(endTotal)+'</div><div class="hb-kv-sub">'+pctText+'</div></div>';
-  }
-
-  // 행동 안내
-  var advice = getAdvice(T, focusMonth, tempDiff, billDiff);
-  var adviceHtml = '';
-  if(advice && advice.length){
-    adviceHtml = '<div class="hb-advice"><div class="hb-advice-title">💡 지금 할 일</div><ul>'
-      + advice.map(function(a){return '<li>'+a+'</li>'}).join('')
-      + '</ul></div>';
-  }
-
-  el.innerHTML = '<div class="hb-title">📋 오늘의 브리핑 <span>'+T+' · '+focusMonth+'월 기준</span></div>'
-    +'<div class="hb-lead">'+lead+'</div>'
-    +(kvHtml ? '<div class="hb-kv">'+kvHtml+'</div>' : '')
-    +adviceHtml;
-}
-
-// ── 행동 안내 (종류·계절·기온편차별) ──
-function getAdvice(type, month, tempDiff, billDiff){
-  var isSummer = month >= 6 && month <= 9;
-  var isWinter = (month >= 11 || month <= 3);
-  var isSpring = month >= 4 && month <= 5;
-  var isFall = month === 10;
-  var tips = [];
-
-  if(type === '전기'){
-    if(isSummer){
-      if(tempDiff != null && tempDiff > 1){
-        tips.push('냉방 설정온도 <b>26°C 이상</b> 유지 (1°C 올릴 때마다 ~7% 절감)');
-        tips.push('피크시간대 <b>14-17시</b> 고전력 기기 사용 자제');
-        tips.push('야간에 창문 개방해 실내 축적열 배출');
-        tips.push('사용 안 하는 사무공간·조명 OFF 점검');
-      } else if(tempDiff != null && tempDiff < -1){
-        tips.push('평년보다 선선해요. <b>자연 환기 위주</b>로 운영 가능');
-        tips.push('냉방 가동 최소화로 절감 기회');
-      } else {
-        tips.push('예년 수준. 일상 절약 수칙(대기전력 차단, 조명 관리) 유지');
-      }
-    } else if(isWinter){
-      if(tempDiff != null && tempDiff < -1){
-        tips.push('전기 난방기 사용 증가 예상 — <b>시간제 가동</b>으로 제한');
-        tips.push('주 난방은 가스/중앙으로, 전기는 보조로만');
-      } else {
-        tips.push('난방기 사용 <b>19-20°C</b> 설정');
-        tips.push('해가 있을 땐 블라인드 올려 자연 채광·복사열 활용');
-      }
-    } else {
-      tips.push('냉·난방 부하 낮은 계절. <b>기본 조명·대기전력 관리</b>에 집중');
-      tips.push('환기 20분/하루, 습도 40-60% 유지');
-    }
-  } else if(type === '가스'){
-    if(isWinter){
-      if(tempDiff != null && tempDiff < -1){
-        tips.push('평년보다 추워요 — 난방비 급증 위험');
-        tips.push('설정온도 <b>20°C 이하</b>, 외출 시 17-18°C로 낮추기');
-        tips.push('창문·문틈 외풍 차단 (문풍지, 에어캡 점검)');
-        tips.push('가습기 가동으로 체감온도 UP (같은 온도도 더 따뜻하게 느낌)');
-      } else if(tempDiff != null && tempDiff > 1){
-        tips.push('포근해요 — 난방 <b>시간 단축</b> 가능');
-        tips.push('주간 난방 OFF, 업무 시간대만 가동');
-      } else {
-        tips.push('난방 <b>20°C 이하</b>, 사용 안 하는 공간은 차단');
-      }
-    } else if(isSummer){
-      tips.push('가스 사용량 자체가 적은 시즌 — <b>특이 변동 없는지 점검</b>');
-      tips.push('온수기 등 상시 가동 기기 효율 확인');
-    } else {
-      tips.push('환절기 — 필요시에만 난방 <b>간헐 가동</b>');
-    }
-  } else if(type === '수도'){
-    tips.push('누수 점검: 계량기 모두 잠근 상태에서 <b>회전 여부</b> 확인');
-    tips.push('화장실·청소 용수 <b>세심한 관리</b>');
-    if(billDiff != null && billDiff > 15){
-      tips.push('⚠️ 전년 대비 사용 급증 — <b>누수 의심 시 즉시 전문가 점검</b>');
-    }
-  }
-
-  if(billDiff != null && billDiff > 10 && type !== '수도'){
-    tips.unshift('⚠️ 이달 예상 요금이 전년보다 크게 늘어요 — 선제적 절감 조치 권장');
-  }
-
-  return tips;
-}
-
-async function render(){
-  // 1) DB에서 이 탭 데이터 로드 (첫 로드시만)
-  await loadFromDB(T);
-  // 2) UI 즉시 그리기
-  renderSummary();
-  renderGauge();
-  renderTable();
-  renderAlerts();
-  renderCharts();
-  // 3) 날씨 비동기 → 차트·브리핑 갱신
-  Promise.all([loadWeather(Y), loadWeather(Y-1), loadNormals(), loadCurrentWeather()]).then(function(){
-    renderCharts();
-    renderBriefing();
-  });
-}
-
-// ── 요약 카드 ──
-function renderSummary(){
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
-  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
-
-  var totalA=0,totalU=0,prevA=0,cnt=0;
-  for(var m=1;m<=12;m++){
-    if(data[m]){totalA+=data[m].a||0;totalU+=data[m].u||0;cnt++}
-    if(prev[m]&&m<=cnt) prevA+=prev[m].a||0;
-  }
-  var change=prevA>0?Math.round((totalA-prevA)/prevA*100):0;
-  var avgA=cnt>0?Math.round(totalA/cnt):0;
-  var budget=D[T].budget[Y]||0;
-  var remain=budget-totalA;
-
-  var col=COLORS[T].main;
-  $('summary').innerHTML=
-    card('누적 사용요금',won(totalA),(change>0?'+':'')+change+'% 전년비',change>0?'s-up':change<0?'s-down':'s-neutral',col)
-    +card('월 평균',won(avgA),'('+cnt+'개월 기준)','s-neutral',col)
-    +card('연간 예산',won(budget),budget?'잔액 '+won(remain):'미설정','s-neutral',col)
-    +card('사용량 합계',fnum(totalU)+' '+UNITS[T],cnt+'개월 집계','s-neutral',col);
-
-  function card(label,value,sub,cls,color){
-    return '<div class="s-card"><div class="s-label">'+label+'</div><div class="s-value" style="color:'+color+'">'+value+'</div><div class="s-sub '+cls+'">'+sub+'</div></div>';
-  }
-}
-
-// ── 예산 게이지 (월별 구간) ──
-function renderGauge(){
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
-  var budget=D[T].budget[Y]||0;
-  if(!budget){$('gauge').innerHTML='<div style="text-align:center;color:var(--txt-l);font-size:13px;padding:8px">아래 표에서 연간 예산을 입력하세요</div>';return}
-
-  // 월별 누적 계산
-  var cumul=0,predictCumul=0;
-  var segments='';
-  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:13;
-  var monthLabels='';
-
-  for(var m=1;m<=12;m++){
-    var amt=0,isPredicted=false;
-    if(data[m]){amt=data[m].a||0}
-    else if(prev[m]){amt=Math.round((prev[m].a||0)*1.03);isPredicted=true}
-    predictCumul+=amt;
-    if(!isPredicted) cumul+=amt;
-
-    var w=100/12;
-    var cls=isPredicted?'seg-predict':'seg-actual';
-    // 누적이 예산 넘으면 빨간색
-    if(predictCumul>budget) cls+=' seg-over';
-    segments+='<div class="seg '+cls+'" style="width:'+w+'%" title="'+m+'월: '+won(amt)+'"></div>';
-    monthLabels+='<span style="width:'+w+'%">'+m+'</span>';
-  }
-
-  var pctSpent=Math.round(cumul/budget*100);
-  var pctPredict=Math.round(predictCumul/budget*100);
-  var statusCls=pctPredict<=85?'ok':pctPredict<=100?'warn':'over';
-
-  $('gauge').innerHTML=
-    '<div class="gauge-bar-m">'+segments+'</div>'
-    +'<div class="gauge-months">'+monthLabels+'</div>'
-    +'<div class="gauge-label">'
-    +'<span><b style="color:var(--'+statusCls+')">'+pctSpent+'%</b> 집행 ('+won(cumul)+')</span>'
-    +'<span style="color:var(--txt-l)">예상 '+pctPredict+'% ('+won(predictCumul)+')</span>'
-    +'<span>예산 '+won(budget)+'</span></div>';
-}
-
-// ── 데이터 테이블 ──
-function renderTable(){
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
-  var unit=UNITS[T];
-  var now=new Date();var cm=Y===now.getFullYear()?now.getMonth()+1:12;
-  var budget=D[T].budget[Y]||'';
-
-  var h='<thead><tr><th></th>';
-  for(var m=1;m<=12;m++) h+='<th>'+m+'월</th>';
-  h+='<th>합계</th></tr></thead><tbody>';
-
-  // 사용량 행
-  var tU=0;
-  h+='<tr><td class="rlabel">사용량<br>('+unit+')</td>';
-  for(m=1;m<=12;m++){
-    var v=data[m]?data[m].u:'';
-    if(v) tU+=v;
-    var bg=data[m]?'':'';
-    h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'u\',this.value)"></td>';
-  }
-  h+='<td class="total-cell">'+fnum(tU)+'</td></tr>';
-
-  // 요금 행
-  var tA=0;
-  h+='<tr><td class="rlabel">요금<br>(원)</td>';
-  for(m=1;m<=12;m++){
-    var v=data[m]?data[m].a:'';
-    if(v) tA+=v;
-    h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'a\',this.value)"></td>';
-  }
-  h+='<td class="total-cell">'+won(tA)+'</td></tr>';
-
-  // 전년 대비 변화율 행 (색상 뱃지)
-  h+='<tr><td class="rlabel">전년대비</td>';
-  for(m=1;m<=12;m++){
-    var cur=data[m]?data[m].a:0;
-    var pv=prev[m]?prev[m].a:0;
-    if(cur && pv){
-      var pct=Math.round((cur-pv)/pv*100);
-      var sign=pct>0?'+':'';
-      var color=pct>15?'#c62828':pct>0?'#ef6c00':pct<-5?'#2e7d32':'#5a6a7a';
-      var bg=pct>15?'#ffebee':pct>0?'#fff8e1':pct<-5?'#e8f5e9':'transparent';
-      h+='<td style="padding:6px 2px;text-align:center"><span style="display:inline-block;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;color:'+color+';background:'+bg+'">'+sign+pct+'%</span></td>';
-    } else {
-      h+='<td style="padding:6px 4px;text-align:center;font-size:10px;color:var(--txt-l)">-</td>';
-    }
-  }
-  // 전체 변화율
-  var totalPrevA=0; for(m=1;m<=12;m++) if(prev[m]) totalPrevA+=prev[m].a||0;
-  var totalChg=totalPrevA>0?Math.round((tA-totalPrevA)/totalPrevA*100):0;
-  var tcColor=totalChg>0?'#c62828':'#2e7d32';
-  h+='<td class="total-cell" style="font-size:11px;color:'+tcColor+'">'+(totalChg>0?'+':'')+totalChg+'%</td></tr>';
-
-  // 전년 요금 행 (참고 — 접힘)
-  var tP=0;
-  h+='<tr style="opacity:.4"><td class="rlabel" style="font-size:10px">전년요금</td>';
-  for(m=1;m<=12;m++){
-    var pv2=prev[m]?prev[m].a:0;
-    tP+=pv2;
-    h+='<td style="padding:4px 2px;font-size:10px;color:var(--txt-l);text-align:right">'+(pv2?won(pv2):'-')+'</td>';
-  }
-  h+='<td class="total-cell" style="font-size:10px">'+won(tP)+'</td></tr>';
-
-  // 예산 행
-  h+='<tr class="budget-row"><td class="rlabel" style="color:var(--elec)">연간예산</td>';
-  h+='<td colspan="12" style="text-align:left;padding:6px 8px"><input type="number" value="'+(budget||'')+'" placeholder="연간 예산 입력 (원)" style="width:200px;text-align:left;font-weight:700;color:var(--elec)" onchange="setBudget(this.value)"></td>';
-  h+='<td class="total-cell" style="color:var(--elec)">'+(budget?won(budget):'-')+'</td></tr>';
-
-  h+='</tbody>';
-  $('dataTable').innerHTML=h;
-}
-
-function setVal(month,field,val){
-  var v=parseFloat(val)||0;
-  if(!D[T][Y]) D[T][Y]={};
-  if(!D[T][Y][month]) D[T][Y][month]={u:0,a:0};
-  D[T][Y][month][field]=v;
-  // DB 저장 (비동기, UI는 즉시 갱신)
-  var d=D[T][Y][month];
-  saveBillToDB(T, Y, month, d.u, d.a);
-  render();
-}
-
-function setBudget(val){
-  D[T].budget[Y]=parseInt(val)||0;
-  saveBudgetToDB(T, Y, D[T].budget[Y]);
-  render();
-}
-
-// ── 예측 (월별) ──
-// 전년동월 + 2년전 대비 증가율 + 기온차 보정
+// ══ Prediction ══
 function predictMonth(month){
-  var prev=D[T][Y-1]||{};
-  var twoY=D[T][Y-2]||{};
-  var lm=prev[month];
+  var prev=D[T][Y-1]||{};var twoY=D[T][Y-2]||{};var lm=prev[month];
   if(!lm) return null;
   var u=lm.u||0, a=lm.a||0;
   var tm=twoY[month];
-  if(tm && tm.a>0){
-    var gr=(lm.a-tm.a)/tm.a;
-    a=Math.round(a*(1+gr));
-    if(tm.u>0){
-      var ug=(lm.u-tm.u)/tm.u;
-      u=Math.round(u*(1+ug));
-    }
-  }
-  var thisW=(W[Y]||{})[month];
-  var prevW=(W[Y-1]||{})[month];
+  if(tm && tm.a>0){ var gr=(lm.a-tm.a)/tm.a; a=Math.round(a*(1+gr)); if(tm.u>0){var ug=(lm.u-tm.u)/tm.u;u=Math.round(u*(1+ug));} }
+  var thisW=(W[Y]||{})[month]; var prevW=(W[Y-1]||{})[month];
   if(thisW && prevW && thisW.avg!=null && prevW.avg!=null){
     var diff=thisW.avg-prevW.avg;
-    if(T==='전기'){
-      if(month>=6 && month<=9) a=Math.round(a*(1+diff*0.035));
-      else if(month>=11 || month<=3) a=Math.round(a*(1-diff*0.015));
-    } else if(T==='가스'){
-      if(month>=11 || month<=3) a=Math.round(a*(1-diff*0.045));
-    }
+    if(T==='전기'){ if(month>=6&&month<=9) a=Math.round(a*(1+diff*0.035)); else if(month>=11||month<=3) a=Math.round(a*(1-diff*0.015)); }
+    else if(T==='가스'){ if(month>=11||month<=3) a=Math.round(a*(1-diff*0.045)); }
   }
-  return {u:u, a:a, predicted:true};
+  return {u:u, a:a};
+}
+function correlation(){
+  var data=D[T][Y]||{};var wd=W[Y]||{};var xs=[],ys=[];
+  for(var m=1;m<=12;m++){if(data[m]&&data[m].u&&wd[m]&&wd[m].avg!=null){xs.push(wd[m].avg);ys.push(data[m].u);}}
+  if(xs.length<3) return null;
+  var mx=xs.reduce(function(a,b){return a+b},0)/xs.length; var my=ys.reduce(function(a,b){return a+b},0)/ys.length;
+  var num=0,dx=0,dy=0;for(var i=0;i<xs.length;i++){num+=(xs[i]-mx)*(ys[i]-my);dx+=(xs[i]-mx)*(xs[i]-mx);dy+=(ys[i]-my)*(ys[i]-my);}
+  if(dx===0||dy===0) return null; return num/Math.sqrt(dx*dy);
 }
 
-// 기온↔사용량 상관계수 (피어슨)
-function correlation(){
-  var data=D[T][Y]||{};
-  var wd=W[Y]||{};
-  var xs=[], ys=[];
+// ══ Navigation ══
+function setTab(t){T=t;dataLoaded[t]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
+function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
+function toggleEdit(){editOpen=!editOpen;$('editPanel').classList.toggle('open',editOpen);$('editLabel').textContent=editOpen?'편집 닫기':'데이터 편집 · 업로드'}
+function setVal(month,field,val){
+  var v=parseFloat(val)||0;if(!D[T][Y]) D[T][Y]={};if(!D[T][Y][month]) D[T][Y][month]={u:0,a:0};
+  D[T][Y][month][field]=v; var d=D[T][Y][month]; saveBillToDB(T,Y,month,d.u,d.a); render();
+}
+function setBudget(val){ D[T].budget[Y]=parseInt(val)||0; saveBudgetToDB(T,Y,D[T].budget[Y]); render(); }
+
+// ══ RENDER ══
+async function render(){
+  await loadFromDB(T);
+  renderHero();
+  renderMonthGrid();
+  renderTable();
+  renderCharts();
+  Promise.all([loadWeather(Y),loadWeather(Y-1),loadNormals(),loadCurrentWeather()]).then(function(){
+    renderHero();
+    renderMonthGrid();
+    renderCharts();
+  });
+}
+
+// ── 히어로 ──
+function renderHero(){
+  var el=$('hero'); if(!el) return;
+  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{}; var budget=D[T].budget[Y]||0;
+  var c=COLORS[T];
+
+  // 집계
+  var totalA=0, totalU=0, cnt=0, prevA=0;
   for(var m=1;m<=12;m++){
-    if(data[m] && data[m].u && wd[m] && wd[m].avg!=null){
-      xs.push(wd[m].avg);
-      ys.push(data[m].u);
+    if(data[m]){totalA+=data[m].a||0;totalU+=data[m].u||0;cnt++;}
+    if(prev[m]&&m<=cnt) prevA+=prev[m].a||0;
+  }
+  var change = prevA>0 ? Math.round((totalA-prevA)/prevA*100) : 0;
+
+  // 예측 총액
+  var predictTotal=0;
+  for(m=1;m<=12;m++){
+    if(data[m]&&data[m].a) predictTotal+=data[m].a;
+    else { var p=predictMonth(m); if(p) predictTotal+=p.a; }
+  }
+
+  // 상태 판정
+  var pctBudget = budget ? Math.round(predictTotal/budget*100) : 0;
+  var status = !budget ? 'ok' : (pctBudget>100 ? 'over' : (pctBudget>90 ? 'warn' : 'ok'));
+  var statusLabel = status==='over' ? '예산 초과 위험' : (status==='warn' ? '주의' : '정상');
+  var statusIcon = status==='over' ? '!' : (status==='warn' ? '!' : '✓');
+
+  el.className = 'hero st-'+status;
+
+  // 트렌드 화살표
+  var trendCls = change>0?'up':(change<0?'down':'flat');
+  var trendSign = change>0?'↑':(change<0?'↓':'→');
+
+  // 프로그레스바
+  var barActualPct = budget ? Math.min(100, Math.round(totalA/budget*100)) : 0;
+  var barPredictPct = budget ? Math.min(100, pctBudget) : 0;
+
+  // 이상치 월 찾기
+  var anomalies = [];
+  for(m=1;m<=12;m++){
+    if(data[m]&&data[m].a&&prev[m]&&prev[m].a){
+      var mp=Math.round((data[m].a-prev[m].a)/prev[m].a*100);
+      if(Math.abs(mp)>20){
+        var reason='';
+        var wd=(W[Y]||{})[m]; var wp=(W[Y-1]||{})[m];
+        if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
+          var td=Math.round((wd.avg-wp.avg)*10)/10;
+          if(Math.abs(td)>1) reason=(td>0?'평년보다 따뜻(+':'한파(')+td+'°C)';
+        }
+        anomalies.push({m:m,pct:mp,reason:reason});
+      }
     }
   }
-  if(xs.length<3) return null;
-  var mx=xs.reduce(function(a,b){return a+b},0)/xs.length;
-  var my=ys.reduce(function(a,b){return a+b},0)/ys.length;
-  var num=0, dx=0, dy=0;
-  for(var i=0;i<xs.length;i++){
-    num+=(xs[i]-mx)*(ys[i]-my);
-    dx+=(xs[i]-mx)*(xs[i]-mx);
-    dy+=(ys[i]-my)*(ys[i]-my);
+
+  // 연말 전망
+  var forecastHtml='';
+  if(budget){
+    var diff=budget-predictTotal;
+    var fColor=diff>=0?'var(--green)':'var(--red)';
+    forecastHtml='<div class="hero-forecast">🔮 연말 예상 <b style="color:'+fColor+'">'+won(predictTotal)+'</b> / 예산 '+won(budget)
+      +(diff>=0 ? ' — 잔액 '+won(diff)+' 여유' : ' — <b style="color:var(--red)">'+won(Math.abs(diff))+' 초과!</b>')
+      +'</div>';
   }
-  if(dx===0||dy===0) return null;
-  return num/Math.sqrt(dx*dy);
+
+  // 이상치 텍스트
+  var anomalyHtml='';
+  if(anomalies.length){
+    anomalyHtml='<div style="margin-top:8px;font-size:12px;color:var(--txt-m);line-height:1.6">';
+    anomalies.forEach(function(a){
+      var sign=a.pct>0?'+':'';
+      anomalyHtml+='<span style="color:'+(a.pct>0?'var(--red)':'var(--green)')+'">⚠ '+a.m+'월 '+sign+a.pct+'%</span>';
+      if(a.reason) anomalyHtml+=' <span style="color:var(--txt-l)">← '+a.reason+'</span>';
+      anomalyHtml+='&nbsp;&nbsp;';
+    });
+    anomalyHtml+='</div>';
+  }
+
+  el.innerHTML =
+    '<div class="hero-top">'
+    +'<div class="hero-light '+status+'">'+statusIcon+'</div>'
+    +'<div class="hero-main">'
+    +'<div class="hero-amount" style="color:'+c.main+'">'+won(totalA)
+    +'<span class="hero-trend '+trendCls+'">'+trendSign+(change>0?'+':'')+change+'% 전년비</span></div>'
+    +'<div class="hero-sub">'+cnt+'개월 누적'+(budget?' · 예산 대비 '+barActualPct+'%':'')+' · '+statusLabel+'</div>'
+    +'</div></div>'
+    +(budget?'<div class="hero-bar"><div class="hero-bar-track">'
+    +'<div class="hero-bar-predict" style="width:'+barPredictPct+'%;background:'+c.light+'"></div>'
+    +'<div class="hero-bar-actual" style="width:'+barActualPct+'%;background:'+c.main+'"></div>'
+    +(pctBudget>0?'<div class="hero-bar-limit" style="left:100%;display:'+(budget?'block':'none')+'"></div>':'')
+    +'</div><div class="hero-bar-labels"><span>0</span><span style="color:'+c.main+';font-weight:700">실측 '+barActualPct+'%</span><span style="color:'+c.light+'">예측 '+barPredictPct+'%</span><span>예산 '+won(budget)+'</span></div></div>':'')
+    +forecastHtml
+    +anomalyHtml;
+}
+
+// ── 12개월 카드 그리드 ──
+function renderMonthGrid(){
+  var el=$('monthGrid'); if(!el) return;
+  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{}; var c=COLORS[T];
+  var html='';
+  for(var m=1;m<=12;m++){
+    var d=data[m];
+    var hasActual = d && (d.u || d.a);
+    var pred = hasActual ? null : predictMonth(m);
+    var amount = hasActual ? (d.a||0) : (pred ? pred.a : 0);
+    var usage = hasActual ? (d.u||0) : (pred ? pred.u : 0);
+
+    // 전년비
+    var prevM = prev[m];
+    var yoyPct = null;
+    if(hasActual && prevM && prevM.a) yoyPct = Math.round((d.a - prevM.a)/prevM.a*100);
+
+    // 카드 클래스
+    var cls = 'data';
+    if(!hasActual && !pred) cls = 'empty';
+    else if(!hasActual && pred) cls = 'predicted';
+    else if(yoyPct != null && yoyPct > 20) cls = 'anomaly';
+    else if(yoyPct != null && yoyPct < -10) cls = 'saving';
+
+    // 이상치 원인
+    var tag='';
+    if(cls==='anomaly'){
+      var wd=(W[Y]||{})[m]; var wp=(W[Y-1]||{})[m];
+      if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
+        var td=Math.round((wd.avg-wp.avg)*10)/10;
+        if(td>1.5) tag='폭염';
+        else if(td<-1.5) tag='한파';
+      }
+      if(!tag) tag='점검필요';
+    }
+
+    // 전년비 뱃지
+    var badgeHtml='';
+    if(yoyPct!=null){
+      var bc=yoyPct>10?'up':(yoyPct<-5?'down':'flat');
+      badgeHtml='<div class="m-badge '+bc+'">'+(yoyPct>0?'+':'')+yoyPct+'%</div>';
+    }
+
+    var onclick = cls==='empty' ? ' onclick="toggleEdit();if(!editOpen)toggleEdit()"' : '';
+    if(cls==='anomaly') onclick = ' onclick="showAnomaly('+m+')" style="cursor:pointer"';
+
+    html += '<div class="m-card '+cls+'"'+onclick+'>'
+      +'<div class="m-month" style="color:'+c.main+'">'+m+'월</div>';
+
+    if(cls==='empty'){
+      html+='<div class="m-empty-text">미입력<br>📷</div>';
+    } else if(cls==='predicted'){
+      html+='<div class="m-amount" style="color:var(--txt-l)">'+won(amount)+'</div>'
+        +'<div class="m-predict-text">예측</div>';
+    } else {
+      html+='<div class="m-amount" style="color:'+c.main+'">'+won(amount)+'</div>'
+        +'<div class="m-usage">'+fnum(usage)+' '+UNITS[T]+'</div>'
+        +badgeHtml
+        +(tag?'<div class="m-tag">'+tag+'</div>':'');
+    }
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ── 이상치 팝업 ──
+function showAnomaly(month){
+  var data=D[T][Y]||{}; var prev=D[T][Y-1]||{};
+  var d=data[month]; var p=prev[month];
+  if(!d||!p) return;
+  var pct=Math.round((d.a-p.a)/p.a*100);
+  var c=COLORS[T];
+
+  var reason='원인을 파악하지 못했어요.';
+  var wd=(W[Y]||{})[month]; var wp=(W[Y-1]||{})[month];
+  if(wd&&wp&&wd.avg!=null&&wp.avg!=null){
+    var td=Math.round((wd.avg-wp.avg)*10)/10;
+    if(Math.abs(td)>1){
+      reason=month+'월 평균기온 '+wd.avg+'°C (작년 '+wp.avg+'°C, '+(td>0?'+':'')+td+'°C)'
+        +'<br>'+(td>0?'기온 상승으로 냉방':'한파로 난방')+' 부하 증가 추정.';
+    }
+  }
+
+  $('popupContainer').innerHTML=
+    '<div class="anomaly-overlay" onclick="closePopup()"></div>'
+    +'<div class="anomaly-popup">'
+    +'<div style="font-size:18px;font-weight:900;color:'+c.main+';margin-bottom:12px">'+T+' '+month+'월 이상치</div>'
+    +'<div style="display:flex;gap:20px;margin-bottom:16px">'
+    +'<div><div style="font-size:11px;color:var(--txt-l)">올해</div><div style="font-size:24px;font-weight:900;color:var(--red)">'+won(d.a)+'</div></div>'
+    +'<div><div style="font-size:11px;color:var(--txt-l)">작년</div><div style="font-size:24px;font-weight:900;color:var(--txt-l)">'+won(p.a)+'</div></div>'
+    +'<div><div style="font-size:11px;color:var(--txt-l)">변화</div><div style="font-size:24px;font-weight:900;color:var(--red)">'+(pct>0?'+':'')+pct+'%</div></div>'
+    +'</div>'
+    +'<div style="font-size:13px;line-height:1.7;color:var(--txt-m);padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px">🔍 '+reason+'</div>'
+    +'<button onclick="closePopup()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">닫기</button>'
+    +'</div>';
+}
+function closePopup(){$('popupContainer').innerHTML=''}
+
+// ── 데이터 테이블 ──
+function renderTable(){
+  var data=D[T][Y]||{};var prev=D[T][Y-1]||{};var unit=UNITS[T];var budget=D[T].budget[Y]||'';
+  var h='<thead><tr><th></th>';for(var m=1;m<=12;m++) h+='<th>'+m+'월</th>';h+='<th>합계</th></tr></thead><tbody>';
+  var tU=0;h+='<tr><td class="rlabel">사용량('+unit+')</td>';
+  for(m=1;m<=12;m++){var v=data[m]?data[m].u:'';if(v)tU+=v;h+='<td><input type="number" value="'+(v||'')+'" placeholder="-" onchange="setVal('+m+',\'u\',this.value)"></td>';}
+  h+='<td class="total-cell">'+fnum(tU)+'</td></tr>';
+  var tA=0;h+='<tr><td class="rlabel">요금(원)</td>';
+  for(m=1;m<=12;m++){var v2=data[m]?data[m].a:'';if(v2)tA+=v2;h+='<td><input type="number" value="'+(v2||'')+'" placeholder="-" onchange="setVal('+m+',\'a\',this.value)"></td>';}
+  h+='<td class="total-cell">'+won(tA)+'</td></tr>';
+  h+='<tr class="budget-row"><td class="rlabel" style="color:var(--elec)">연간예산</td>';
+  h+='<td colspan="12" style="text-align:left;padding:6px 8px"><input type="number" value="'+(budget||'')+'" placeholder="연간 예산 입력 (원)" style="width:200px;text-align:left;font-weight:700;color:var(--elec)" onchange="setBudget(this.value)"></td>';
+  h+='<td class="total-cell" style="color:var(--elec)">'+(budget?won(budget):'-')+'</td></tr></tbody>';
+  $('dataTable').innerHTML=h;
 }
 
 // ── 차트 ──
 function renderCharts(){
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
+  var data=D[T][Y]||{};var prev=D[T][Y-1]||{};
   var months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   var c=COLORS[T];
-
   if(charts.usage) charts.usage.destroy();
   if(charts.cost) charts.cost.destroy();
 
-  // 실측 vs 예측 분리
-  var uActual=[], uPredict=[], pData=[], aActual=[], aPredict=[], apData=[];
-  var wData=[], wpData=[];
-  var wd=W[Y]||{}; var wpd=W[Y-1]||{};
-  var lastActualM=0;
+  var uActual=[],uPredict=[],pData=[],aActual=[],aPredict=[],apData=[],wData=[],wpData=[];
+  var wd=W[Y]||{};var wpd=W[Y-1]||{};var lastM=0;
   for(var m=1;m<=12;m++){
-    var d=data[m];
-    var isActual = d && (d.u || d.a);
-    if(isActual){
-      uActual.push(d.u||null);
-      aActual.push(d.a||null);
-      uPredict.push(null);
-      aPredict.push(null);
-      lastActualM=m;
-    } else {
-      var pred=predictMonth(m);
-      uActual.push(null);
-      aActual.push(null);
-      uPredict.push(pred?pred.u:null);
-      aPredict.push(pred?pred.a:null);
-    }
-    pData.push(prev[m]?prev[m].u:null);
-    apData.push(prev[m]?prev[m].a:null);
-    wData.push(wd[m]?wd[m].avg:null);
-    wpData.push(wpd[m]?wpd[m].avg:null);
+    var d=data[m]; var isA=d&&(d.u||d.a);
+    if(isA){uActual.push(d.u||null);aActual.push(d.a||null);uPredict.push(null);aPredict.push(null);lastM=m;}
+    else{var pr=predictMonth(m);uActual.push(null);aActual.push(null);uPredict.push(pr?pr.u:null);aPredict.push(pr?pr.a:null);}
+    pData.push(prev[m]?prev[m].u:null);apData.push(prev[m]?prev[m].a:null);
+    wData.push(wd[m]?wd[m].avg:null);wpData.push(wpd[m]?wpd[m].avg:null);
   }
-  // 실측 → 예측 선 이어붙이기
-  if(lastActualM>0 && lastActualM<12){
-    aPredict[lastActualM-1]=aActual[lastActualM-1];
-  }
+  if(lastM>0&&lastM<12){aPredict[lastM-1]=aActual[lastM-1];}
 
   charts.usage=new Chart($('chartUsage'),{
     type:'bar',data:{labels:months,datasets:[
       {label:Y+'년 실측',data:uActual,backgroundColor:c.main+'cc',borderRadius:4,yAxisID:'y',order:2},
       {label:Y+'년 예측',data:uPredict,backgroundColor:c.main+'33',borderColor:c.main+'aa',borderWidth:1.5,borderRadius:4,yAxisID:'y',order:2},
       {label:(Y-1)+'년',data:pData,backgroundColor:c.light+'66',borderRadius:4,yAxisID:'y',order:3},
-      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',backgroundColor:'#e5393515',tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:2,order:1},
+      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:2,order:1},
       {label:(Y-1)+'년 기온',data:wpData,type:'line',borderColor:'#e5393555',borderDash:[4,4],tension:.3,pointRadius:2,yAxisID:'y1',borderWidth:1.5,order:1}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{position:'top',labels:{font:{size:10},boxWidth:10}},
-        tooltip:{callbacks:{label:function(ctx){
-          var lbl=ctx.dataset.label||'';
-          var v=ctx.parsed.y;
-          if(v==null) return lbl;
-          if(lbl.indexOf('기온')>=0) return lbl+': '+v+'°C';
-          return lbl+': '+fnum(v)+' '+UNITS[T];
-        }}}
-      },
-      scales:{
-        y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},
-        y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}
-      }
-    }
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}}}
   });
 
   charts.cost=new Chart($('chartCost'),{
     type:'line',data:{labels:months,datasets:[
-      // 전년은 배경 회색 Area — 겹침 방지용
       {label:(Y-1)+'년',data:apData,borderColor:'#c0c8d0',backgroundColor:'#e8ecf0',fill:'origin',tension:.3,pointRadius:0,borderWidth:0,order:3},
-      // 이번해 실측 — 진한 실선, 굵은 포인트
-      {label:Y+'년 실측',data:aActual,borderColor:c.main,backgroundColor:c.main+'22',fill:false,tension:.3,pointRadius:5,pointBackgroundColor:c.main,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:3.5,order:1},
-      // 이번해 예측 — 점선, 삼각 포인트
-      {label:Y+'년 예측',data:aPredict,borderColor:c.main,backgroundColor:'transparent',fill:false,tension:.3,pointRadius:5,pointStyle:'triangle',pointBackgroundColor:c.main+'66',pointBorderColor:c.main,borderDash:[8,5],borderWidth:2.5,order:2}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{position:'top',labels:{font:{size:10},boxWidth:14,usePointStyle:true}},
-        tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){
-          var v=ctx.parsed.y;
-          if(v==null) return null;
-          return ctx.dataset.label+': '+won(v);
-        }}}
-      },
-      scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}
-    }
+      {label:Y+'년 실측',data:aActual,borderColor:c.main,fill:false,tension:.3,pointRadius:5,pointBackgroundColor:c.main,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:3.5,order:1},
+      {label:Y+'년 예측',data:aPredict,borderColor:c.main,fill:false,tension:.3,pointRadius:5,pointStyle:'triangle',pointBackgroundColor:c.main+'66',borderDash:[8,5],borderWidth:2.5,order:2}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:14,usePointStyle:true}},tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){var v=ctx.parsed.y;if(v==null)return null;return ctx.dataset.label+': '+won(v);}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}}
   });
 
-  // 상관계수 뱃지
   var corr=correlation();
   var cb=$('corrBadge');
-  if(cb){
-    if(corr==null) cb.textContent='';
-    else {
-      var dir = corr>0 ? '↑양의 상관' : '↓음의 상관';
-      var strength = Math.abs(corr);
-      var label = strength>0.7?'강함':strength>0.4?'보통':'약함';
-      var color = strength>0.7?'#c62828':strength>0.4?'#ef6c00':'#94a4b4';
-      cb.innerHTML='기온↔사용량 <b style="color:'+color+'">'+dir+' '+label+'</b> (r='+corr.toFixed(2)+')';
-    }
-  }
+  if(cb){if(corr==null)cb.textContent='';else{var dir=corr>0?'↑양의 상관':'↓음의 상관';var s=Math.abs(corr);var l=s>0.7?'강함':s>0.4?'보통':'약함';var co=s>0.7?'#c62828':s>0.4?'#ef6c00':'#94a4b4';cb.innerHTML='기온↔사용량 <b style="color:'+co+'">'+dir+' '+l+'</b> (r='+corr.toFixed(2)+')';}}
 }
 
-// ── 업로드 (이미지+PDF 통합, 자동 분류, 다중 파일) ──
+// ── OCR ──
 async function handleUpload(files){
   if(!files||!files.length) return;
-  var status=$('uploadStatus');
-  status.textContent='분석 중...';
-  var results=[];
-  var total=0;
-
+  var status=$('uploadStatus');status.textContent='분석 중...';var results=[],total=0;
   for(var i=0;i<files.length;i++){
-    var file=files[i];
-    var images=[];
-
+    var file=files[i];var images=[];
     try{
-      if(file.type==='application/pdf'){
-        // PDF → 페이지별 이미지 변환
-        status.textContent='PDF 변환 중... ('+(i+1)+'/'+files.length+')';
-        images=await pdfToImages(file);
-      } else {
-        // 이미지: 그대로
-        var dataUrl=await readFile(file);
-        images=[dataUrl.split(',')[1]];
-      }
-
-      for(var j=0;j<images.length;j++){
-        total++;
-        status.textContent='OCR 분석 중... ('+total+'번째)';
-        var result=await ocrImage(images[j]);
-        if(result) results.push(result);
-      }
-    }catch(e){
-      status.textContent='오류: '+e.message;
-      console.error('upload error:', e);
-    }
+      if(file.type==='application/pdf'){status.textContent='PDF 변환 중...';images=await pdfToImages(file);}
+      else{var du=await readFile(file);images=[du.split(',')[1]];}
+      for(var j=0;j<images.length;j++){total++;status.textContent='OCR 분석 중... ('+total+'번째)';var result=await ocrImage(images[j]);if(result) results.push(result);}
+    }catch(e){status.textContent='오류: '+e.message;}
   }
-
-  // 결과 적용 + DB 저장
-  if(results.length===0){
-    status.textContent='인식 실패 — 직접 입력해주세요';
-  } else {
+  if(results.length===0){status.textContent='인식 실패 — 직접 입력해주세요';}
+  else{
     var msgs=[];
     for(var k=0;k<results.length;k++){
-      var r=results[k];
-      var type=r.bill_type||T;
-      var yr=r.year, mo=r.month;
-      if(!yr||!mo) continue;
-
-      if(!D[type]) D[type]={budget:{}};
-      if(!D[type][yr]) D[type][yr]={};
-      if(!D[type][yr][mo]) D[type][yr][mo]={u:0,a:0};
-      if(r.usage_amount) D[type][yr][mo].u=r.usage_amount;
-      if(r.bill_amount) D[type][yr][mo].a=r.bill_amount;
-
-      // DB 저장
-      await saveBillToDB(type, yr, mo, D[type][yr][mo].u, D[type][yr][mo].a);
+      var r=results[k];var type=r.bill_type||T;var yr=r.year,mo=r.month;if(!yr||!mo) continue;
+      if(!D[type]) D[type]={budget:{}};if(!D[type][yr]) D[type][yr]={};if(!D[type][yr][mo]) D[type][yr][mo]={u:0,a:0};
+      if(r.usage_amount) D[type][yr][mo].u=r.usage_amount;if(r.bill_amount) D[type][yr][mo].a=r.bill_amount;
+      await saveBillToDB(type,yr,mo,D[type][yr][mo].u,D[type][yr][mo].a);
       msgs.push(type+' '+yr+'년 '+mo+'월 '+won(r.bill_amount||0));
     }
-    status.textContent=results.length+'건 인식 완료!';
-    // 토스트 표시
-    showOcrToast(msgs);
-    // 첫 결과의 연도/탭으로 이동
-    if(results[0].bill_type && results[0].bill_type!==T){
-      T=results[0].bill_type;
-      dataLoaded[T]=false;
-      document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===T)});
-    }
+    status.textContent=results.length+'건 완료!';showOcrToast(msgs);
+    if(results[0].bill_type&&results[0].bill_type!==T){T=results[0].bill_type;dataLoaded[T]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===T)});}
     if(results[0].year){Y=results[0].year;$('yLabel').textContent=Y+'년';}
   }
-
-  render();
-  $('fileIn').value='';
-  setTimeout(function(){status.textContent=''},5000);
+  render();$('fileIn').value='';setTimeout(function(){status.textContent=''},5000);
 }
-
-// PDF → 이미지 배열 (페이지별)
 async function pdfToImages(file){
-  if(!window.pdfjsLib){throw new Error('PDF 지원 라이브러리 로딩 실패')}
-  var arrayBuf=await file.arrayBuffer();
-  var pdf=await pdfjsLib.getDocument({data:arrayBuf}).promise;
-  var images=[];
-  var maxPages=Math.min(pdf.numPages, 6); // 최대 6페이지
-  for(var p=1;p<=maxPages;p++){
-    var page=await pdf.getPage(p);
-    var vp=page.getViewport({scale:2.0});
-    var canvas=document.createElement('canvas');
-    canvas.width=vp.width; canvas.height=vp.height;
-    var ctx=canvas.getContext('2d');
-    await page.render({canvasContext:ctx,viewport:vp}).promise;
-    images.push(canvas.toDataURL('image/jpeg',0.85).split(',')[1]);
-  }
-  return images;
+  if(!window.pdfjsLib) throw new Error('PDF 지원 라이브러리 로딩 실패');
+  var ab=await file.arrayBuffer();var pdf=await pdfjsLib.getDocument({data:ab}).promise;var imgs=[];
+  for(var p=1;p<=Math.min(pdf.numPages,6);p++){var pg=await pdf.getPage(p);var vp=pg.getViewport({scale:2.0});var cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;imgs.push(cv.toDataURL('image/jpeg',0.85).split(',')[1]);}
+  return imgs;
 }
-
-// 단일 이미지 OCR (자동 분류)
 async function ocrImage(base64){
-  try{
-    var r=await fetch(WORKER+'/ocr',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({image:base64})
-    });
-    var d=await r.json();
-    if(d.ocr && (d.ocr.year || d.ocr.bill_amount)){
-      return d.ocr;
-    }
-    return null;
-  }catch(e){return null}
+  try{var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:base64})});var d=await r.json();return(d.ocr&&(d.ocr.year||d.ocr.bill_amount))?d.ocr:null;}catch(e){return null}
 }
-
 function readFile(f){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result)};r.readAsDataURL(f)})}
+function showOcrToast(msgs){var ex=document.querySelector('.ocr-toast');if(ex)ex.remove();if(!msgs.length)return;var d=document.createElement('div');d.className='ocr-toast';d.innerHTML='<b>✅ 자동 인식 완료</b><br>'+msgs.join('<br>');document.body.appendChild(d);setTimeout(function(){d.remove()},6000);}
 
-function showOcrToast(msgs){
-  var existing=document.querySelector('.ocr-toast');
-  if(existing) existing.remove();
-  if(!msgs.length) return;
-  var div=document.createElement('div');
-  div.className='ocr-toast';
-  div.innerHTML='<b>✅ 자동 인식 완료</b><br>'+msgs.join('<br>');
-  document.body.appendChild(div);
-  setTimeout(function(){div.remove()},6000);
-}
-
-// ── AI 분석 (Worker /analyze 호출) ──
+// ── AI ──
 async function runAI(){
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
-  var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({year:Y,month:m,usage_amount:data[m].u,bill_amount:data[m].a});
+  var data=D[T][Y]||{};var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({year:Y,month:m,usage_amount:data[m].u,bill_amount:data[m].a});
   if(!arr.length){alert('데이터가 없습니다');return}
-
-  var el=$('aiResult');el.style.display='block';
-  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txt-l)">🤖 AI가 분석 중... (10-15초 소요)</div>';
-
-  // 날씨 데이터 준비
-  var wd=W[Y]||{};
-  var weatherArr=[];
-  for(var m=1;m<=12;m++){
-    if(wd[m]) weatherArr.push({month:m, avg_temp:wd[m].avg});
-  }
-
+  var el=$('aiResult');el.style.display='block';el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txt-l)">🤖 AI 분석 중... (10-15초)</div>';
+  var wd=W[Y]||{};var wa=[];for(m=1;m<=12;m++) if(wd[m]) wa.push({month:m,avg_temp:wd[m].avg});
   try{
-    var r=await fetch(WORKER+'/analyze',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        billType:T,
-        bills:arr,
-        weather:weatherArr,
-        budget:D[T].budget[Y]||0,
-        year:Y
-      })
-    });
-    var d=await r.json();
-    if(d.error){el.textContent='오류: '+d.error;return}
-
-    var a=d.analysis||{};
-    var html='<div style="line-height:2">';
-    if(a.summary) html+='<div style="font-size:15px;font-weight:700;margin-bottom:8px">📊 '+a.summary+'</div>';
-    if(a.trend) html+='<div><b>📈 추이:</b> '+a.trend+'</div>';
-    if(a.correlation) html+='<div><b>🌡️ 기온 상관:</b> '+a.correlation+'</div>';
-    if(a.anomalies) html+='<div><b>⚠️ 특이사항:</b> '+a.anomalies+'</div>';
-    if(a.suggestions) html+='<div><b>💡 절약 제안:</b> '+a.suggestions+'</div>';
-    if(a.forecast) html+='<div><b>🔮 향후 예상:</b> '+a.forecast+'</div>';
-    html+='</div>';
-    el.innerHTML=html;
-  }catch(e){
-    el.textContent='AI 분석 실패: '+e.message;
-  }
-}
-
-// ── 이상치 알림 ──
-function renderAlerts(){
-  var el=$('alertBar');
-  if(!el) return;
-  var data=D[T][Y]||{};
-  var prev=D[T][Y-1]||{};
-  var budget=D[T].budget[Y]||0;
-  var now=new Date();
-  var curMonth=Y===now.getFullYear()?now.getMonth()+1:12;
-  var alerts=[];
-
-  // 1) 각 월 전년비 이상치 (+25% 이상)
-  for(var m=1;m<=12;m++){
-    if(data[m] && data[m].a && prev[m] && prev[m].a){
-      var pct=Math.round((data[m].a-prev[m].a)/prev[m].a*100);
-      if(pct>25){
-        alerts.push({type:'error',text:m+'월 '+T+' 요금이 전년 대비 <b>+'+pct+'%</b> — 점검 필요'});
-      }
-    }
-  }
-
-  // 2) 미입력 월 (현재월 이전)
-  if(Y===now.getFullYear()){
-    for(m=1;m<curMonth;m++){
-      if(!data[m]){
-        alerts.push({type:'warn',text:m+'월 '+T+' 데이터가 미입력 상태 — <b>고지서 업로드</b>해주세요'});
-      }
-    }
-  }
-
-  // 3) 예산 초과 예상
-  if(budget){
-    var totalSpent=0,totalPredicted=0;
-    for(m=1;m<=12;m++){
-      if(data[m] && data[m].a) {totalSpent+=data[m].a; totalPredicted+=data[m].a;}
-      else {var p=predictMonth(m);if(p) totalPredicted+=p.a;}
-    }
-    var pctBudget=Math.round(totalPredicted/budget*100);
-    if(pctBudget>100){
-      alerts.push({type:'error',text:'연말 예상 '+won(totalPredicted)+' → 예산 '+won(budget)+' <b>초과 예상</b> ('+pctBudget+'%)'});
-    } else if(pctBudget>90){
-      alerts.push({type:'warn',text:'예산 소진률 '+pctBudget+'% 예상 — 하반기 절감 필요'});
-    }
-  }
-
-  if(alerts.length===0){
-    el.style.display='none';
-    return;
-  }
-  var icons={error:'🔴',warn:'🟡',ok:'🟢'};
-  el.style.display='block';
-  el.className='alert-bar';
-  el.innerHTML=alerts.map(function(a){
-    return '<div class="alert-item alert-'+a.type+'"><span class="alert-icon">'+icons[a.type]+'</span><span class="alert-text">'+a.text+'</span></div>';
-  }).join('');
+    var r=await fetch(WORKER+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({billType:T,bills:arr,weather:wa,budget:D[T].budget[Y]||0,year:Y})});
+    var d=await r.json();if(d.error){el.textContent='오류: '+d.error;return}
+    var a=d.analysis||{};var h='<div style="line-height:2">';
+    if(a.summary) h+='<div style="font-size:15px;font-weight:700;margin-bottom:8px">📊 '+a.summary+'</div>';
+    if(a.trend) h+='<div><b>📈 추이:</b> '+a.trend+'</div>';
+    if(a.correlation) h+='<div><b>🌡️ 기온 상관:</b> '+a.correlation+'</div>';
+    if(a.anomalies) h+='<div><b>⚠️ 특이사항:</b> '+a.anomalies+'</div>';
+    if(a.suggestions) h+='<div><b>💡 절약 제안:</b> '+a.suggestions+'</div>';
+    if(a.forecast) h+='<div><b>🔮 향후 예상:</b> '+a.forecast+'</div>';
+    h+='</div>';el.innerHTML=h;
+  }catch(e){el.textContent='AI 분석 실패: '+e.message;}
 }
 
 // ── 포맷 ──
