@@ -6,6 +6,8 @@
 <title>공과금 관리 — 종로도서관</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
 :root{
   --navy:#0a1929;
@@ -122,6 +124,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   .hero{grid-template-columns:1fr}
 }
 
+/* ── 알림 ── */
+.alert-bar{margin-bottom:16px;border-radius:10px;overflow:hidden}
+.alert-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;border-bottom:1px solid rgba(0,0,0,.06)}
+.alert-item:last-child{border:none}
+.alert-warn{background:#fff8e1;color:#b8860b}
+.alert-error{background:#ffebee;color:#c62828}
+.alert-ok{background:#e8f5e9;color:#2e7d32}
+.alert-icon{font-size:18px;flex-shrink:0}
+.alert-text{flex:1;line-height:1.4}
+.alert-text b{font-weight:700}
+
+/* ── OCR 결과 토스트 ── */
+.ocr-toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:360px;line-height:1.6;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
 /* ── 예산 게이지 ── */
 .gauge{margin-top:12px}
 .gauge-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;position:relative}
@@ -184,6 +201,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
       <div class="hb-lead">데이터를 분석하고 있어요...</div>
     </div>
   </div>
+
+  <!-- 알림 바 -->
+  <div id="alertBar" style="display:none"></div>
 
   <!-- 요약 -->
   <div class="summary" id="summary"></div>
@@ -264,35 +284,64 @@ var D = {
 var W = {};
 var wLoading = {}; // 중복 요청 방지
 
-// 샘플 데이터
-(function loadSample(){
-  var s = {
-    '전기':{
-      2024:{1:{u:12400,a:1860000},2:{u:11800,a:1770000},3:{u:9600,a:1440000},4:{u:7200,a:1080000},5:{u:6800,a:1020000},6:{u:8900,a:1335000},7:{u:14200,a:2130000},8:{u:15600,a:2340000},9:{u:11200,a:1680000},10:{u:7800,a:1170000},11:{u:8400,a:1260000},12:{u:11600,a:1740000}},
-      2025:{1:{u:13100,a:1965000},2:{u:12200,a:1830000},3:{u:9900,a:1485000}},
-      budget:{2024:18000000,2025:19000000}
-    },
-    '가스':{
-      2024:{1:{u:4200,a:3780000},2:{u:3800,a:3420000},3:{u:2600,a:2340000},4:{u:1200,a:1080000},5:{u:400,a:360000},6:{u:200,a:180000},7:{u:150,a:135000},8:{u:120,a:108000},9:{u:300,a:270000},10:{u:1400,a:1260000},11:{u:2800,a:2520000},12:{u:3900,a:3510000}},
-      2025:{1:{u:4500,a:4050000},2:{u:4000,a:3600000},3:{u:2800,a:2520000}},
-      budget:{2024:20000000,2025:21000000}
-    },
-    '수도':{
-      2024:{1:{u:320,a:480000},2:{u:310,a:465000},3:{u:340,a:510000},4:{u:360,a:540000},5:{u:380,a:570000},6:{u:420,a:630000},7:{u:480,a:720000},8:{u:510,a:765000},9:{u:440,a:660000},10:{u:370,a:555000},11:{u:330,a:495000},12:{u:320,a:480000}},
-      2025:{1:{u:330,a:495000},2:{u:320,a:480000},3:{u:350,a:525000}},
-      budget:{2024:7500000,2025:8000000}
-    }
-  };
-  for(var t in s){
-    for(var y in s[t]){
-      if(y==='budget'){D[t].budget=s[t].budget;continue}
-      D[t][y]={};
-      for(var m in s[t][y]) D[t][y][m]=s[t][y][m];
-    }
-  }
-})();
+// DB에서 데이터 로드 (탭 변경 시 호출)
+var dataLoaded = {};
+async function loadFromDB(type) {
+  if (dataLoaded[type]) return;
+  try {
+    var r = await fetch(WORKER + '/load?type=' + encodeURIComponent(type));
+    var d = await r.json();
+    if (d.error) { console.error('loadFromDB:', d.error); return; }
+    // bills → D[type][year][month]
+    (d.bills || []).forEach(function(b) {
+      if (!D[type][b.year]) D[type][b.year] = {};
+      D[type][b.year][b.month] = {
+        u: parseFloat(b.usage_amount) || 0,
+        a: parseInt(b.bill_amount) || 0,
+        id: b.id
+      };
+    });
+    // budgets → D[type].budget[year]
+    (d.budgets || []).forEach(function(b) {
+      D[type].budget[b.year] = parseInt(b.amount) || 0;
+    });
+    // memos → D[type].memo[year][month]
+    if (!D[type].memo) D[type].memo = {};
+    (d.memos || []).forEach(function(m) {
+      if (!D[type].memo[m.year]) D[type].memo[m.year] = {};
+      D[type].memo[m.year][m.month] = m.memo;
+    });
+    dataLoaded[type] = true;
+  } catch(e) { console.error('DB load failed:', e); }
+}
 
-function setTab(t){T=t;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
+// DB에 저장
+async function saveBillToDB(type, year, month, usage, amount) {
+  try {
+    await fetch(WORKER + '/bills', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify([{
+        bill_type: type, year: year, month: month,
+        usage_amount: usage || null,
+        usage_unit: UNITS[type],
+        bill_amount: amount || null
+      }])
+    });
+  } catch(e) { console.error('saveBill:', e); }
+}
+
+async function saveBudgetToDB(type, year, amount) {
+  try {
+    await fetch(WORKER + '/budgets', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify([{ bill_type: type, year: year, amount: amount || 0 }])
+    });
+  } catch(e) { console.error('saveBudget:', e); }
+}
+
+function setTab(t){T=t;dataLoaded[t]=false;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
 function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
 
 // ── 날씨 데이터 로드 (Open-Meteo via Worker) ──
@@ -566,13 +615,16 @@ function getAdvice(type, month, tempDiff, billDiff){
   return tips;
 }
 
-function render(){
-  // UI는 즉시 그리고, 날씨·브리핑은 비동기로 갱신
+async function render(){
+  // 1) DB에서 이 탭 데이터 로드 (첫 로드시만)
+  await loadFromDB(T);
+  // 2) UI 즉시 그리기
   renderSummary();
   renderGauge();
   renderTable();
+  renderAlerts();
   renderCharts();
-  // 날씨 비동기 로드 후 차트·브리핑 갱신
+  // 3) 날씨 비동기 → 차트·브리핑 갱신
   Promise.all([loadWeather(Y), loadWeather(Y-1), loadNormals(), loadCurrentWeather()]).then(function(){
     renderCharts();
     renderBriefing();
@@ -681,15 +733,36 @@ function renderTable(){
   }
   h+='<td class="total-cell">'+won(tA)+'</td></tr>';
 
-  // 전년 요금 행 (참고)
-  var tP=0;
-  h+='<tr style="opacity:.5"><td class="rlabel">전년요금</td>';
+  // 전년 대비 변화율 행 (색상 뱃지)
+  h+='<tr><td class="rlabel">전년대비</td>';
   for(m=1;m<=12;m++){
+    var cur=data[m]?data[m].a:0;
     var pv=prev[m]?prev[m].a:0;
-    tP+=pv;
-    h+='<td style="padding:6px 4px;font-size:11px;color:var(--txt-l);text-align:right">'+(pv?won(pv):'-')+'</td>';
+    if(cur && pv){
+      var pct=Math.round((cur-pv)/pv*100);
+      var sign=pct>0?'+':'';
+      var color=pct>15?'#c62828':pct>0?'#ef6c00':pct<-5?'#2e7d32':'#5a6a7a';
+      var bg=pct>15?'#ffebee':pct>0?'#fff8e1':pct<-5?'#e8f5e9':'transparent';
+      h+='<td style="padding:6px 2px;text-align:center"><span style="display:inline-block;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;color:'+color+';background:'+bg+'">'+sign+pct+'%</span></td>';
+    } else {
+      h+='<td style="padding:6px 4px;text-align:center;font-size:10px;color:var(--txt-l)">-</td>';
+    }
   }
-  h+='<td class="total-cell" style="font-size:11px">'+won(tP)+'</td></tr>';
+  // 전체 변화율
+  var totalPrevA=0; for(m=1;m<=12;m++) if(prev[m]) totalPrevA+=prev[m].a||0;
+  var totalChg=totalPrevA>0?Math.round((tA-totalPrevA)/totalPrevA*100):0;
+  var tcColor=totalChg>0?'#c62828':'#2e7d32';
+  h+='<td class="total-cell" style="font-size:11px;color:'+tcColor+'">'+(totalChg>0?'+':'')+totalChg+'%</td></tr>';
+
+  // 전년 요금 행 (참고 — 접힘)
+  var tP=0;
+  h+='<tr style="opacity:.4"><td class="rlabel" style="font-size:10px">전년요금</td>';
+  for(m=1;m<=12;m++){
+    var pv2=prev[m]?prev[m].a:0;
+    tP+=pv2;
+    h+='<td style="padding:4px 2px;font-size:10px;color:var(--txt-l);text-align:right">'+(pv2?won(pv2):'-')+'</td>';
+  }
+  h+='<td class="total-cell" style="font-size:10px">'+won(tP)+'</td></tr>';
 
   // 예산 행
   h+='<tr class="budget-row"><td class="rlabel" style="color:var(--elec)">연간예산</td>';
@@ -705,11 +778,15 @@ function setVal(month,field,val){
   if(!D[T][Y]) D[T][Y]={};
   if(!D[T][Y][month]) D[T][Y][month]={u:0,a:0};
   D[T][Y][month][field]=v;
+  // DB 저장 (비동기, UI는 즉시 갱신)
+  var d=D[T][Y][month];
+  saveBillToDB(T, Y, month, d.u, d.a);
   render();
 }
 
 function setBudget(val){
   D[T].budget[Y]=parseInt(val)||0;
+  saveBudgetToDB(T, Y, D[T].budget[Y]);
   render();
 }
 
@@ -872,78 +949,229 @@ function renderCharts(){
   }
 }
 
-// ── 업로드 ──
+// ── 업로드 (이미지+PDF 통합, 자동 분류, 다중 파일) ──
 async function handleUpload(files){
   if(!files||!files.length) return;
-  $('uploadStatus').textContent='분석 중...';
+  var status=$('uploadStatus');
+  status.textContent='분석 중...';
+  var results=[];
+  var total=0;
+
   for(var i=0;i<files.length;i++){
     var file=files[i];
+    var images=[];
+
     try{
-      var dataUrl=await readFile(file);
-      var base64=dataUrl.split(',')[1];
-      var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:base64,billType:T})});
-      var d=await r.json();
-      if(d.ocr&&d.ocr.year&&d.ocr.month){
-        var yr=d.ocr.year,mo=d.ocr.month;
-        if(!D[T][yr]) D[T][yr]={};
-        if(!D[T][yr][mo]) D[T][yr][mo]={u:0,a:0};
-        if(d.ocr.usage_amount) D[T][yr][mo].u=d.ocr.usage_amount;
-        if(d.ocr.bill_amount) D[T][yr][mo].a=d.ocr.bill_amount;
-        $('uploadStatus').textContent=(i+1)+'/'+files.length+' 완료 ('+yr+'년 '+mo+'월)';
-        Y=yr;$('yLabel').textContent=Y+'년';
+      if(file.type==='application/pdf'){
+        // PDF → 페이지별 이미지 변환
+        status.textContent='PDF 변환 중... ('+(i+1)+'/'+files.length+')';
+        images=await pdfToImages(file);
       } else {
-        $('uploadStatus').textContent='인식 실패 — 직접 입력해주세요';
+        // 이미지: 그대로
+        var dataUrl=await readFile(file);
+        images=[dataUrl.split(',')[1]];
       }
-    }catch(e){$('uploadStatus').textContent='오류: '+e.message}
+
+      for(var j=0;j<images.length;j++){
+        total++;
+        status.textContent='OCR 분석 중... ('+total+'번째)';
+        var result=await ocrImage(images[j]);
+        if(result) results.push(result);
+      }
+    }catch(e){
+      status.textContent='오류: '+e.message;
+      console.error('upload error:', e);
+    }
   }
+
+  // 결과 적용 + DB 저장
+  if(results.length===0){
+    status.textContent='인식 실패 — 직접 입력해주세요';
+  } else {
+    var msgs=[];
+    for(var k=0;k<results.length;k++){
+      var r=results[k];
+      var type=r.bill_type||T;
+      var yr=r.year, mo=r.month;
+      if(!yr||!mo) continue;
+
+      if(!D[type]) D[type]={budget:{}};
+      if(!D[type][yr]) D[type][yr]={};
+      if(!D[type][yr][mo]) D[type][yr][mo]={u:0,a:0};
+      if(r.usage_amount) D[type][yr][mo].u=r.usage_amount;
+      if(r.bill_amount) D[type][yr][mo].a=r.bill_amount;
+
+      // DB 저장
+      await saveBillToDB(type, yr, mo, D[type][yr][mo].u, D[type][yr][mo].a);
+      msgs.push(type+' '+yr+'년 '+mo+'월 '+won(r.bill_amount||0));
+    }
+    status.textContent=results.length+'건 인식 완료!';
+    // 토스트 표시
+    showOcrToast(msgs);
+    // 첫 결과의 연도/탭으로 이동
+    if(results[0].bill_type && results[0].bill_type!==T){
+      T=results[0].bill_type;
+      dataLoaded[T]=false;
+      document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===T)});
+    }
+    if(results[0].year){Y=results[0].year;$('yLabel').textContent=Y+'년';}
+  }
+
   render();
-  setTimeout(function(){$('uploadStatus').textContent=''},3000);
+  $('fileIn').value='';
+  setTimeout(function(){status.textContent=''},5000);
+}
+
+// PDF → 이미지 배열 (페이지별)
+async function pdfToImages(file){
+  if(!window.pdfjsLib){throw new Error('PDF 지원 라이브러리 로딩 실패')}
+  var arrayBuf=await file.arrayBuffer();
+  var pdf=await pdfjsLib.getDocument({data:arrayBuf}).promise;
+  var images=[];
+  var maxPages=Math.min(pdf.numPages, 6); // 최대 6페이지
+  for(var p=1;p<=maxPages;p++){
+    var page=await pdf.getPage(p);
+    var vp=page.getViewport({scale:2.0});
+    var canvas=document.createElement('canvas');
+    canvas.width=vp.width; canvas.height=vp.height;
+    var ctx=canvas.getContext('2d');
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
+    images.push(canvas.toDataURL('image/jpeg',0.85).split(',')[1]);
+  }
+  return images;
+}
+
+// 단일 이미지 OCR (자동 분류)
+async function ocrImage(base64){
+  try{
+    var r=await fetch(WORKER+'/ocr',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({image:base64})
+    });
+    var d=await r.json();
+    if(d.ocr && (d.ocr.year || d.ocr.bill_amount)){
+      return d.ocr;
+    }
+    return null;
+  }catch(e){return null}
 }
 
 function readFile(f){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result)};r.readAsDataURL(f)})}
 
-// ── AI 분석 ──
-function runAI(){
+function showOcrToast(msgs){
+  var existing=document.querySelector('.ocr-toast');
+  if(existing) existing.remove();
+  if(!msgs.length) return;
+  var div=document.createElement('div');
+  div.className='ocr-toast';
+  div.innerHTML='<b>✅ 자동 인식 완료</b><br>'+msgs.join('<br>');
+  document.body.appendChild(div);
+  setTimeout(function(){div.remove()},6000);
+}
+
+// ── AI 분석 (Worker /analyze 호출) ──
+async function runAI(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({year:Y,month:m,usage_amount:data[m].u,bill_amount:data[m].a});
+  if(!arr.length){alert('데이터가 없습니다');return}
+
+  var el=$('aiResult');el.style.display='block';
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txt-l)">🤖 AI가 분석 중... (10-15초 소요)</div>';
+
+  // 날씨 데이터 준비
+  var wd=W[Y]||{};
+  var weatherArr=[];
+  for(var m=1;m<=12;m++){
+    if(wd[m]) weatherArr.push({month:m, avg_temp:wd[m].avg});
+  }
+
+  try{
+    var r=await fetch(WORKER+'/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        billType:T,
+        bills:arr,
+        weather:weatherArr,
+        budget:D[T].budget[Y]||0,
+        year:Y
+      })
+    });
+    var d=await r.json();
+    if(d.error){el.textContent='오류: '+d.error;return}
+
+    var a=d.analysis||{};
+    var html='<div style="line-height:2">';
+    if(a.summary) html+='<div style="font-size:15px;font-weight:700;margin-bottom:8px">📊 '+a.summary+'</div>';
+    if(a.trend) html+='<div><b>📈 추이:</b> '+a.trend+'</div>';
+    if(a.correlation) html+='<div><b>🌡️ 기온 상관:</b> '+a.correlation+'</div>';
+    if(a.anomalies) html+='<div><b>⚠️ 특이사항:</b> '+a.anomalies+'</div>';
+    if(a.suggestions) html+='<div><b>💡 절약 제안:</b> '+a.suggestions+'</div>';
+    if(a.forecast) html+='<div><b>🔮 향후 예상:</b> '+a.forecast+'</div>';
+    html+='</div>';
+    el.innerHTML=html;
+  }catch(e){
+    el.textContent='AI 분석 실패: '+e.message;
+  }
+}
+
+// ── 이상치 알림 ──
+function renderAlerts(){
+  var el=$('alertBar');
+  if(!el) return;
   var data=D[T][Y]||{};
   var prev=D[T][Y-1]||{};
   var budget=D[T].budget[Y]||0;
-  var arr=[];for(var m=1;m<=12;m++) if(data[m]) arr.push({month:m,usage:data[m].u,amount:data[m].a});
-  if(!arr.length){alert('데이터가 없습니다');return}
+  var now=new Date();
+  var curMonth=Y===now.getFullYear()?now.getMonth()+1:12;
+  var alerts=[];
 
-  var el=$('aiResult');el.style.display='block';el.textContent='AI가 분석 중...';
-
-  // 로컬 분석
-  var totalA=arr.reduce(function(s,d){return s+d.amount},0);
-  var totalPrev=0;for(m=1;m<=arr.length;m++) if(prev[m]) totalPrev+=prev[m].a||0;
-  var change=totalPrev>0?Math.round((totalA-totalPrev)/totalPrev*100):0;
-  var maxM=arr.reduce(function(a,b){return b.amount>a.amount?b:a});
-  var minM=arr.reduce(function(a,b){return b.amount<a.amount?b:a});
-  var avgA=Math.round(totalA/arr.length);
-
-  // 예측
-  var predictTotal=totalA;
-  var lastMonth=arr[arr.length-1].month;
-  for(m=lastMonth+1;m<=12;m++){
-    if(prev[m]) predictTotal+=Math.round(prev[m].a*1.03);
-    else predictTotal+=avgA;
+  // 1) 각 월 전년비 이상치 (+25% 이상)
+  for(var m=1;m<=12;m++){
+    if(data[m] && data[m].a && prev[m] && prev[m].a){
+      var pct=Math.round((data[m].a-prev[m].a)/prev[m].a*100);
+      if(pct>25){
+        alerts.push({type:'error',text:m+'월 '+T+' 요금이 전년 대비 <b>+'+pct+'%</b> — 점검 필요'});
+      }
+    }
   }
 
-  var lines=[];
-  lines.push('[ '+T+' '+Y+'년 분석 결과 ]\n');
-  lines.push('● 현재까지 '+arr.length+'개월 총 '+won(totalA)+' 사용');
-  if(totalPrev>0) lines.push('  → 전년 동기 대비 '+(change>0?'+':'')+change+'%');
-  lines.push('● 월 평균: '+won(avgA));
-  lines.push('● 최고: '+maxM.month+'월 '+won(maxM.amount)+' / 최저: '+minM.month+'월 '+won(minM.amount));
-  lines.push('');
-  lines.push('● 연말 예상 총액: '+won(predictTotal));
+  // 2) 미입력 월 (현재월 이전)
+  if(Y===now.getFullYear()){
+    for(m=1;m<curMonth;m++){
+      if(!data[m]){
+        alerts.push({type:'warn',text:m+'월 '+T+' 데이터가 미입력 상태 — <b>고지서 업로드</b>해주세요'});
+      }
+    }
+  }
+
+  // 3) 예산 초과 예상
   if(budget){
-    var diff=budget-predictTotal;
-    if(diff>0) lines.push('  → 예산 대비 '+won(diff)+' 여유 ('+Math.round(predictTotal/budget*100)+'% 사용 예상)');
-    else lines.push('  → 예산 '+won(Math.abs(diff))+' 초과 예상! ('+Math.round(predictTotal/budget*100)+'%)');
+    var totalSpent=0,totalPredicted=0;
+    for(m=1;m<=12;m++){
+      if(data[m] && data[m].a) {totalSpent+=data[m].a; totalPredicted+=data[m].a;}
+      else {var p=predictMonth(m);if(p) totalPredicted+=p.a;}
+    }
+    var pctBudget=Math.round(totalPredicted/budget*100);
+    if(pctBudget>100){
+      alerts.push({type:'error',text:'연말 예상 '+won(totalPredicted)+' → 예산 '+won(budget)+' <b>초과 예상</b> ('+pctBudget+'%)'});
+    } else if(pctBudget>90){
+      alerts.push({type:'warn',text:'예산 소진률 '+pctBudget+'% 예상 — 하반기 절감 필요'});
+    }
   }
-  lines.push('\n※ DB·날씨 API 연동 후 AI 심층 분석이 제공됩니다');
 
-  el.textContent=lines.join('\n');
+  if(alerts.length===0){
+    el.style.display='none';
+    return;
+  }
+  var icons={error:'🔴',warn:'🟡',ok:'🟢'};
+  el.style.display='block';
+  el.className='alert-bar';
+  el.innerHTML=alerts.map(function(a){
+    return '<div class="alert-item alert-'+a.type+'"><span class="alert-icon">'+icons[a.type]+'</span><span class="alert-text">'+a.text+'</span></div>';
+  }).join('');
 }
 
 // ── 포맷 ──

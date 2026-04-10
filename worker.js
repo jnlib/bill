@@ -13,15 +13,20 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // ── OCR: 고지서 이미지 인식 ──
+      // ── OCR: 고지서 이미지 인식 (자동 분류) ──
       if (url.pathname === '/ocr' && request.method === 'POST') {
-        const { image, billType } = await request.json();
+        const { image } = await request.json();
         if (!image) return jsonErr('이미지가 필요합니다', 400);
 
-        const prompt = `이 이미지는 한국의 ${billType || '공과금'} 고지서입니다.
-다음 정보를 추출해서 JSON만 반환하세요 (설명 금지):
+        const prompt = `이 이미지는 한국 공공기관의 공과금 고지서입니다.
+어떤 종류의 고지서인지 자동 판별하고, 정보를 추출해서 JSON만 반환하세요 (설명 금지):
 
-{"usage_amount": 사용량숫자, "usage_unit": "단위(kWh/m³/MJ 등)", "bill_amount": 청구금액숫자, "year": 연도숫자, "month": 월숫자}
+{"bill_type": "전기" 또는 "가스" 또는 "수도", "usage_amount": 사용량숫자, "usage_unit": "단위(kWh/m³/MJ 등)", "bill_amount": 청구금액숫자, "year": 연도숫자, "month": 월숫자}
+
+판별 기준:
+- "한국전력", "전기요금", "kWh" → "전기"
+- "도시가스", "가스요금", "MJ", "m³(가스)" → "가스"
+- "상수도", "수도요금", "수도사업소", "m³(수도)" → "수도"
 
 - 사용량과 금액은 반드시 숫자만 (쉼표 제거)
 - 연도/월은 청구 기준 연월
@@ -68,6 +73,45 @@ export default {
         const id = url.pathname.split('/')[2];
         await supaDelete(env, `/rest/v1/bill_records?id=eq.${id}`);
         return json({ ok: true });
+      }
+
+      // ── 예산 CRUD ──
+      if (url.pathname === '/budgets' && request.method === 'GET') {
+        const type = url.searchParams.get('type');
+        let q = '/rest/v1/bill_budgets?order=year.desc';
+        if (type) q += '&bill_type=eq.' + encodeURIComponent(type);
+        return json(await supaGet(env, q));
+      }
+      if (url.pathname === '/budgets' && request.method === 'POST') {
+        const body = await request.json();
+        await supaPost(env, '/rest/v1/bill_budgets', body, true);
+        return json({ ok: true });
+      }
+
+      // ── 메모 CRUD ──
+      if (url.pathname === '/memos' && request.method === 'GET') {
+        const type = url.searchParams.get('type');
+        const year = url.searchParams.get('year');
+        let q = '/rest/v1/bill_memos?order=month.asc';
+        if (type) q += '&bill_type=eq.' + encodeURIComponent(type);
+        if (year) q += '&year=eq.' + year;
+        return json(await supaGet(env, q));
+      }
+      if (url.pathname === '/memos' && request.method === 'POST') {
+        const body = await request.json();
+        await supaPost(env, '/rest/v1/bill_memos', body, true);
+        return json({ ok: true });
+      }
+
+      // ── 전체 데이터 로드 (특정 타입의 모든 연도) ──
+      if (url.pathname === '/load' && request.method === 'GET') {
+        const type = url.searchParams.get('type') || '전기';
+        const [bills, budgets, memos] = await Promise.all([
+          supaGet(env, '/rest/v1/bill_records?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc,month.asc'),
+          supaGet(env, '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc'),
+          supaGet(env, '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc,month.asc'),
+        ]);
+        return json({ bills: bills || [], budgets: budgets || [], memos: memos || [] });
       }
 
       // ── 현재 날씨 (Open-Meteo current) ──
