@@ -160,14 +160,29 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   </div>
 
   <div class="grid">
-    <!-- 차트 -->
+    <!-- 사용량 + 기온 -->
     <div class="card">
-      <div class="card-title">사용량 · 기온 비교</div>
+      <div class="card-title">
+        <span>사용량 · 기온 비교</span>
+        <span id="corrBadge" style="font-size:11px;font-weight:500;color:var(--txt-l)"></span>
+      </div>
       <div class="chart-wrap"><canvas id="chartUsage"></canvas></div>
     </div>
+    <!-- 요금 추이 + 예측 -->
     <div class="card">
-      <div class="card-title">요금 추이 (전년 비교)</div>
+      <div class="card-title">
+        <span>요금 추이 (예측 포함)</span>
+        <span style="font-size:10px;font-weight:500;color:var(--txt-l)">━ 실측 / ┅ 예측</span>
+      </div>
       <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
+    </div>
+    <!-- 누적 집행 + 예산 비교 (새로 추가) -->
+    <div class="card card-full">
+      <div class="card-title">
+        <span>누적 집행 현황 · 예산 대비 (예측 포함)</span>
+        <span id="cumulSummary" style="font-size:11px;font-weight:500;color:var(--txt-l)"></span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chartCumul"></canvas></div>
     </div>
 
     <!-- AI -->
@@ -203,11 +218,10 @@ var D = {
   '수도':{2023:{},2024:{},2025:{},budget:{}}
 };
 
-// 기온 데이터
-var W = {
-  2024:{1:-2.1,2:0.8,3:7.2,4:13.5,5:18.9,6:23.4,7:26.8,8:27.2,9:22.1,10:15.3,11:7.8,12:0.2},
-  2025:{1:-3.5,2:-0.2,3:6.8}
-};
+// 기온 데이터 (Worker /weather에서 Open-Meteo로 가져옴)
+// 형식: W[year][month] = {avg, max, min, hdd, cdd}
+var W = {};
+var wLoading = {}; // 중복 요청 방지
 
 // 샘플 데이터
 (function loadSample(){
@@ -240,11 +254,49 @@ var W = {
 function setTab(t){T=t;document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('on',e.dataset.t===t)});render()}
 function chgYear(d){Y+=d;$('yLabel').textContent=Y+'년';render()}
 
+// ── 날씨 데이터 로드 (Open-Meteo via Worker) ──
+function loadWeather(year){
+  if(W[year]) return Promise.resolve(W[year]);
+  if(wLoading[year]) return wLoading[year];
+  wLoading[year] = fetch(WORKER+'/weather?year='+year)
+    .then(function(r){return r.json()})
+    .then(function(rows){
+      var map = {};
+      if(Array.isArray(rows)){
+        rows.forEach(function(r){
+          map[r.month] = {
+            avg: r.avg_temp,
+            max: r.max_temp,
+            min: r.min_temp,
+            hdd: r.heating_degree_days,
+            cdd: r.cooling_degree_days
+          };
+        });
+      }
+      W[year] = map;
+      delete wLoading[year];
+      return map;
+    })
+    .catch(function(){
+      W[year] = {};
+      delete wLoading[year];
+      return {};
+    });
+  return wLoading[year];
+}
+
 function render(){
+  // UI는 즉시 그리고, 날씨는 도착하면 차트만 다시 그림
   renderSummary();
   renderGauge();
   renderTable();
+  renderCumulative();
   renderCharts();
+  // 날씨 비동기 로드 후 차트 갱신
+  Promise.all([loadWeather(Y), loadWeather(Y-1)]).then(function(){
+    renderCharts();
+    renderCumulative();
+  });
 }
 
 // ── 요약 카드 ──
@@ -381,6 +433,61 @@ function setBudget(val){
   render();
 }
 
+// ── 예측 (월별) ──
+// 전년동월 + 2년전 대비 증가율 + 기온차 보정
+function predictMonth(month){
+  var prev=D[T][Y-1]||{};
+  var twoY=D[T][Y-2]||{};
+  var lm=prev[month];
+  if(!lm) return null;
+  var u=lm.u||0, a=lm.a||0;
+  var tm=twoY[month];
+  if(tm && tm.a>0){
+    var gr=(lm.a-tm.a)/tm.a;
+    a=Math.round(a*(1+gr));
+    if(tm.u>0){
+      var ug=(lm.u-tm.u)/tm.u;
+      u=Math.round(u*(1+ug));
+    }
+  }
+  var thisW=(W[Y]||{})[month];
+  var prevW=(W[Y-1]||{})[month];
+  if(thisW && prevW && thisW.avg!=null && prevW.avg!=null){
+    var diff=thisW.avg-prevW.avg;
+    if(T==='전기'){
+      if(month>=6 && month<=9) a=Math.round(a*(1+diff*0.035));
+      else if(month>=11 || month<=3) a=Math.round(a*(1-diff*0.015));
+    } else if(T==='가스'){
+      if(month>=11 || month<=3) a=Math.round(a*(1-diff*0.045));
+    }
+  }
+  return {u:u, a:a, predicted:true};
+}
+
+// 기온↔사용량 상관계수 (피어슨)
+function correlation(){
+  var data=D[T][Y]||{};
+  var wd=W[Y]||{};
+  var xs=[], ys=[];
+  for(var m=1;m<=12;m++){
+    if(data[m] && data[m].u && wd[m] && wd[m].avg!=null){
+      xs.push(wd[m].avg);
+      ys.push(data[m].u);
+    }
+  }
+  if(xs.length<3) return null;
+  var mx=xs.reduce(function(a,b){return a+b},0)/xs.length;
+  var my=ys.reduce(function(a,b){return a+b},0)/ys.length;
+  var num=0, dx=0, dy=0;
+  for(var i=0;i<xs.length;i++){
+    num+=(xs[i]-mx)*(ys[i]-my);
+    dx+=(xs[i]-mx)*(xs[i]-mx);
+    dy+=(ys[i]-my)*(ys[i]-my);
+  }
+  if(dx===0||dy===0) return null;
+  return num/Math.sqrt(dx*dy);
+}
+
 // ── 차트 ──
 function renderCharts(){
   var data=D[T][Y]||{};
@@ -391,34 +498,172 @@ function renderCharts(){
   if(charts.usage) charts.usage.destroy();
   if(charts.cost) charts.cost.destroy();
 
-  var uData=[],pData=[],wData=[],wpData=[];
-  var wd=W[Y]||{};var wpd=W[Y-1]||{};
+  // 실측 vs 예측 분리
+  var uActual=[], uPredict=[], pData=[], aActual=[], aPredict=[], apData=[];
+  var wData=[], wpData=[];
+  var wd=W[Y]||{}; var wpd=W[Y-1]||{};
+  var lastActualM=0;
   for(var m=1;m<=12;m++){
-    uData.push(data[m]?data[m].u:null);
+    var d=data[m];
+    var isActual = d && (d.u || d.a);
+    if(isActual){
+      uActual.push(d.u||null);
+      aActual.push(d.a||null);
+      uPredict.push(null);
+      aPredict.push(null);
+      lastActualM=m;
+    } else {
+      var pred=predictMonth(m);
+      uActual.push(null);
+      aActual.push(null);
+      uPredict.push(pred?pred.u:null);
+      aPredict.push(pred?pred.a:null);
+    }
     pData.push(prev[m]?prev[m].u:null);
-    wData.push(wd[m]!=null?wd[m]:null);
-    wpData.push(wpd[m]!=null?wpd[m]:null);
+    apData.push(prev[m]?prev[m].a:null);
+    wData.push(wd[m]?wd[m].avg:null);
+    wpData.push(wpd[m]?wpd[m].avg:null);
   }
+  // 실측 → 예측 선 이어붙이기
+  if(lastActualM>0 && lastActualM<12){
+    aPredict[lastActualM-1]=aActual[lastActualM-1];
+  }
+
   charts.usage=new Chart($('chartUsage'),{
     type:'bar',data:{labels:months,datasets:[
-      {label:Y+'년 사용량',data:uData,backgroundColor:c.main+'cc',borderRadius:4,yAxisID:'y'},
-      {label:(Y-1)+'년 사용량',data:pData,backgroundColor:c.light+'88',borderRadius:4,yAxisID:'y'},
-      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',backgroundColor:'#e5393515',tension:.3,pointRadius:4,yAxisID:'y1',borderWidth:2},
-      {label:(Y-1)+'년 기온',data:wpData,type:'line',borderColor:'#e5393555',borderDash:[4,4],tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:1.5}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}}}
+      {label:Y+'년 실측',data:uActual,backgroundColor:c.main+'cc',borderRadius:4,yAxisID:'y',order:2},
+      {label:Y+'년 예측',data:uPredict,backgroundColor:c.main+'33',borderColor:c.main+'aa',borderWidth:1.5,borderRadius:4,yAxisID:'y',order:2},
+      {label:(Y-1)+'년',data:pData,backgroundColor:c.light+'66',borderRadius:4,yAxisID:'y',order:3},
+      {label:Y+'년 기온',data:wData,type:'line',borderColor:'#e53935',backgroundColor:'#e5393515',tension:.3,pointRadius:3,yAxisID:'y1',borderWidth:2,order:1},
+      {label:(Y-1)+'년 기온',data:wpData,type:'line',borderColor:'#e5393555',borderDash:[4,4],tension:.3,pointRadius:2,yAxisID:'y1',borderWidth:1.5,order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:function(ctx){
+          var lbl=ctx.dataset.label||'';
+          var v=ctx.parsed.y;
+          if(v==null) return lbl;
+          if(lbl.indexOf('기온')>=0) return lbl+': '+v+'°C';
+          return lbl+': '+fnum(v)+' '+UNITS[T];
+        }}}
+      },
+      scales:{
+        y:{beginAtZero:true,position:'left',title:{display:true,text:UNITS[T],font:{size:10}}},
+        y1:{position:'right',title:{display:true,text:'°C',font:{size:10}},grid:{drawOnChartArea:false}}
+      }
+    }
   });
 
-  var aData=[],apData=[];
-  for(m=1;m<=12;m++){
-    aData.push(data[m]?data[m].a:null);
-    apData.push(prev[m]?prev[m].a:null);
-  }
   charts.cost=new Chart($('chartCost'),{
     type:'line',data:{labels:months,datasets:[
-      {label:Y+'년',data:aData,borderColor:c.main,backgroundColor:c.main+'22',fill:true,tension:.3,pointRadius:4},
-      {label:(Y-1)+'년',data:apData,borderColor:c.light,borderDash:[5,5],tension:.3,pointRadius:3}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}}
+      {label:Y+'년 실측',data:aActual,borderColor:c.main,backgroundColor:c.main+'22',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:c.main,borderWidth:3},
+      {label:Y+'년 예측',data:aPredict,borderColor:c.main,backgroundColor:'transparent',tension:.3,pointRadius:4,pointStyle:'triangle',borderDash:[6,4],borderWidth:2},
+      {label:(Y-1)+'년',data:apData,borderColor:c.light,backgroundColor:'transparent',borderDash:[2,3],tension:.3,pointRadius:2,borderWidth:1.5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:function(ctx){
+          var v=ctx.parsed.y;
+          if(v==null) return ctx.dataset.label;
+          return ctx.dataset.label+': '+won(v);
+        }}}
+      },
+      scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}
+    }
   });
+
+  // 상관계수 뱃지
+  var corr=correlation();
+  var cb=$('corrBadge');
+  if(cb){
+    if(corr==null) cb.textContent='';
+    else {
+      var dir = corr>0 ? '↑양의 상관' : '↓음의 상관';
+      var strength = Math.abs(corr);
+      var label = strength>0.7?'강함':strength>0.4?'보통':'약함';
+      var color = strength>0.7?'#c62828':strength>0.4?'#ef6c00':'#94a4b4';
+      cb.innerHTML='기온↔사용량 <b style="color:'+color+'">'+dir+' '+label+'</b> (r='+corr.toFixed(2)+')';
+    }
+  }
+}
+
+// ── 누적 집행 차트 (예산 대비 + 예측) ──
+function renderCumulative(){
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var budget=D[T].budget[Y]||0;
+  var months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  var c=COLORS[T];
+  if(charts.cumul) charts.cumul.destroy();
+
+  var actualCumul=[], predictCumul=[], prevCumul=[], budgetLine=[];
+  var cumA=0, cumP=0, cumPrev=0;
+  var lastActualIdx=-1;
+  for(var m=1;m<=12;m++){
+    var d=data[m];
+    var isActual = d && (d.u || d.a);
+    if(isActual){
+      cumA += d.a||0;
+      cumP = cumA;
+      actualCumul.push(cumA);
+      predictCumul.push(null);
+      lastActualIdx=m-1;
+    } else {
+      var pred=predictMonth(m);
+      var predA = pred ? pred.a : 0;
+      cumP += predA;
+      actualCumul.push(null);
+      predictCumul.push(cumP);
+    }
+    cumPrev += (prev[m] ? (prev[m].a||0) : 0);
+    prevCumul.push(cumPrev);
+    budgetLine.push(budget||null);
+  }
+  if(lastActualIdx>=0 && lastActualIdx<11){
+    predictCumul[lastActualIdx] = actualCumul[lastActualIdx];
+  }
+
+  var datasets=[
+    {label:'실측 누적',data:actualCumul,borderColor:c.main,backgroundColor:c.main+'33',fill:'origin',tension:.2,pointRadius:5,pointBackgroundColor:c.main,borderWidth:3},
+    {label:'예측 누적',data:predictCumul,borderColor:c.main,backgroundColor:c.main+'0a',fill:'origin',tension:.2,pointRadius:4,pointStyle:'triangle',borderDash:[6,4],borderWidth:2},
+    {label:(Y-1)+'년 누적',data:prevCumul,borderColor:c.light,backgroundColor:'transparent',borderDash:[2,3],tension:.2,pointRadius:2,borderWidth:1.5}
+  ];
+  if(budget) datasets.push({label:'예산 한도',data:budgetLine,borderColor:'#c62828',backgroundColor:'transparent',borderDash:[10,4],pointRadius:0,borderWidth:2});
+
+  charts.cumul=new Chart($('chartCumul'),{
+    type:'line',data:{labels:months,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:function(ctx){
+          var v=ctx.parsed.y; if(v==null) return ctx.dataset.label;
+          return ctx.dataset.label+': '+won(v);
+        }}}
+      },
+      scales:{y:{beginAtZero:true,ticks:{callback:function(v){return won(v)}}}}
+    }
+  });
+
+  // 요약 라벨
+  var cs=$('cumulSummary');
+  if(cs){
+    var finalCum=null;
+    for(var i=11;i>=0;i--){
+      if(predictCumul[i]!=null){finalCum=predictCumul[i];break}
+    }
+    if(finalCum==null){
+      for(var j=11;j>=0;j--) if(actualCumul[j]!=null){finalCum=actualCumul[j];break}
+    }
+    if(budget){
+      var pct = Math.round((finalCum||0)/budget*100);
+      var col = pct<=85?'#2e7d32':pct<=100?'#f9a825':'#c62828';
+      cs.innerHTML='연말 예상 <b style="color:'+col+'">'+won(finalCum||0)+'</b> / 예산 '+won(budget)+' ('+pct+'%)';
+    } else {
+      cs.innerHTML='연말 예상 <b>'+won(finalCum||0)+'</b> · 예산 미설정';
+    }
+  }
 }
 
 // ── 업로드 ──

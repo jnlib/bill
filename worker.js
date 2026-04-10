@@ -53,37 +53,44 @@ export default {
         const year = url.searchParams.get('year');
         let query = `bill_type=eq.${encodeURIComponent(type)}&order=year.desc,month.asc`;
         if (year) query += `&year=eq.${year}`;
-        const data = await supaGet(env, `/rest/v1/bills?${query}`);
+        const data = await supaGet(env, `/rest/v1/bill_records?${query}`);
         return json(data);
       }
 
       if (url.pathname === '/bills' && request.method === 'POST') {
         const body = await request.json();
         // upsert (같은 type+year+month 있으면 업데이트)
-        const data = await supaPost(env, '/rest/v1/bills', body, true);
+        const data = await supaPost(env, '/rest/v1/bill_records', body, true);
         return json({ ok: true, data });
       }
 
       if (url.pathname.startsWith('/bills/') && request.method === 'DELETE') {
         const id = url.pathname.split('/')[2];
-        await supaDelete(env, `/rest/v1/bills?id=eq.${id}`);
+        await supaDelete(env, `/rest/v1/bill_records?id=eq.${id}`);
         return json({ ok: true });
       }
 
-      // ── 날씨 데이터 ──
+      // ── 날씨 데이터 (Open-Meteo, API 키 불필요) ──
       if (url.pathname === '/weather' && request.method === 'GET') {
-        const year = url.searchParams.get('year');
-        if (!year) return jsonErr('year 파라미터 필요', 400);
+        const year = parseInt(url.searchParams.get('year'), 10);
+        if (!year || year < 1940 || year > 2100) return jsonErr('year 파라미터 필요', 400);
 
-        // 캐시 먼저 확인
-        const cached = await supaGet(env, `/rest/v1/weather_cache?year=eq.${year}&order=month.asc`);
-        if (cached && cached.length > 0) return json(cached);
+        // 캐시 먼저 확인 (과거 완료년도만 캐싱, 현재/미래는 매번 갱신)
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const isCurrentOrFuture = year >= currentYear;
+        if (!isCurrentOrFuture) {
+          const cached = await supaGet(env, `/rest/v1/bill_weather?year=eq.${year}&order=month.asc`);
+          if (cached && cached.length === 12) return json(cached);
+        }
 
-        // 기상청 API 호출 후 캐싱
-        if (!env.WEATHER_API_KEY) return jsonErr('날씨 API 키 미설정', 500);
-        const weatherData = await fetchWeather(env, year);
+        const weatherData = await fetchWeatherOpenMeteo(year);
         if (weatherData.length > 0) {
-          await supaPost(env, '/rest/v1/weather_cache', weatherData, true);
+          // 현재년은 기존 행 삭제 후 재저장 (월별 갱신 반영)
+          if (isCurrentOrFuture) {
+            await supaDelete(env, `/rest/v1/bill_weather?year=eq.${year}`);
+          }
+          await supaPost(env, '/rest/v1/bill_weather', weatherData, true);
         }
         return json(weatherData);
       }
@@ -215,42 +222,102 @@ function calculatePrediction(bills, weather, targetYear, targetMonth) {
   return { amount, usage, method: '전년동월 + 증가율 + 기온보정' };
 }
 
-// ── 기상청 API (ASOS 일평균기온 → 월평균) ──
-async function fetchWeather(env, year) {
+// ── Open-Meteo 기상 데이터 (서울 종로, API 키 불필요) ──
+// 1940-현재까지 일단위 히스토리 + 예측 제공. 무료/무제한.
+async function fetchWeatherOpenMeteo(year) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const isFuture = year > currentYear;
+  if (isFuture) return []; // 미래년도는 데이터 없음
+
+  const lat = 37.5665;  // 서울 종로구
+  const lon = 126.9780;
+  const startDate = `${year}-01-01`;
+
+  // 현재년도는 어제까지만 (API 제약)
+  let endDate;
+  if (year === currentYear) {
+    const y = new Date(now.getTime() - 86400000); // 어제
+    endDate = y.toISOString().slice(0, 10);
+  } else {
+    endDate = `${year}-12-31`;
+  }
+
+  // archive API (과거 완료 데이터) — 최근 며칠은 아직 없을 수 있음
+  // forecast API도 과거 16일 커버. 지난 몇 주는 archive가 비어있을 수 있으므로 두 API 조합
+  const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul`;
+
+  let dailyTime = [];
+  let dailyMean = [];
+  let dailyMax = [];
+  let dailyMin = [];
+
+  try {
+    const r = await fetch(archiveUrl);
+    const d = await r.json();
+    if (d.daily) {
+      dailyTime = d.daily.time || [];
+      dailyMean = d.daily.temperature_2m_mean || [];
+      dailyMax = d.daily.temperature_2m_max || [];
+      dailyMin = d.daily.temperature_2m_min || [];
+    }
+  } catch(e) { /* archive 실패해도 진행 */ }
+
+  // 현재년도: archive가 최근 1-2주 비어있을 수 있어서 forecast API로 보충
+  if (year === currentYear) {
+    try {
+      const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min&past_days=31&forecast_days=1&timezone=Asia%2FSeoul`;
+      const r2 = await fetch(forecastUrl);
+      const d2 = await r2.json();
+      if (d2.daily && d2.daily.time) {
+        // 중복 제거하면서 merge
+        const existing = new Set(dailyTime);
+        for (let i = 0; i < d2.daily.time.length; i++) {
+          const t = d2.daily.time[i];
+          if (t.startsWith(String(year)) && !existing.has(t)) {
+            dailyTime.push(t);
+            dailyMean.push(d2.daily.temperature_2m_mean[i]);
+            dailyMax.push(d2.daily.temperature_2m_max[i]);
+            dailyMin.push(d2.daily.temperature_2m_min[i]);
+          }
+        }
+      }
+    } catch(e) { /* forecast 보충 실패해도 archive만으로 진행 */ }
+  }
+
+  if (dailyTime.length === 0) return [];
+
+  // 월별 집계
+  const byMonth = {};
+  for (let i = 0; i < dailyTime.length; i++) {
+    const month = parseInt(dailyTime[i].slice(5, 7), 10);
+    if (!byMonth[month]) byMonth[month] = { means: [], maxs: [], mins: [] };
+    if (dailyMean[i] != null) byMonth[month].means.push(dailyMean[i]);
+    if (dailyMax[i] != null) byMonth[month].maxs.push(dailyMax[i]);
+    if (dailyMin[i] != null) byMonth[month].mins.push(dailyMin[i]);
+  }
+
   const results = [];
   for (let month = 1; month <= 12; month++) {
-    const startDt = `${year}${String(month).padStart(2, '0')}01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const endDt = `${year}${String(month).padStart(2, '0')}${lastDay}`;
-
-    try {
-      const qs = new URLSearchParams({
-        serviceKey: env.WEATHER_API_KEY,
-        numOfRows: '31',
-        pageNo: '1',
-        dataType: 'JSON',
-        dataCd: 'ASOS',
-        dateCd: 'DAY',
-        startDt, endDt,
-        stnIds: '108' // 서울(종로)
-      });
-      const r = await fetch(`https://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList?${qs}`);
-      const d = await r.json();
-      const items = d.response?.body?.items?.item || [];
-      if (items.length === 0) continue;
-
-      const temps = items.map(i => parseFloat(i.avgTa)).filter(t => !isNaN(t));
-      const avgTemp = temps.length > 0 ? Math.round(temps.reduce((a, b) => a + b, 0) / temps.length * 10) / 10 : null;
-      const maxTemp = temps.length > 0 ? Math.max(...items.map(i => parseFloat(i.maxTa)).filter(t => !isNaN(t))) : null;
-      const minTemp = temps.length > 0 ? Math.min(...items.map(i => parseFloat(i.minTa)).filter(t => !isNaN(t))) : null;
-
-      results.push({
-        year: parseInt(year), month,
-        avg_temp: avgTemp, max_temp: maxTemp, min_temp: minTemp,
-        heating_degree_days: avgTemp !== null ? Math.max(0, Math.round((18 - avgTemp) * 30)) : null,
-        cooling_degree_days: avgTemp !== null ? Math.max(0, Math.round((avgTemp - 24) * 30)) : null,
-      });
-    } catch(e) { /* skip failed month */ }
+    const b = byMonth[month];
+    if (!b || b.means.length === 0) continue;
+    const avgTemp = Math.round(b.means.reduce((a, c) => a + c, 0) / b.means.length * 10) / 10;
+    const maxTemp = b.maxs.length ? Math.round(Math.max(...b.maxs) * 10) / 10 : null;
+    const minTemp = b.mins.length ? Math.round(Math.min(...b.mins) * 10) / 10 : null;
+    // 난방도일/냉방도일: 일평균 기온 기준 (18°C 난방, 24°C 냉방)
+    let hdd = 0, cdd = 0;
+    b.means.forEach(t => {
+      if (t < 18) hdd += (18 - t);
+      if (t > 24) cdd += (t - 24);
+    });
+    results.push({
+      year: parseInt(year, 10), month,
+      avg_temp: avgTemp,
+      max_temp: maxTemp,
+      min_temp: minTemp,
+      heating_degree_days: Math.round(hdd),
+      cooling_degree_days: Math.round(cdd),
+    });
   }
   return results;
 }
