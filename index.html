@@ -270,12 +270,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .tt-cell.warm{color:var(--red);background:#fef2f2;border-radius:5px}
 .tt-cell.cold{color:var(--elec);background:#eff6ff;border-radius:5px}
 .expl-row{margin-top:8px}
-.tt-cell.expl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;color:var(--txt);border-radius:10px;margin:0 2px}
-.ex-emo{font-size:23px;line-height:1.1}
-.ex-w{font-size:13.5px;font-weight:800;white-space:nowrap}
+.tt-cell.expl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 4px;color:var(--txt);border-radius:9px;margin:0 2px}
+.ex-em2{font-size:15px;font-weight:400}
+.ex-w{font-size:13px;font-weight:800;white-space:nowrap}
 .ex-c{font-size:12px;opacity:.8}
-.ex-p{font-size:14px;font-weight:900;white-space:nowrap}
-.ex-p2{font-size:13px;font-weight:800;white-space:nowrap}
+.ex-p{font-size:13px;font-weight:800;white-space:nowrap}
 .tt-cell.expl.up{background:#fee2e2;color:#b42318}
 .tt-cell.expl.dn{background:#dcfce7;color:#15803d}
 .tt-cell.expl.warn{background:#fef3c7;color:#b45309}
@@ -762,8 +761,8 @@ function renderWaterTable(el){
     if(c&&p&&c.u&&p.u&&c.a&&p.a){
       var aY=Math.round((c.a-p.a)/p.a*100),uY=Math.round((c.u-p.u)/p.u*100),pY=Math.round((c.a/c.u-p.a/p.u)/(p.a/p.u)*100);
       if(Math.abs(aY)>=5){
-        if(Math.abs(pY)>=Math.abs(uY))txt='<span class="ex-emo">💧</span><span class="ex-w">물값 '+(pY>0?'올랐어요':'내렸어요')+'</span><span class="ex-p">1m³당 '+(pY>0?'+':'')+pY+'% · 사용 '+(uY>0?'+':'')+uY+'%</span>';
-        else txt='<span class="ex-emo">💧</span><span class="ex-w">'+(uY>0?'사용 늘었어요':'사용 줄었어요')+'</span><span class="ex-p">사용 '+(uY>0?'+':'')+uY+'% · 단가 '+(pY>0?'+':'')+pY+'%</span>';
+        if(Math.abs(pY)>=Math.abs(uY))txt='<span class="ex-w"><b class="ex-em2">💧</b> 물값 '+(pY>0?'올랐어요':'내렸어요')+'</span><span class="ex-p">1m³당 '+(pY>0?'+':'')+pY+'% · 사용 '+(uY>0?'+':'')+uY+'%</span>';
+        else txt='<span class="ex-w"><b class="ex-em2">💧</b> '+(uY>0?'사용 늘었어요':'사용 줄었어요')+'</span><span class="ex-p">사용 '+(uY>0?'+':'')+uY+'% · 단가 '+(pY>0?'+':'')+pY+'%</span>';
       }
     }
     er+='<span class="tt-cell expl'+(txt?' spark':'')+'">'+txt+'</span>';
@@ -888,7 +887,7 @@ function renderChart(){
       {label:'올해',data:nowBars,backgroundColor:nowColors,borderRadius:5,borderSkipped:false,categoryPercentage:.66,barPercentage:.92}
     ]},
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,layout:{padding:{top:26}},
       animation:{duration:750,easing:'easeOutQuart',delay:function(ctx){return ctx.type==='data'&&ctx.mode==='default'?ctx.dataIndex*55:0;}},
       interaction:{mode:'index',intersect:false},
       plugins:{
@@ -903,7 +902,7 @@ function renderChart(){
       },
       onClick:(e,el)=>{if(el&&el.length){FM=el[0].index+1;}},
       scales:{
-        y:{beginAtZero:true,grace:'22%',title:{display:true,text:UNITS[T],font:{size:10,weight:'600'},color:c.main},ticks:{font:{size:10},color:'#64748b',maxTicksLimit:6,callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(0,0,0,.05)'},border:{display:false}},
+        y:{beginAtZero:true,title:{display:true,text:UNITS[T],font:{size:10,weight:'600'},color:c.main},ticks:{font:{size:10},color:'#64748b',maxTicksLimit:6,callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(0,0,0,.05)'},border:{display:false}},
         x:{ticks:{font:{size:11}},grid:{display:false}}
       }
     }
@@ -942,18 +941,18 @@ function monthlyExplain(type,year){
       else if(cool&&yoy>0&&tD>=0.5){exp=true;emo='🔥';word='더 더웠어요';cost='냉방비';}
       else if(cool&&yoy<0&&tD<=-0.5){exp=true;emo='🍃';word='더 시원했어요';cost='냉방비';}
     }
-    var arr=yoy>0?'▲+'+yoy+'%':'▼'+Math.abs(yoy)+'%',aArr=aYoy==null?'-':(aYoy>0?'▲+'+aYoy+'%':'▼'+Math.abs(aYoy)+'%');
+    var arr=(yoy>0?'+':'')+yoy+'%',aArr=aYoy==null?'-':((aYoy>0?'+':'')+aYoy+'%');
     var why,short;
     if(exp){
       why='작년보다 <b>'+Math.abs(tD)+'°</b> '+word+' → '+cost+(yoy>0?'가 더 나갔어요':'를 아꼈어요');
-      short='<span class="ex-emo">'+emo+'</span><span class="ex-w">'+word+'</span><span class="ex-p">사용 '+arr+'</span><span class="ex-p2">'+cost+' '+aArr+'</span>';
+      short='<span class="ex-w"><b class="ex-em2">'+emo+'</b> '+word+'</span><span class="ex-p">사용 '+arr+' · '+cost+' '+aArr+'</span>';
     }else if(type==='수도'){
       exp=true; // 수도는 날씨와 무관 — 정상 변동을 경고로 띄우지 않음
       why='수도는 날씨와 무관해요. 평소 사용 흐름이에요';
       short='<span class="ex-emo">💧</span><span class="ex-w">'+(yoy>0?'사용 늘어요':'사용 줄어요')+'</span><span class="ex-p">'+arr+'</span>';
     }else{
       why='기온 영향은 아닌 것 같아요 — 행사·설비를 확인해 보세요';
-      short='<span class="ex-emo">🔎</span><span class="ex-w">확인 필요</span><span class="ex-p">사용 '+arr+'</span><span class="ex-p2">요금 '+aArr+'</span>';
+      short='<span class="ex-w"><b class="ex-em2">🔎</b> 확인 필요</span><span class="ex-p">사용 '+arr+' · 요금 '+aArr+'</span>';
     }
     out.push({month:m,yoy:yoy,explained:exp,why:why,emo:emo,short:short});
   }
