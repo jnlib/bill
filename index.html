@@ -267,17 +267,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .tt-lbl{font-size:12px;font-weight:800;color:var(--txt-l)}
 .tt-cell{font-size:14px;text-align:center;color:var(--txt-m);padding:4px 0;font-weight:600}
 .tt-row.now .tt-cell{font-weight:800;color:var(--txt)}
-.tt-cell.warm{color:var(--red);background:#fef2f2;border-radius:5px}
-.tt-cell.cold{color:var(--elec);background:#eff6ff;border-radius:5px}
 .expl-row{margin-top:8px}
-.tt-cell.expl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 4px;color:var(--txt);border-radius:9px;margin:0 2px}
+.tt-cell.expl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;color:var(--txt);margin:0 1px}
 .ex-emo{font-size:23px;line-height:1.1}
 .ex-w{font-size:14px;font-weight:800;white-space:nowrap;line-height:1.2}
 .ex-c{font-size:12px;opacity:.8}
 .ex-p{font-size:15px;font-weight:900;white-space:nowrap;line-height:1.2}
-.tt-cell.expl.up{background:#fee2e2;color:#b42318}
-.tt-cell.expl.dn{background:#dcfce7;color:#15803d}
-.tt-cell.expl.warn{background:#fef3c7;color:#b45309}
+.tt-cell.expl.up{color:#dc2626}
+.tt-cell.expl.dn{color:#16a34a}
+.tt-cell.expl.warn{color:#b45309}
 .tt-cell.expl b{font-weight:900}
 .chart-legends{display:flex;gap:10px;font-size:10px;color:var(--txt-m);flex-wrap:wrap}
 .chart-legends span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -735,14 +733,13 @@ function renderTempTable(){
   function row(label,yr,isNow){
     var h='<div class="tt-row '+(isNow?'now':'')+'"><span class="tt-lbl">'+label+'</span>';
     for(var m=1;m<=12;m++){
-      var t=(W[yr]||{})[m],tp=(W[py]||{})[m],cls='';
-      if(isNow&&t&&tp){var d=t.avg-tp.avg;if(d>=1.5)cls=' warm';else if(d<=-1.5)cls=' cold';}
-      h+='<span class="tt-cell'+cls+'">'+(t?t.avg+'°':'-')+'</span>';
+      var t=(W[yr]||{})[m];
+      h+='<span class="tt-cell">'+(t?t.avg+'°':'-')+'</span>';
     }
     return h+'</div>';
   }
   var er='<div class="tt-row expl-row"><span class="tt-lbl">한 줄 설명</span>';
-  for(var m=1;m<=12;m++){var e=exMap[m],cls=e?('spark '+(e.explained?(e.yoy>0?'up':'dn'):'warn')):'';er+='<span class="tt-cell expl '+cls+'">'+(e?e.short:'')+'</span>';}
+  for(var m=1;m<=12;m++){var e=exMap[m],cls=e?(e.explained?(e.yoy>0?'up':'dn'):'warn'):'';er+='<span class="tt-cell expl '+cls+'">'+(e?e.short:'')+'</span>';}
   er+='</div>';
   el.innerHTML=row('올해 기온',cy,true)+row('작년 기온',py,false)+er;
 }
@@ -765,7 +762,7 @@ function renderWaterTable(el){
         else txt='<span class="ex-emo">💧</span><span class="ex-w">사용 '+(uY>0?'늘었어요':'줄었어요')+'</span><span class="ex-p">작년比 '+(uY>0?'+':'')+uY+'%</span>';
       }
     }
-    er+='<span class="tt-cell expl'+(txt?' spark':'')+'">'+txt+'</span>';
+    er+='<span class="tt-cell expl">'+txt+'</span>';
   }
   er+='</div>';
   el.innerHTML=priceRow('올해 1m³당',cur,true)+priceRow('작년 1m³당',prev,false)+er;
