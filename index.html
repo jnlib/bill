@@ -13,25 +13,28 @@
   --navy:#0f1f35;
   --elec:#2563eb;--elec-bg:#eff6ff;
   --water:#0891b2;--water-bg:#ecfeff;
-  --bg:#f1f5f9;--surface:#fff;
+  --indigo:#6366f1;--violet:#8b5cf6;
+  --grad:linear-gradient(135deg,#6366f1,#8b5cf6);
+  --grad-blue:linear-gradient(135deg,#3b82f6,#6366f1);
+  --bg:#eef1fb;--surface:#fff;
   --txt:#0f172a;--txt-m:#475569;--txt-l:#94a3b8;
-  --border:#e5e7eb;
+  --border:#e8ebf3;
   --green:#16a34a;--red:#dc2626;--amber:#d97706;
-  --shadow:0 1px 2px rgba(15,23,42,.03),0 6px 18px rgba(15,23,42,.05);
-  --r:14px;
+  --shadow:0 1px 2px rgba(79,70,229,.04),0 10px 26px rgba(79,70,229,.07);
+  --r:16px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;min-height:100vh}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#eaeefe 0%,#f2f0fc 42%,#f7f6fd 100%);background-attachment:fixed;color:var(--txt);font-size:13px;min-height:100vh}
 
 /* ── 헤더 ── */
-.hdr{background:var(--navy);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:14px;position:sticky;top:0;z-index:10}
+.hdr{background:linear-gradient(100deg,#0f1f35,#1e1b4b 55%,#312e81);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:14px;position:sticky;top:0;z-index:10;box-shadow:0 4px 20px rgba(49,46,129,.25)}
 .hdr-brand{display:flex;align-items:center;gap:10px;color:#fff;font-size:14px;font-weight:700}
 .hdr-brand img{height:17px;filter:brightness(10) opacity(.9)}
 .hdr-brand .divider{width:1px;height:16px;background:rgba(255,255,255,.2)}
 .hdr-tabs{display:flex;gap:3px}
 .hdr-tab{padding:7px 16px;border-radius:8px;color:rgba(255,255,255,.55);cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;border:none;background:none;transition:.15s}
 .hdr-tab:hover{color:#fff;background:rgba(255,255,255,.08)}
-.hdr-tab.on{color:#fff;background:rgba(255,255,255,.18)}
+.hdr-tab.on{color:#fff;background:linear-gradient(135deg,rgba(129,140,248,.6),rgba(167,139,250,.5));box-shadow:0 2px 12px rgba(129,140,248,.45)}
 .hdr-year{display:flex;align-items:center;gap:7px;color:#fff;flex-shrink:0;white-space:nowrap}
 .hdr-brand{flex-shrink:0}
 .hdr-year button{width:26px;height:26px;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
@@ -41,7 +44,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 /* ── 본문 (1200px 기준) ── */
 .wrap{max-width:1800px;margin:0 auto;padding:12px 24px;display:flex;flex-direction:column;gap:11px;height:calc(100vh - 52px);overflow:hidden}
 
-.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;border:1px solid #eef1f5}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(99,102,241,.1)}
 .card-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .card-head h3{font-size:13px;font-weight:700;color:var(--txt)}
 .card-head .tag{font-size:10px;font-weight:700;background:var(--elec-bg);color:var(--elec);padding:2px 8px;border-radius:10px}
@@ -113,10 +116,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .ai-row .ai-card{flex:1;min-height:0}
 .ai-card .ai-body{flex:1;overflow:auto;display:flex;flex-direction:column;justify-content:center}
 /* AI 분석 내러티브 */
-.ai-take{font-size:15px;font-weight:800;padding:13px 15px;border-radius:12px;margin-bottom:13px;line-height:1.5}
-.ai-take.ok{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);color:#15803d;border:1px solid #d1fae5;border-left:4px solid #22c55e}
-.ai-take.warn{background:linear-gradient(135deg,#fffbeb,#fef9ec);color:#b45309;border:1px solid #fde68a;border-left:4px solid #f59e0b}
-.ai-take.danger{background:linear-gradient(135deg,#fef2f2,#fef0f0);color:#b91c1c;border:1px solid #fecaca;border-left:4px solid #ef4444}
+.ai-take{font-size:17px;font-weight:800;padding:13px 17px;border-radius:14px;margin-bottom:12px;line-height:1.45;position:relative;overflow:hidden;animation:aiRise .45s ease both;box-shadow:0 5px 18px rgba(16,24,40,.07)}
+.ai-take::after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.55) 50%,transparent 64%);background-size:240% 100%;animation:shimmer 4.2s ease-in-out infinite;pointer-events:none}
+.ai-take.ok{background:linear-gradient(135deg,#ecfdf5,#f0fdf9);color:#15803d;border:1px solid #bbf7d0;border-left:5px solid #22c55e}
+.ai-take.warn{background:linear-gradient(135deg,#fffbeb,#fef9ec);color:#b45309;border:1px solid #fde68a;border-left:5px solid #f59e0b}
+.ai-take.danger{background:linear-gradient(135deg,#fef2f2,#fff1f1);color:#b91c1c;border:1px solid #fecaca;border-left:5px solid #ef4444}
+/* AI 코치 말풍선 */
+.ai-coach{display:flex;gap:12px;align-items:flex-start;margin-bottom:15px;animation:aiRise .45s both}
+.ai-avatar{width:54px;height:54px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,#a78bfa,#7c3aed);box-shadow:0 9px 20px -6px rgba(124,58,237,.6);animation:floaty 3s ease-in-out infinite}
+.ai-coach.warn .ai-avatar{background:linear-gradient(135deg,#fbbf24,#ea580c);box-shadow:0 9px 20px -6px rgba(234,88,12,.55)}
+.ai-coach.danger .ai-avatar{background:linear-gradient(135deg,#fb7185,#e11d48);box-shadow:0 9px 20px -6px rgba(225,29,72,.55)}
+.ai-bubble{position:relative;flex:1;min-width:0;background:#fff;border:1px solid #ece8fb;border-radius:16px;border-top-left-radius:5px;padding:13px 16px;font-size:15px;font-weight:700;line-height:1.55;color:#2a2546;box-shadow:0 7px 20px -10px rgba(124,58,237,.5)}
+.why-tag{display:inline-block;font-size:9.5px;font-weight:800;color:#6d28d9;background:#f1ecfe;border-radius:5px;padding:1px 5px;margin-right:5px;vertical-align:middle;letter-spacing:.2px}
+.tip-tag{display:inline-block;font-size:9.5px;font-weight:800;color:#0e7490;background:#e0f7fb;border-radius:5px;padding:1px 5px;margin-right:5px;vertical-align:middle;letter-spacing:.2px}
+.ai-bubble::before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0;filter:drop-shadow(-1px 0 0 #ece8fb)}
 .ai-lines{display:flex;flex-direction:column;gap:10px;margin-bottom:13px}
 .ai-line{font-size:13.5px;color:var(--txt);line-height:1.5;display:flex;gap:9px;align-items:flex-start}
 .ai-line .ic{flex-shrink:0;font-size:15px;line-height:1.4}
@@ -137,7 +150,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 /* AI 분석: 월별 해명 카드 + 조치 카드 */
 .ai-card .ai-body{justify-content:flex-start}
 .ai-block{margin-bottom:13px}
-.ai-block-h{font-size:12.5px;font-weight:800;color:var(--txt-m);margin-bottom:10px;letter-spacing:.2px}
+.ai-block-h{font-size:13.5px;font-weight:800;color:var(--txt-m);margin-bottom:11px;letter-spacing:.2px}
 .ai-months{display:flex;gap:10px;flex-wrap:wrap}
 .ai-mcard{flex:1 1 0;min-width:185px;border-radius:11px;padding:11px 13px;border-left:4px solid #16a34a;background:#f0fdf4}
 .ai-mcard.warn{border-left-color:var(--amber);background:#fffbeb}
@@ -151,13 +164,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .ai-mc-why{font-size:12px;color:var(--txt-m);line-height:1.45}
 .ai-mc-why b{font-weight:900;color:var(--txt)}
 .ai-mc-none{font-size:13px;color:#15803d;font-weight:700;background:#f0fdf4;border-radius:10px;padding:12px 14px}
-.ai-acts2{display:flex;flex-direction:column;gap:8px}
-.ai-act2{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #eef1f5;border-radius:13px;padding:11px 13px;box-shadow:0 1px 3px rgba(16,24,40,.05);transition:.15s}
-.ai-act2:hover{transform:translateX(3px);box-shadow:0 4px 14px rgba(16,24,40,.09);border-color:#dbeafe}
-.ai-act-ic{font-size:19px;width:40px;height:40px;flex-shrink:0;border-radius:11px;background:linear-gradient(135deg,#eef5ff,#eefbf6);display:flex;align-items:center;justify-content:center;line-height:1}
+.ai-acts2{display:flex;flex-direction:column;gap:11px}
+.ai-act2{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #eef1f5;border-radius:14px;padding:11px 15px;box-shadow:0 1px 3px rgba(16,24,40,.05);transition:.18s cubic-bezier(.2,.8,.2,1);animation:aiRise .5s ease both;position:relative;overflow:hidden}
+.ai-act2::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#6366f1,#22d3ee);opacity:0;transition:.18s}
+.ai-act2:nth-child(1){animation-delay:.06s}
+.ai-act2:nth-child(2){animation-delay:.14s}
+.ai-act2:nth-child(3){animation-delay:.22s}
+.ai-act2:hover{transform:translateX(4px);box-shadow:0 10px 24px rgba(37,99,235,.15);border-color:#bfdbfe}
+.ai-act2:hover::before{opacity:1}
+.ai-act2:hover .ai-act-ic{transform:scale(1.1) rotate(-5deg)}
+.ai-act-ic{font-size:22px;width:46px;height:46px;flex-shrink:0;border-radius:13px;background:linear-gradient(135deg,#e0e7ff,#ede9fe);box-shadow:inset 0 0 0 1px rgba(99,102,241,.16),0 3px 8px rgba(99,102,241,.16);display:flex;align-items:center;justify-content:center;line-height:1;transition:.2s cubic-bezier(.2,.8,.2,1)}
 .ai-act-tx{min-width:0;flex:1}
-.ai-act-t{font-size:14px;font-weight:800;color:var(--txt);line-height:1.25}
-.ai-act-d{font-size:12px;color:var(--txt-m);line-height:1.35;margin-top:2px}
+.ai-act-t{font-size:15.5px;font-weight:800;color:var(--txt);line-height:1.3}
+.ai-act-d{font-size:13px;color:var(--txt-m);line-height:1.45;margin-top:3px}
 @media (max-width:900px){.ai-acts2{grid-template-columns:1fr}}
 .ai-sec{background:var(--bg);border-radius:11px;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
 .ai-sec.watch{background:#fffbeb}
@@ -178,7 +197,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .bgauge-verdict{font-size:16px;font-weight:900;white-space:nowrap}
 .bgauge-bar{height:96px;border-radius:10px;background:#eef2f7;overflow:hidden;display:flex}
 .seg{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;overflow:hidden;border-right:2px solid #fff;box-sizing:border-box;padding:0 2px}
-.seg.act{background:var(--elec);color:#fff}
+.seg.act{background:linear-gradient(180deg,#60a5fa,#4f46e5);color:#fff}
 .seg.pred{background:#eef4fe;color:#3b6fb0;border:1.5px dashed #93c5fd}
 .seg.free{background:transparent;color:var(--txt-l);border-right:none;flex:1 1 auto}
 .seg-m{font-size:13px;font-weight:800;opacity:.92;line-height:1}
@@ -189,7 +208,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .bgauge-legend .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .bgauge-legend .dot.a{background:var(--elec)}
 .bgauge-legend .dot.p{background:#eef4fe;border:1.5px dashed #93c5fd}
-.yoy-badge{display:inline-block;font-weight:800;padding:1px 7px;border-radius:6px;font-size:11.5px;margin:0 2px}
+.yoy-badge{display:inline-block;font-weight:900;padding:2px 10px;border-radius:8px;font-size:13.5px;margin:0 3px;vertical-align:middle}
 .yoy-badge.up{color:#dc2626;background:#fef2f2}
 .yoy-badge.dn{color:#2563eb;background:#eff6ff}
 .yoy-badge.flat{color:#64748b;background:#f1f5f9}
@@ -199,7 +218,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .tabbar{display:flex;gap:3px;padding:9px 14px 0;flex-shrink:0;border-bottom:1px solid #eef1f5}
 .tb{padding:9px 15px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:700;color:var(--txt-l);cursor:pointer;border-radius:9px 9px 0 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:.12s;white-space:nowrap}
 .tb:hover{color:var(--txt-m);background:#f8fafc}
-.tb.on{color:var(--elec);border-bottom-color:var(--elec)}
+.tb.on{color:#4f46e5;border-bottom-color:#6366f1}
 .tabbody{flex:1;min-height:0;padding:12px 16px 14px;display:flex;flex-direction:column;overflow:hidden}
 .tabpane{flex:1;min-height:0;display:flex;flex-direction:column}
 .tabpane.top{justify-content:flex-start}
@@ -293,7 +312,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .mm-delta{font-size:9.5px;font-weight:700;min-width:32px;text-align:right;flex-shrink:0}
 
 /* ── AI 분석 (그림으로 말하기) ── */
-.ai-card{min-height:0}
+.ai-card{min-height:0;background:linear-gradient(162deg,#eef2ff 0%,#f4f2ff 52%,#fbf5ff 100%);border:1px solid #e0e7ff;position:relative;overflow:hidden}
+.ai-card::before{content:"";position:absolute;top:-72px;right:-52px;width:236px;height:236px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(139,92,246,.32),rgba(59,130,246,.16) 46%,transparent 72%);pointer-events:none;z-index:0}
+.ai-card::after{content:"";position:absolute;bottom:-60px;left:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.14),transparent 70%);pointer-events:none;z-index:0}
+.ai-card>*{position:relative;z-index:1}
+.ai-card .card-head{border-bottom-color:rgba(99,102,241,.14)}
+.ai-card .card-head h3{display:flex;align-items:center;gap:7px}
+.ai-spark{font-size:16px;filter:drop-shadow(0 1px 4px rgba(139,92,246,.5));animation:sparkle 2.6s ease-in-out infinite}
+.ai-gt{background:linear-gradient(120deg,#4f46e5,#9333ea);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;font-size:14.5px}
+@keyframes sparkle{0%,100%{transform:scale(1) rotate(0);opacity:1}50%{transform:scale(1.18) rotate(8deg);opacity:.8}}
 .ai-body{padding:12px 15px}
 .ai-summary{padding:11px 14px;background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 100%);border-radius:10px;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--navy);line-height:1.5;display:flex;align-items:center;gap:9px}
 .ai-summary .ico{font-size:18px;flex-shrink:0}
@@ -389,6 +416,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 
 .toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:12px 16px;border-radius:10px;font-size:12px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.2);line-height:1.5;animation:fadeUp .25s}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aiRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes shimmer{0%{background-position:240% 0}55%,100%{background-position:-240% 0}}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+#aiTag{position:relative;padding-left:19px}
+#aiTag::before{content:"";position:absolute;left:7px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:#22c55e;animation:livePulse 1.8s ease-in-out infinite}
 
 @media (max-width:900px){
   .kpis{grid-template-columns:repeat(2,1fr)}
@@ -425,7 +458,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
   <div class="top-row">
     <div class="card ai-card">
       <div class="card-head">
-        <h3>🤖 AI 분석 · 조언</h3>
+        <h3><span class="ai-spark">✨</span><span class="ai-gt">AI 분석 · 조언</span></h3>
         <span class="tag" id="aiTag">자동</span>
       </div>
       <div class="ai-body" id="aiContent"><div class="ai-loading">분석 중</div></div>
@@ -612,11 +645,21 @@ function renderBudgetGauge(){
   segs.forEach(function(s){var w=Math.max(0,s.amt/budget*100);var inner='<span class="seg-m">'+s.m+'월</span><span class="seg-a">'+man(s.amt)+'만</span>';bar+='<div class="seg '+(s.pred?'pred':'act')+'" style="width:'+w+'%" title="'+s.m+'월 · '+fnum(s.use)+UNITS[T]+(s.pred?' · 예측 ':' · ')+won(s.amt)+'">'+inner+'</div>';});
   var freePct=Math.max(0,(budget-projFull)/budget*100);
   if(!over&&freePct>1.5)bar+='<div class="seg free" style="width:'+freePct+'%"><span class="seg-free">여유</span><span class="seg-free2">'+won(diff)+'</span></div>';
+  // 🤖 코치 한마디 (게이지와 같은 숫자: 사용량 YoY + 연말 전망 + 점검할 달)
+  var uN=0,uP=0;for(m=1;m<=12;m++){if(data[m]&&data[m].u){uN+=data[m].u;if(prevY[m])uP+=prevY[m].u||0;}}
+  var uYoy=uP?Math.round((uN-uP)/uP*100):null;
+  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증'||x.kind==='누수의심';}); // 추세(전기는 날씨까지) 감안해도 크게 튄 진짜 이상치만
+  var clv=over?'danger':(anoUp.length||(uYoy!=null&&uYoy>8))?'warn':'ok';
+  var paceMsg=uYoy==null?'':(Math.abs(uYoy)<5?'올해는 작년이랑 거의 비슷하게 쓰고 있어요':uYoy>0?'올해는 작년보다 '+uYoy+'% 더 쓰고 있어요':'올해는 작년보다 '+Math.abs(uYoy)+'% 아껴 쓰고 있어요');
+  var bMsg=over?'이대로 가면 연말에 약 '+won(projFull)+'까지 들어서 예산('+won(budget)+')을 '+won(projFull-budget)+' 넘길 수 있어요':'이대로면 연말까지 약 '+won(projFull)+' 써서 예산('+won(budget)+')보다 '+won(diff)+' 남길 것 같아요';
+  var wMsg='';if(anoUp.length){var am=anoUp[0],ap=data[am.month]||{},aq=prevY[am.month]||{},ay=(ap.a&&aq.a)?Math.round((ap.a-aq.a)/aq.a*100):null;wMsg='다만 '+am.month+'월이 평소보다 좀 많이 나왔어요'+(ay?' (작년比 +'+ay+'%)':'')+'. 한번 확인해 보면 좋아요';}
+  var ctake=[paceMsg,bMsg].filter(Boolean).join('. ');if(ctake)ctake+='.';if(wMsg)ctake+=' '+wMsg+'.';if(!ctake)ctake='지금은 특별한 이상 신호가 없어요.';
   el.innerHTML=
     '<div class="bgauge-top"><span class="bgauge-title">💰 올해 '+nm+' — 월별 누적 <b style="font-weight:600;color:var(--txt-l)">(칸 = 한 달 · 단위 만원)</b></span>'
-    +'<span class="bgauge-verdict" style="color:'+vc+'">'+(over?'💸 약 '+won(Math.abs(diff))+' 모자랄 수 있어요':'💰 약 '+won(diff)+' 남을 거예요')+'</span></div>'
+    +'<span class="bgauge-verdict" style="color:'+vc+'">'+(over?'💸 예산 주의':'💰 예산 여유')+'</span></div>'
     +'<div class="bgauge-bar">'+bar+'</div>'
-    +'<div class="bgauge-legend"><span><i class="dot a"></i>이미 쓴 돈</span><span><i class="dot p"></i>남은 달 예상</span><span style="margin-left:auto">연말 예상 <b>'+won(projFull)+'</b>'+yoyHTML+' / 예산 '+won(budget)+'</span></div>';
+    +'<div class="bgauge-legend"><span><i class="dot a"></i>이미 쓴 돈</span><span><i class="dot p"></i>남은 달 예상</span><span style="margin-left:auto">연말 예상 <b>'+won(projFull)+'</b>'+yoyHTML+' / 예산 '+won(budget)+'</span></div>'
+    +'<div class="ai-coach '+clv+'" style="margin-top:4px"><div class="ai-avatar">🤖</div><div class="ai-bubble">'+ctake+'</div></div>';
 }
 
 async function render(){
@@ -666,6 +709,8 @@ function renderAlert(){
 // ─── 월별 평균기온 표 (차트 밑, 12개월 올해/작년 정렬 · 큰 차이 색강조) ───
 function renderTempTable(){
   var el=$('tempTable');if(!el)return;
+  el.style.display='';
+  if(T==='수도'){renderWaterTable(el);return;} // 수도는 기온 대신 단가(원/m³) 표 + 요금 분해 설명
   var cy=Y,py=Y-1,exMap={};monthlyExplain(T,cy).forEach(function(e){exMap[e.month]=e;});
   function row(label,yr,isNow){
     var h='<div class="tt-row '+(isNow?'now':'')+'"><span class="tt-lbl">'+label+'</span>';
@@ -680,6 +725,30 @@ function renderTempTable(){
   for(var m=1;m<=12;m++){var e=exMap[m],cls=e?(e.explained?(e.yoy>0?'up':'dn'):'warn'):'';er+='<span class="tt-cell expl '+cls+'">'+(e?e.short:'')+'</span>';}
   er+='</div>';
   el.innerHTML=row('올해 기온',cy,true)+row('작년 기온',py,false)+er;
+}
+
+// 수도 표: 기온 대신 '1m³당 요금(단가)' 2줄 + 요금이 왜 변했나(단가 vs 사용) 한 줄 설명
+function renderWaterTable(el){
+  var cur=D['수도'][Y]||{},prev=D['수도'][Y-1]||{};
+  function priceRow(label,src,isNow){
+    var h='<div class="tt-row '+(isNow?'now':'')+'"><span class="tt-lbl">'+label+'</span>';
+    for(var m=1;m<=12;m++){var d=src[m],pr=(d&&d.u&&d.a)?Math.round(d.a/d.u):null;h+='<span class="tt-cell">'+(pr?fnum(pr):'-')+'</span>';}
+    return h+'</div>';
+  }
+  var er='<div class="tt-row expl-row"><span class="tt-lbl">한 줄 설명</span>';
+  for(var m=1;m<=12;m++){
+    var c=cur[m],p=prev[m],txt='';
+    if(c&&p&&c.u&&p.u&&c.a&&p.a){
+      var aY=Math.round((c.a-p.a)/p.a*100),uY=Math.round((c.u-p.u)/p.u*100),pY=Math.round((c.a/c.u-p.a/p.u)/(p.a/p.u)*100);
+      if(Math.abs(aY)>=5){
+        if(Math.abs(pY)>=Math.abs(uY))txt='<span class="ex-emo">💧</span><span class="ex-w">물값 '+(pY>0?'올랐어요':'내렸어요')+'</span><span class="ex-p">1m³당 '+(pY>0?'+':'')+pY+'% · 사용 '+(uY>0?'+':'')+uY+'%</span>';
+        else txt='<span class="ex-emo">💧</span><span class="ex-w">'+(uY>0?'사용 늘었어요':'사용 줄었어요')+'</span><span class="ex-p">사용 '+(uY>0?'+':'')+uY+'% · 단가 '+(pY>0?'+':'')+pY+'%</span>';
+      }
+    }
+    er+='<span class="tt-cell expl">'+txt+'</span>';
+  }
+  er+='</div>';
+  el.innerHTML=priceRow('올해 1m³당',cur,true)+priceRow('작년 1m³당',prev,false)+er;
 }
 
 // ─── 월 상세 (미니바 시각화) ───
@@ -783,11 +852,12 @@ function renderChart(){
     '<span><span class="sw" style="background:#cbd5e1"></span>작년</span>'
     +'<span><span class="sw" style="background:'+c.main+'"></span>올해</span>'
     +'<span><span class="sw" style="background:#dc2626"></span>'+(T==='수도'?'누수의심':'급증')+'</span>'
-    +'<span><span class="sw" style="background:repeating-linear-gradient(135deg,#eef4fe,#eef4fe 3px,#9ec3fb 3px,#9ec3fb 5px)"></span>올해 예측</span>';
+    +'<span><span class="sw" style="background:repeating-linear-gradient(135deg,#eef4fe,#eef4fe 3px,#9ec3fb 3px,#9ec3fb 5px)"></span>올해 예측</span>'
+    +'<span style="color:var(--txt-l);margin-left:2px">막대 위 %=작년比 사용량</span>';
 
   // 월별 작년 대비 증감률 (주식 ▲▼) — 실측 월만, 올해 막대 위에 표기
   var monthYoY=[];for(var mm=1;mm<=12;mm++){var nb=nowBars[mm-1],lb=lastBars[mm-1],act=!!(data[mm]&&data[mm].u);monthYoY.push((act&&nb!=null&&lb)?Math.round((nb-lb)/lb*100):null);}
-  var yoyBadge={id:'yoyBadge',afterDatasetsDraw:function(ch){var mt=ch.getDatasetMeta(1);if(!mt||mt.hidden)return;var x=ch.ctx;x.save();x.font='800 10px '+getComputedStyle(document.body).fontFamily;x.textAlign='center';mt.data.forEach(function(b,i){var p=monthYoY[i];if(p==null)return;x.fillStyle=p>0?'#dc2626':(p<0?'#2563eb':'#94a3b8');x.fillText(p>0?'▲+'+p+'%':(p<0?'▼'+Math.abs(p)+'%':'0%'),b.x,b.y-5);});x.restore();}};
+  var yoyBadge={id:'yoyBadge',afterDatasetsDraw:function(ch){var mt=ch.getDatasetMeta(1);if(!mt||mt.hidden)return;var x=ch.ctx;x.save();x.font='800 13px '+getComputedStyle(document.body).fontFamily;x.textAlign='center';x.textBaseline='middle';mt.data.forEach(function(b,i){var p=monthYoY[i];if(p==null)return;var t=p>0?'▲'+p+'%':(p<0?'▼'+Math.abs(p)+'%':'0%');var col=p>0?'#dc2626':(p<0?'#2563eb':'#64748b');var bg=p>0?'#fee2e2':(p<0?'#dbeafe':'#e2e8f0');var w=x.measureText(t).width+14,h=21,cx=b.x,cy=b.y-15;if(x.roundRect){x.beginPath();x.roundRect(cx-w/2,cy-h/2,w,h,9);x.fillStyle=bg;x.fill();}x.fillStyle=col;x.fillText(t,cx,cy);});x.restore();}};
 
   charts.main=new Chart($('chartMain'),{
     type:'bar',
@@ -812,7 +882,7 @@ function renderChart(){
       },
       onClick:(e,el)=>{if(el&&el.length){FM=el[0].index+1;}},
       scales:{
-        y:{beginAtZero:true,grace:'14%',title:{display:true,text:UNITS[T],font:{size:10,weight:'600'},color:c.main},ticks:{font:{size:10},color:'#64748b',maxTicksLimit:6,callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(0,0,0,.05)'},border:{display:false}},
+        y:{beginAtZero:true,grace:'22%',title:{display:true,text:UNITS[T],font:{size:10,weight:'600'},color:c.main},ticks:{font:{size:10},color:'#64748b',maxTicksLimit:6,callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(0,0,0,.05)'},border:{display:false}},
         x:{ticks:{font:{size:11}},grid:{display:false}}
       }
     }
@@ -835,8 +905,8 @@ function renderAI(){
 function monthlyExplain(type,year){
   var cur=D[type][year]||{},prev=D[type][year-1]||{},out=[];
   for(var m=1;m<=12;m++){
-    var c=cur[m],p=prev[m];if(!c||!p||!p.a||!c.a)continue;
-    var yoy=Math.round((c.a-p.a)/p.a*100);
+    var c=cur[m],p=prev[m];if(!c||!p||!p.u||!c.u)continue;
+    var yoy=Math.round((c.u-p.u)/p.u*100); // 차트 막대(사용량)와 같은 기준으로 통일
     if(Math.abs(yoy)<7)continue; // 눈에 띄게 차이나는 달만
     var tN=(W[year]||{})[m],tP=(W[year-1]||{})[m];
     var tD=(tN&&tP)?Math.round((tN.avg-tP.avg)*10)/10:null;
@@ -851,10 +921,14 @@ function monthlyExplain(type,year){
     var why,short;
     if(exp){
       why='작년보다 <b>'+Math.abs(tD)+'°</b> '+word+' → '+cost+(yoy>0?'가 더 나갔어요':'를 아꼈어요');
-      short='<span class="ex-emo">'+emo+'</span><span class="ex-w">'+word+'</span><span class="ex-p">'+cost+' '+arr+'</span>';
+      short='<span class="ex-emo">'+emo+'</span><span class="ex-w">'+word+'</span><span class="ex-p">사용 '+arr+'</span>';
+    }else if(type==='수도'){
+      exp=true; // 수도는 날씨와 무관 — 정상 변동을 경고로 띄우지 않음
+      why='수도는 날씨와 무관해요. 평소 사용 흐름이에요';
+      short='<span class="ex-emo">💧</span><span class="ex-w">'+(yoy>0?'사용 늘어요':'사용 줄어요')+'</span><span class="ex-p">'+arr+'</span>';
     }else{
-      why=(type==='수도'?'수도는 날씨와 무관 — 실사용·누수 확인':'날씨로는 설명 안 돼요 — 점검 필요');
-      short='<span class="ex-emo">⚠️</span><span class="ex-w">점검 필요</span><span class="ex-p">'+arr+'</span>';
+      why='기온 영향은 아닌 것 같아요 — 행사·설비를 확인해 보세요';
+      short='<span class="ex-emo">🔎</span><span class="ex-w">확인 필요</span><span class="ex-p">'+arr+'</span>';
     }
     out.push({month:m,yoy:yoy,explained:exp,why:why,emo:emo,short:short});
   }
@@ -863,36 +937,37 @@ function monthlyExplain(type,year){
 
 // AI 분석 = 한 줄 일침 + 📅 월별 해명(날씨 근거) + 💡 권장 조치
 function renderAIFrame(el,arr,a){
-  var data=D[T][Y]||{},prev=D[T][Y-1]||{},nm=T==='수도'?'수도':'전기';
-  var uNow=0,uPrev=0;arr.forEach(b=>{uNow+=b.u||0;var pm=prev[b.month];if(pm)uPrev+=pm.u||0;});
-  var uYoy=uPrev?Math.round((uNow-uPrev)/uPrev*100):null;
-  var projFull=0,budget=D[T].budget[Y]||0;for(var m=1;m<=12;m++){if(data[m]&&data[m].a)projFull+=data[m].a;else{var pr=predict(m);if(pr)projFull+=pr.a;}}
-  var over=budget&&projFull>budget,bl=baseLoad(T,Y);
-  var ex=monthlyExplain(T,Y),unexp=ex.filter(function(e){return !e.explained;});
+  var data=D[T][Y]||{};
+  var prev=D[T][Y-1]||{};
+  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증'||x.kind==='누수의심';}); // 추세(전기는 날씨까지) 감안해도 크게 튄 진짜 이상치만
 
-  // 한 줄 일침
-  var pace=uYoy==null?'':(Math.abs(uYoy)<3?'작년과 비슷한 페이스':uYoy>0?'작년보다 더 쓰는 중':'작년보다 아끼는 중');
-  var verdict=!budget?'':over?'예산 초과 위험':'예산 안에서 무난해요';
-  var level=over?'danger':(unexp.length||(uYoy!=null&&uYoy>5))?'warn':'ok';
-  var take;
-  if(!budget&&uYoy==null)take='💡 데이터가 쌓이면 한 줄로 정리해드려요';
-  else if(over)take='🚨 '+verdict+' — '+(unexp.length?unexp[0].month+'월부터 점검하세요':'지출을 줄여야 해요');
-  else if(unexp.length)take='⚠️ '+(pace?pace+'. ':'')+unexp[0].month+'월은 날씨로 설명 안 돼요 — 점검 필요';
-  else if(ex.length)take='✅ '+[pace,verdict].filter(Boolean).join(', ')+'. 변동은 날씨로 설명돼요';
-  else take='✅ '+([pace,verdict].filter(Boolean).join(', ')||'안정적이에요')+'. 특이사항 없어요';
-  var aiText=a?(a.diagnosis||a.summary||''):'';
-  if(typeof aiText==='string'&&aiText.trim().length>=10&&aiText.length<160&&!/[{}\[\]]/.test(aiText))take=aiText.trim();
-
-  // 권장 조치 (설명 안 되는 달 + 낭비 우선 → 일반)
+  // 권장 조치 = '근거'(실제 데이터 신호)와 '팁'(일반 수칙) 구분 — 추정을 근거로 둔갑시키지 않음
+  var fc=forecastNext(T,Y),nmx=fc?fc.month:0;
+  if(!nmx){var lm=0;for(var mm=1;mm<=12;mm++)if(data[mm]&&(data[mm].u||data[mm].a))lm=mm;nmx=lm>=12?1:lm+1;}
   var actions=[];
-  unexp.slice(0,2).forEach(function(e){actions.push({ic:'🔎',t:e.month+'월 원인 확인',d:(T==='수도'?'누수·밸브 점검':'행사·임시설비 확인')});});
-  if(T==='전기'&&bl&&bl.ratio>=0.6)actions.push({ic:'🔌',t:'상시설비 점검',d:'휴관일·야간 서버·조명 ('+Math.round(bl.ratio*100)+'%)'});
-  if(T==='수도'&&bl&&bl.rise!=null&&bl.rise>=10)actions.push({ic:'🚰',t:'상시 누수 확인',d:'계량기 야간 점검'});
-  ({'전기':[{ic:'🌡️',t:'냉방 26°C 이상',d:'1°C당 약 7% 절감'},{ic:'🔌',t:'대기전력 차단',d:'안 쓰는 콘센트 OFF'},{ic:'⚡',t:'피크 시간 분산',d:'동시 가동 줄이기'}],'수도':[{ic:'🔍',t:'월 1회 누수 점검',d:'계량기 30분 정지 확인'},{ic:'🚿',t:'절수 부속 설치',d:'수도꼭지·변기'},{ic:'🕐',t:'휴관시간 차단',d:'급수 밸브 잠금'}]}[T]||[]).forEach(function(g){if(actions.length<3)actions.push(g);});
+  // 근거: 추세 감안해도 크게 튄 달만 (정상 변동은 안 건드림)
+  anoUp.slice(0,2).forEach(function(x){var c=data[x.month]||{},p=prev[x.month]||{},ay=(c.a&&p.a)?Math.round((c.a-p.a)/p.a*100):null;actions.push({ic:'🔎',tag:'근거',t:x.month+'월 확인',why:'작년 같은 달보다 '+(ay?'+'+ay+'% ':'')+'많이 나왔어요 · '+(T==='수도'?'누수 가능성 점검':'행사·임시설비 확인')});});
+  // 전기는 직원이 조정 가능한 절약 수칙(Tip). 수도는 사용 정상+단가 영향이라 '업무 지시' 대신 알아둘 정보(참고).
+  var tips,tipTag;
+  if(T==='전기'){
+    tipTag='Tip';
+    tips=[
+      (nmx>=6&&nmx<=9?{ic:'🌡️',t:'냉방 26℃ 이상',why:'여름 권장 26~28℃ · 1℃ 높이면 냉방전력 약 7% 절감'}:(nmx>=11||nmx<=3)?{ic:'🔥',t:'난방 20℃ 이하',why:'겨울 권장 18~20℃ · 1℃ 낮추면 난방전력 약 7% 절감'}:{ic:'🌡️',t:'냉난방 적정온도',why:'여름 26℃·겨울 20℃ · 1℃ 차이가 약 7%'}),
+      {ic:'🔌',t:'대기전력 차단',why:'안 쓰는 PC·복합기 콘센트 OFF · 대기전력이 전기의 약 6%'},
+      {ic:'💡',t:'LED·센서 조명',why:'형광등→LED 조명전력 50%↓ · 복도·화장실 인체감지'}
+    ];
+  }else{
+    tipTag='참고';
+    tips=[];
+    if(!anoUp.length)tips.push({ic:'📊',t:'사용량은 정상이에요',why:'올해 사용은 작년과 비슷해요 — 과사용 아니에요'});
+    tips.push({ic:'💧',t:'요금↑는 물값(단가) 영향',why:'사용이 그대로여도 1m³당 단가가 오르면 요금이 올라요'});
+    tips.push({ic:'💸',t:'예산은 단가 기준으로',why:'절감 여력은 작아요 — 내년 예산에 단가 인상분을 반영'});
+  }
+  tips.forEach(function(g){g.tag=tipTag;});
+  actions=actions.concat(tips).slice(0,3);
 
-  el.innerHTML=
-    '<div class="ai-take '+level+'">'+take+'</div>'
-    +'<div class="ai-block"><div class="ai-block-h">💡 이렇게 하세요</div><div class="ai-acts2">'+actions.map(function(x){return '<div class="ai-act2"><span class="ai-act-ic">'+x.ic+'</span><div class="ai-act-tx"><div class="ai-act-t">'+x.t+'</div><div class="ai-act-d">'+x.d+'</div></div></div>';}).join('')+'</div></div>';
+  var blockH=(T==='수도'&&!anoUp.length)?'💡 알아두세요':'💡 이렇게 하세요';
+  el.innerHTML='<div class="ai-block"><div class="ai-block-h">'+blockH+'</div><div class="ai-acts2">'+actions.map(function(x){return '<div class="ai-act2"><span class="ai-act-ic">'+x.ic+'</span><div class="ai-act-tx"><div class="ai-act-t">'+x.t+'</div><div class="ai-act-d"><span class="'+(x.tag==='근거'?'why-tag':'tip-tag')+'">'+x.tag+'</span>'+x.why+'</div></div></div>';}).join('')+'</div></div>';
 }
 
 // ─── 테이블 ───
