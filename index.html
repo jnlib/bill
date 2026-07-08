@@ -578,16 +578,33 @@ function setCurrentW(){var cm=new Date().getMonth()+1,cy=new Date().getFullYear(
 })();
 
 var loaded={};
-async function loadDB(type){
-  if(loaded[type])return;
-  try{var r=await fetch(WORKER+'/load?type='+encodeURIComponent(type),{signal:AbortSignal.timeout(3000)});var d=await r.json();if(d.error)return;
-    (d.bills||[]).forEach(b=>{if(!D[type][b.year])D[type][b.year]={};D[type][b.year][b.month]={u:+b.usage_amount||0,a:+b.bill_amount||0};});
-    (d.budgets||[]).forEach(b=>{D[type].budget[b.year]=+b.amount||0;});
-    loaded[type]=true;
+var LSKEY='jnlib-bill-electric-v1';
+function localLoad(type){
+  try{
+    var store=JSON.parse(localStorage.getItem(LSKEY)||'{}'),saved=store[type];
+    if(!saved)return;
+    Object.keys(saved).forEach(function(y){
+      if(y==='budget'){Object.assign(D[type].budget,saved.budget||{});}
+      else D[type][y]=saved[y];
+    });
   }catch(e){}
 }
-async function saveB(type,yr,mo,u,a){try{await fetch(WORKER+'/bills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,month:mo,usage_amount:u||null,usage_unit:UNITS[type],bill_amount:a||null}])});}catch(e){}}
-async function saveBudget(type,yr,amt){try{await fetch(WORKER+'/budgets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,amount:amt||0}])});}catch(e){}}
+function localSave(type){
+  try{var store=JSON.parse(localStorage.getItem(LSKEY)||'{}');store[type]=D[type];localStorage.setItem(LSKEY,JSON.stringify(store));}catch(e){}
+}
+async function loadDB(type){
+  if(loaded[type])return;
+  try{var r=await fetch(WORKER+'/load?type='+encodeURIComponent(type),{signal:AbortSignal.timeout(3000)});var d=await r.json();
+    if(!d.error){
+      (d.bills||[]).forEach(b=>{if(!D[type][b.year])D[type][b.year]={};D[type][b.year][b.month]={u:+b.usage_amount||0,a:+b.bill_amount||0};});
+      (d.budgets||[]).forEach(b=>{D[type].budget[b.year]=+b.amount||0;});
+    }
+  }catch(e){}
+  localLoad(type);
+  loaded[type]=true;
+}
+async function saveB(type,yr,mo,u,a){localSave(type);try{await fetch(WORKER+'/bills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,month:mo,usage_amount:u||null,usage_unit:UNITS[type],bill_amount:a||null}])});}catch(e){}}
+async function saveBudget(type,yr,amt){localSave(type);try{await fetch(WORKER+'/budgets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{bill_type:type,year:yr,amount:amt||0}])});}catch(e){}}
 
 function fnum(n){return n?Number(n).toLocaleString():'-'}
 function won(n){if(!n&&n!==0)return'-';if(Math.abs(n)>=1e8)return(n/1e8).toFixed(1)+'억';if(Math.abs(n)>=1e4)return Math.round(n/1e4).toLocaleString()+'만원';return Number(n).toLocaleString()+'원'}
