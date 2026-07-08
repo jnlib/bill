@@ -275,11 +275,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ac-top{display:flex;align-items:center;justify-content:center;gap:4px}
 .ac-mo{font-size:10.5px;font-weight:800;color:var(--txt-l)}
 .ac-emo{font-size:15px;line-height:1}
-.ac-bill{font-size:11.5px;font-weight:900;white-space:nowrap;letter-spacing:0;line-height:1.1}
+.ac-bill{font-size:10.5px;font-weight:900;white-space:nowrap;letter-spacing:0;line-height:1.1}
 .ac-bill.up{color:#dc2626}
 .ac-bill.dn{color:#16a34a}
 .ac-bill.flat{color:#94a3b8}
-.ac-amt{font-size:10px;font-weight:800;color:var(--txt-m);white-space:nowrap;line-height:1.1}
+.ac-amt{font-size:9.5px;font-weight:800;color:var(--txt-m);white-space:nowrap;line-height:1.1}
 .ac-temp{font-size:10.5px;font-weight:900;color:var(--txt);white-space:nowrap;line-height:1.1}
 .ac-temp.hot{color:#dc2626}
 .ac-temp.cold{color:#2563eb}
@@ -301,6 +301,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ap-row.now.up b{color:#dc2626}
 .ap-row.now.dn b{color:#16a34a}
 .ap-row.now.flat b{color:#64748b}
+.ap-row.rate.up b{color:#dc2626}
+.ap-row.rate.dn b{color:#16a34a}
+.ap-row.rate.flat b{color:#64748b}
 .ap-talk{font-size:14px;line-height:1.55;color:var(--txt-m);font-weight:700;margin-top:12px;background:#f8fafc;border-radius:10px;padding:11px 12px}
 .ap-temp{font-size:13px;color:#64748b;font-weight:800;margin-top:10px;line-height:1.45}
 .chart-legends{display:flex;gap:10px;font-size:10px;color:var(--txt-m);flex-wrap:wrap}
@@ -629,6 +632,7 @@ async function saveBudget(type,yr,amt){localSave(type);try{await fetch(WORKER+'/
 
 function fnum(n){return n?Number(n).toLocaleString():'-'}
 function won(n){if(!n&&n!==0)return'-';if(Math.abs(n)>=1e8)return(n/1e8).toFixed(1)+'억';if(Math.abs(n)>=1e4)return Math.round(n/1e4).toLocaleString()+'만원';return Number(n).toLocaleString()+'원'}
+function wonMini(n){if(!n&&n!==0)return'-';if(Math.abs(n)>=1e8)return(n/1e8).toFixed(1)+'억';if(Math.abs(n)>=1e4)return Math.round(n/1e4).toLocaleString()+'만';return Number(n).toLocaleString()+'원'}
 function autoFM(){var d=D[T][Y]||{},last=0;for(var m=1;m<=12;m++)if(d[m]&&(d[m].u||d[m].a))last=m;return last||Math.max(1,new Date().getMonth())}
 // 예측: 작년 동월 사용량 × 올해 YTD추세 → 올해 평균단가로 요금 환산 (작년 요금 아티팩트 회피)
 function predict(mo){
@@ -785,18 +789,21 @@ function composeExplain(type,year){
     else if(Math.abs(tD)>=1){emo=tD>0?'🌡️':'🍃';tempClass=tD>0?'hot':'cold';note='기온차 있음';}
     else if(state==='flat'){emo='🟰';}
     var tempText=tD==null?'-':(tD>0?'+':'')+tD+'°';
-    var billText=state==='flat'?'요금 비슷해요':(a>0?'요금 올랐어요':'요금 내려갔어요');
-    var tempShort=tD==null?'기온 확인중':(note==='기온 영향 작음'?'기온 비슷':(note==='더움 영향'?'더웠어요 '+tempText:(note==='추위 영향'?'추웠어요 '+tempText:(note==='시원함'?'시원했어요 '+tempText:(note==='따뜻함'?'따뜻했어요 '+tempText:'기온 달라요 '+tempText)))));
+    var billText=state==='flat'?'요금 비슷':(a>0?'요금 상승':'요금 하락');
+    var tempShort=tD==null?'확인중':(note==='기온 영향 작음'?'기온 비슷':(note==='더움 영향'?'더움 '+tempText:(note==='추위 영향'?'추움 '+tempText:(note==='시원함'?'시원 '+tempText:(note==='따뜻함'?'따뜻 '+tempText:'기온 '+tempText)))));
     var diff=c.a-p.a,diffTalk=Math.abs(diff)<10000?'작년이랑 거의 같은 금액이에요':(diff>0?'작년보다 '+won(diff)+' 더 나왔어요':'작년보다 '+won(Math.abs(diff))+' 덜 나왔어요');
+    var rateLabel=state==='up'?'요금 상승률':(state==='dn'?'요금 하락률':'요금 변화율');
+    var rateTalk=state==='flat'?'비율로 봐도 거의 비슷해요.':(a>0?'비율로는 '+Math.abs(a)+'% 오른 거예요.':'비율로는 '+Math.abs(a)+'% 내려간 거예요.');
     var tempTalk=tD==null?'기온 자료는 아직 못 가져왔어요.':(note==='더움 영향'?'검침기간이 작년보다 더웠어요. 냉방 영향은 있어 보입니다.':(note==='추위 영향'?'검침기간이 작년보다 추웠어요. 난방 영향은 있어 보입니다.':(note==='기온 영향 작음'?'기온은 작년과 크게 다르지 않았어요. 요금 변화는 운영이나 설비 쪽도 같이 봐야 해요.':'검침기간 기온 차이도 같이 확인할 만해요.')));
     var headline=state==='up'?(m+'월 요금이 올라갔어요'):(state==='dn'?(m+'월 요금은 내려갔어요'):(m+'월 요금은 안정적이에요'));
     var pop='<div class="ana-pop"><div class="ap-title">'+headline+'</div>'
       +'<div class="ap-row"><span>작년 '+m+'월분</span><b>'+won(p.a)+'</b></div>'
       +'<div class="ap-row now '+state+'"><span>올해 '+m+'월분</span><b>'+won(c.a)+'</b></div>'
-      +'<div class="ap-talk">'+diffTalk+' '+tempTalk+'</div>'
+      +'<div class="ap-row rate '+state+'"><span>'+rateLabel+'</span><b>'+pct+'</b></div>'
+      +'<div class="ap-talk">'+diffTalk+' '+rateTalk+' '+tempTalk+'</div>'
       +'<div class="ap-temp">검침기간 평균기온: 작년 '+(tPrev!=null?tPrev+'°':'-')+' → 올해 '+(tNow!=null?tNow+'°':'-')+' ('+tempText+')</div></div>';
-    var full=headline+' '+diffTalk+' '+tempTalk;
-    out.push({month:m,emo:emo,state:state,pct:pct,billText:billText,amount:won(c.a),temp:tempShort,tempClass:tempClass,pop:pop,full:full});
+    var full=headline+' '+diffTalk+' '+rateTalk+' '+tempTalk;
+    out.push({month:m,emo:emo,state:state,pct:pct,billText:billText,amount:wonMini(c.a)+' '+pct,temp:tempShort,tempClass:tempClass,pop:pop,full:full});
   }
   return out;
 }
@@ -805,7 +812,7 @@ function renderTempTable(){
   var el=$('tempTable');if(!el)return;el.style.display='';
   var ex=composeExplain(T,Y);
   if(!ex.length){el.innerHTML='<div class="ana-empty">📝 표시할 달이 없어요</div>';return;}
-  el.innerHTML='<div class="ana-head">💬 월별 요금·기온 <b>· 그래프는 사용량, 아래는 고지금액과 검침기간 평균기온</b> <span class="ana-hint">칸에 올리면 상세 비교</span></div>'
+  el.innerHTML='<div class="ana-head">💬 월별 요금·기온 <b>· 그래프는 사용량, 아래는 고지금액·요금증감률·검침기간 평균기온</b> <span class="ana-hint">칸에 올리면 상세 비교</span></div>'
     +'<div class="ana-list">'+ex.map(function(e){
       var dim=(e.state==='future'||e.state==='skip');
       return '<div class="ana-cell '+e.state+'" tabindex="0" aria-label="'+e.full+'">'
