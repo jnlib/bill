@@ -100,9 +100,9 @@ export default {
       // ── 전체 데이터 로드 (특정 타입의 모든 연도) ──
       if (url.pathname === '/load' && request.method === 'GET') {
         const [bills, budgets, memos] = await Promise.all([
-          supaGet(env, '/rest/v1/bill_records?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
-          supaGet(env, '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc'),
-          supaGet(env, '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
+          safeSupaGet(env, '/rest/v1/bill_records?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
+          safeSupaGet(env, '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc'),
+          safeSupaGet(env, '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
         ]);
         return json({ bills: bills || [], budgets: budgets || [], memos: memos || [] });
       }
@@ -491,6 +491,14 @@ async function supaGet(env, path) {
     headers: { 'apikey': env.SUPABASE_KEY, 'Authorization': 'Bearer ' + env.SUPABASE_KEY }
   });
   return r.json();
+}
+
+async function safeSupaGet(env, path) {
+  try {
+    return await supaGet(env, path);
+  } catch(e) {
+    return [];
+  }
 }
 
 async function supaPost(env, path, body, upsert) {
