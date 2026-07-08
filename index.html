@@ -785,8 +785,8 @@ function composeExplain(type,year){
     else if(Math.abs(tD)>=1){emo=tD>0?'🌡️':'🍃';tempClass=tD>0?'hot':'cold';note='기온차 있음';}
     else if(state==='flat'){emo='🟰';}
     var tempText=tD==null?'-':(tD>0?'+':'')+tD+'°';
-    var billText=state==='flat'?'요금 비슷':(a>20?'요금 크게↑':(a>0?'요금 올랐어요':'요금 줄었어요'));
-    var tempShort=tD==null?'기온 확인중':(note==='기온 영향 작음'?'기온 비슷':(note==='더움 영향'?'더웠어요 '+tempText:(note==='추위 영향'?'추웠어요 '+tempText:(note==='시원함'?'시원했어요 '+tempText:note+' '+tempText))));
+    var billText=state==='flat'?'요금 비슷해요':(a>0?'요금 올랐어요':'요금 내려갔어요');
+    var tempShort=tD==null?'기온 확인중':(note==='기온 영향 작음'?'기온 비슷':(note==='더움 영향'?'더웠어요 '+tempText:(note==='추위 영향'?'추웠어요 '+tempText:(note==='시원함'?'시원했어요 '+tempText:(note==='따뜻함'?'따뜻했어요 '+tempText:'기온 달라요 '+tempText)))));
     var diff=c.a-p.a,diffTalk=Math.abs(diff)<10000?'작년이랑 거의 같은 금액이에요':(diff>0?'작년보다 '+won(diff)+' 더 나왔어요':'작년보다 '+won(Math.abs(diff))+' 덜 나왔어요');
     var tempTalk=tD==null?'기온 자료는 아직 못 가져왔어요.':(note==='더움 영향'?'검침기간이 작년보다 더웠어요. 냉방 영향은 있어 보입니다.':(note==='추위 영향'?'검침기간이 작년보다 추웠어요. 난방 영향은 있어 보입니다.':(note==='기온 영향 작음'?'기온은 작년과 크게 다르지 않았어요. 요금 변화는 운영이나 설비 쪽도 같이 봐야 해요.':'검침기간 기온 차이도 같이 확인할 만해요.')));
     var headline=state==='up'?(m+'월 요금이 올라갔어요'):(state==='dn'?(m+'월 요금은 내려갔어요'):(m+'월 요금은 안정적이에요'));
