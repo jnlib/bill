@@ -6,6 +6,7 @@ const CORS = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+const BILL_TYPE = '전기';
 
 export default {
   async fetch(request, env) {
@@ -45,16 +46,15 @@ export default {
         } catch(e) {
           parsed = { raw: raw, error: 'JSON 파싱 실패 — 수동 입력 필요' };
         }
-        parsed.bill_type = '전기';
+        parsed.bill_type = BILL_TYPE;
         parsed.usage_unit = 'kWh';
         return json({ ocr: parsed });
       }
 
       // ── 고지서 CRUD ──
       if (url.pathname === '/bills' && request.method === 'GET') {
-        const type = url.searchParams.get('type') || '전기';
         const year = url.searchParams.get('year');
-        let query = `bill_type=eq.${encodeURIComponent(type)}&order=year.desc,month.asc`;
+        let query = `bill_type=eq.${encodeURIComponent(BILL_TYPE)}&order=year.desc,month.asc`;
         if (year) query += `&year=eq.${year}`;
         const data = await supaGet(env, `/rest/v1/bill_records?${query}`);
         return json(data);
@@ -63,7 +63,7 @@ export default {
       if (url.pathname === '/bills' && request.method === 'POST') {
         const body = await request.json();
         // upsert (같은 type+year+month 있으면 업데이트)
-        const data = await supaPost(env, '/rest/v1/bill_records', body, true);
+        const data = await supaPost(env, '/rest/v1/bill_records', withElectricType(body), true);
         return json({ ok: true, data });
       }
 
@@ -75,39 +75,34 @@ export default {
 
       // ── 예산 CRUD ──
       if (url.pathname === '/budgets' && request.method === 'GET') {
-        const type = url.searchParams.get('type');
-        let q = '/rest/v1/bill_budgets?order=year.desc';
-        if (type) q += '&bill_type=eq.' + encodeURIComponent(type);
+        let q = '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc';
         return json(await supaGet(env, q));
       }
       if (url.pathname === '/budgets' && request.method === 'POST') {
         const body = await request.json();
-        await supaPost(env, '/rest/v1/bill_budgets', body, true);
+        await supaPost(env, '/rest/v1/bill_budgets', withElectricType(body), true);
         return json({ ok: true });
       }
 
       // ── 메모 CRUD ──
       if (url.pathname === '/memos' && request.method === 'GET') {
-        const type = url.searchParams.get('type');
         const year = url.searchParams.get('year');
-        let q = '/rest/v1/bill_memos?order=month.asc';
-        if (type) q += '&bill_type=eq.' + encodeURIComponent(type);
+        let q = '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=month.asc';
         if (year) q += '&year=eq.' + year;
         return json(await supaGet(env, q));
       }
       if (url.pathname === '/memos' && request.method === 'POST') {
         const body = await request.json();
-        await supaPost(env, '/rest/v1/bill_memos', body, true);
+        await supaPost(env, '/rest/v1/bill_memos', withElectricType(body), true);
         return json({ ok: true });
       }
 
       // ── 전체 데이터 로드 (특정 타입의 모든 연도) ──
       if (url.pathname === '/load' && request.method === 'GET') {
-        const type = url.searchParams.get('type') || '전기';
         const [bills, budgets, memos] = await Promise.all([
-          supaGet(env, '/rest/v1/bill_records?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc,month.asc'),
-          supaGet(env, '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc'),
-          supaGet(env, '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(type) + '&order=year.desc,month.asc'),
+          supaGet(env, '/rest/v1/bill_records?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
+          supaGet(env, '/rest/v1/bill_budgets?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc'),
+          supaGet(env, '/rest/v1/bill_memos?bill_type=eq.' + encodeURIComponent(BILL_TYPE) + '&order=year.desc,month.asc'),
         ]);
         return json({ bills: bills || [], budgets: budgets || [], memos: memos || [] });
       }
@@ -178,11 +173,11 @@ export default {
 
       // ── AI 분석 ──
       if (url.pathname === '/analyze' && request.method === 'POST') {
-        const { billType, bills, weather } = await request.json();
+        const { bills, weather } = await request.json();
 
         const prompt = `당신은 공공기관 에너지 관리 전문가예요. 해요체로 분석해주세요.
 
-[${billType} 사용 데이터]
+[${BILL_TYPE} 사용 데이터]
 ${JSON.stringify(bills)}
 
 [월별 평균기온]
@@ -217,13 +212,13 @@ ${JSON.stringify(weather)}
 
       // ── 예상 금액 예측 ──
       if (url.pathname === '/predict' && request.method === 'POST') {
-        const { billType, bills, weather, targetYear, targetMonth } = await request.json();
+        const { bills, weather, targetYear, targetMonth } = await request.json();
 
         // 통계 기반 예측
         const prediction = calculatePrediction(bills, weather, targetYear, targetMonth);
 
         // AI 해석
-        const prompt = `공공기관 ${billType} 요금을 예측해주세요. 해요체로 답변.
+        const prompt = `공공기관 ${BILL_TYPE} 요금을 예측해주세요. 해요체로 답변.
 
 과거 데이터: ${JSON.stringify(bills.slice(-24))}
 날씨 데이터: ${JSON.stringify(weather)}
@@ -518,6 +513,11 @@ async function supaDelete(env, path) {
     method: 'DELETE',
     headers: { 'apikey': env.SUPABASE_KEY, 'Authorization': 'Bearer ' + env.SUPABASE_KEY }
   });
+}
+
+function withElectricType(body) {
+  const normalize = row => row && typeof row === 'object' ? { ...row, bill_type: BILL_TYPE } : row;
+  return Array.isArray(body) ? body.map(normalize) : normalize(body);
 }
 
 // ── 응답 헬퍼 ──
