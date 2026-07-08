@@ -286,7 +286,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ac-temp.norm{color:#64748b}
 .ac-dim{font-size:10px;font-weight:700;color:var(--txt-l);margin-top:2px}
 .ana-empty{font-size:13.5px;color:var(--txt-m);font-weight:600;padding:8px 2px;text-align:center}
-.ana-pop{position:absolute;left:50%;bottom:calc(100% + 8px);width:230px;transform:translate(-50%,4px);opacity:0;pointer-events:none;background:#fff;border:1px solid rgba(15,23,42,.12);border-radius:10px;box-shadow:0 14px 35px rgba(15,23,42,.18);padding:11px 12px;text-align:left;transition:.12s ease}
+.ana-pop{position:absolute;left:50%;bottom:calc(100% + 10px);width:340px;transform:translate(-50%,4px);opacity:0;pointer-events:none;background:#fff;border:1px solid rgba(15,23,42,.12);border-radius:12px;box-shadow:0 18px 42px rgba(15,23,42,.2);padding:16px 18px;text-align:left;transition:.12s ease}
 .ana-cell:hover .ana-pop,.ana-cell:focus .ana-pop,.ana-cell.open .ana-pop{opacity:1;transform:translate(-50%,0)}
 .ana-cell:nth-child(-n+2) .ana-pop{left:0;transform:translate(0,4px)}
 .ana-cell:nth-child(-n+2):hover .ana-pop,.ana-cell:nth-child(-n+2):focus .ana-pop,.ana-cell:nth-child(-n+2).open .ana-pop{transform:translate(0,0)}
@@ -295,14 +295,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ana-pop::after{content:'';position:absolute;left:50%;bottom:-6px;width:12px;height:12px;background:#fff;border-right:1px solid rgba(15,23,42,.12);border-bottom:1px solid rgba(15,23,42,.12);transform:translateX(-50%) rotate(45deg)}
 .ana-cell:nth-child(-n+2) .ana-pop::after{left:22px}
 .ana-cell:nth-last-child(-n+2) .ana-pop::after{left:auto;right:22px}
-.ap-title{font-size:13px;font-weight:900;color:var(--txt);line-height:1.35;margin-bottom:8px}
-.ap-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--txt-m);padding:4px 0;border-top:1px solid #eef1f5}
-.ap-row b{font-size:13px;color:var(--txt);font-weight:900}
+.ap-title{font-size:17px;font-weight:900;color:var(--txt);line-height:1.35;margin-bottom:12px}
+.ap-row{display:flex;justify-content:space-between;align-items:center;gap:14px;font-size:14px;color:var(--txt-m);padding:7px 0;border-top:1px solid #eef1f5}
+.ap-row b{font-size:18px;color:var(--txt);font-weight:900}
 .ap-row.now.up b{color:#dc2626}
 .ap-row.now.dn b{color:#16a34a}
 .ap-row.now.flat b{color:#64748b}
-.ap-talk{font-size:12px;line-height:1.45;color:var(--txt-m);font-weight:700;margin-top:8px;background:#f8fafc;border-radius:8px;padding:8px}
-.ap-temp{font-size:11.5px;color:#64748b;font-weight:800;margin-top:7px}
+.ap-talk{font-size:14px;line-height:1.55;color:var(--txt-m);font-weight:700;margin-top:12px;background:#f8fafc;border-radius:10px;padding:11px 12px}
+.ap-temp{font-size:13px;color:#64748b;font-weight:800;margin-top:10px;line-height:1.45}
 .chart-legends{display:flex;gap:10px;font-size:10px;color:var(--txt-m);flex-wrap:wrap}
 .chart-legends span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .chart-legends .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -823,6 +823,13 @@ function renderTempTable(){
     });
     cell.addEventListener('blur',function(){cell.classList.remove('open');});
   });
+  if(!el._outsideClose){
+    document.addEventListener('click',function(ev){
+      if(ev.target.closest('.ana-cell'))return;
+      document.querySelectorAll('.ana-cell.open').forEach(function(x){x.classList.remove('open');});
+    });
+    el._outsideClose=true;
+  }
   alignAnaGrid();requestAnimationFrame(alignAnaGrid); // 즉시 + 다음 프레임(차트 리사이즈 후) 두 번 맞춤
 }
 // 12칸을 차트 막대 영역(축 안쪽)에 정확히 정렬 — 각 칸이 그 달 막대 바로 아래 오게
@@ -952,7 +959,22 @@ function renderChart(){
 
   // 월별 작년 대비 증감률 (주식 ▲▼) — 실측 월만, 올해 막대 위에 표기
   var monthYoY=[];for(var mm=1;mm<=12;mm++){var nb=nowBars[mm-1],lb=lastBars[mm-1],act=!!(data[mm]&&data[mm].u);monthYoY.push((act&&nb!=null&&lb)?Math.round((nb-lb)/lb*100):null);}
-  var yoyBadge={id:'yoyBadge',afterDatasetsDraw:function(ch){var mt=ch.getDatasetMeta(1);if(!mt||mt.hidden)return;var x=ch.ctx;x.save();x.font='800 13px '+getComputedStyle(document.body).fontFamily;x.textAlign='center';x.textBaseline='middle';mt.data.forEach(function(b,i){var p=monthYoY[i];if(p==null)return;var t=p>0?'▲'+p+'%':(p<0?'▼'+Math.abs(p)+'%':'0%');var col=p>0?'#dc2626':(p<0?'#2563eb':'#64748b');var bg=p>0?'#fee2e2':(p<0?'#dbeafe':'#e2e8f0');var w=x.measureText(t).width+14,h=21,cx=b.x,cy=b.y-15;if(x.roundRect){x.beginPath();x.roundRect(cx-w/2,cy-h/2,w,h,9);x.fillStyle=bg;x.fill();}x.fillStyle=col;x.fillText(t,cx,cy);});x.restore();}};
+  var yoyBadge={id:'yoyBadge',afterDraw:function(ch){
+    var mt=ch.getDatasetMeta(1);if(!mt||mt.hidden)return;
+    var x=ch.ctx,area=ch.chartArea;x.save();
+    x.font='800 13px '+getComputedStyle(document.body).fontFamily;x.textAlign='center';x.textBaseline='middle';
+    mt.data.forEach(function(b,i){
+      var p=monthYoY[i];if(p==null)return;
+      var t=p>0?'▲'+p+'%':(p<0?'▼'+Math.abs(p)+'%':'0%');
+      var col=p>0?'#dc2626':(p<0?'#2563eb':'#64748b');
+      var bg=p>0?'#fee2e2':(p<0?'#dbeafe':'#e2e8f0');
+      var w=x.measureText(t).width+16,h=22,cx=b.x,cy=Math.max(area.top+12,b.y-24);
+      if(x.roundRect){x.beginPath();x.roundRect(cx-w/2,cy-h/2,w,h,9);x.fillStyle=bg;x.fill();}
+      else{x.fillStyle=bg;x.fillRect(cx-w/2,cy-h/2,w,h);}
+      x.fillStyle=col;x.fillText(t,cx,cy);
+    });
+    x.restore();
+  }};
   // 기온 점: 각 연도 점을 '그 연도 막대 위'에 찍고(작년=회색·작년막대 / 올해=주황·올해막대), 같은 달 두 점을 선으로 연결
   var tempDots={id:'tempDots',afterDatasetsDraw:function(ch){
     if(!hasTemp)return;var y2=ch.scales.y2;if(!y2)return;
