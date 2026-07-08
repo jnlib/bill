@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>공과금 관리 — 종로도서관</title>
+<title>공공에너지 전기 관리 — 종로도서관</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -12,7 +12,6 @@
 :root{
   --navy:#0f1f35;
   --elec:#2563eb;--elec-bg:#eff6ff;
-  --water:#0891b2;--water-bg:#ecfeff;
   --indigo:#6366f1;--violet:#8b5cf6;
   --grad:linear-gradient(135deg,#6366f1,#8b5cf6);
   --grad-blue:linear-gradient(135deg,#3b82f6,#6366f1);
@@ -249,8 +248,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 @keyframes barReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 .tw-typing::after{content:'▋';margin-left:2px;color:#7c3aed;animation:twblink .7s steps(1) infinite}
 @keyframes twblink{50%{opacity:0}}
-.tt-cell.expl.spark{border-radius:7px;animation:cellSpark 2.2s ease-in-out infinite}
-@keyframes cellSpark{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,0)}50%{box-shadow:0 0 0 2px rgba(124,58,237,.4)}}
 .chart-spark{position:absolute;transform:translateX(-50%);font-size:18px;pointer-events:none;z-index:4;animation:twinkle 1.4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.45;transform:translateX(-50%) scale(.82)}50%{opacity:1;transform:translateX(-50%) scale(1.3)}}
 /* AI 분석 중 연출 */
@@ -263,20 +260,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ana-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6366f1,#22d3ee);animation:anaFill 1.7s ease forwards}
 @keyframes anaFill{from{width:0}to{width:100%}}
 .temptbl{flex:0 0 auto;margin:2px 16px 12px;border-top:1px solid var(--border);padding-top:8px}
-.tt-row{display:grid;grid-template-columns:64px repeat(12,1fr);align-items:center}
-.tt-lbl{font-size:12px;font-weight:800;color:var(--txt-l)}
-.tt-cell{font-size:14px;text-align:center;color:var(--txt-m);padding:4px 0;font-weight:600}
-.tt-row.now .tt-cell{font-weight:800;color:var(--txt)}
-.expl-row{margin-top:8px}
-.tt-cell.expl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;color:var(--txt);margin:0 1px}
-.ex-emo{font-size:23px;line-height:1.1}
-.ex-w{font-size:14px;font-weight:800;white-space:nowrap;line-height:1.2}
-.ex-c{font-size:12px;opacity:.8}
-.ex-p{font-size:15px;font-weight:900;white-space:nowrap;line-height:1.2}
-.tt-cell.expl.up{color:#dc2626}
-.tt-cell.expl.dn{color:#16a34a}
-.tt-cell.expl.warn{color:#b45309}
-.tt-cell.expl b{font-weight:900}
+/* '이번 분석' 띠 — 차트가 기온점을 가져가서 비워진 공간에 작년比 요금 변동 해석을 넓게 */
+.ana-head{font-size:12px;font-weight:700;color:var(--txt-m);margin-bottom:5px}
+.ana-head b{color:var(--txt);font-weight:800}
+.ana-hint{font-weight:600;color:var(--txt-l);font-size:10.5px;margin-left:4px}
+/* 월별 분석 — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸: 월/이모지/이유/요금% 세로 스택 */
+.ana-list{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.ana-cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;text-align:center;background:var(--bg);border:1px solid var(--border);border-top-width:3px;border-radius:7px;padding:4px 3px;min-width:0}
+.ana-cell.up{border-top-color:#dc2626}
+.ana-cell.dn{border-top-color:#16a34a}
+.ana-cell.flat{border-top-color:#cbd5e1}
+.ana-cell.future,.ana-cell.skip{background:#fafbfc;border-top-color:#eceff3;justify-content:center;opacity:.7}
+.ac-top{display:flex;align-items:center;justify-content:center;gap:4px}
+.ac-mo{font-size:10.5px;font-weight:800;color:var(--txt-l)}
+.ac-emo{font-size:15px;line-height:1}
+.ac-rs{font-size:10.5px;font-weight:700;color:var(--txt);word-break:keep-all;line-height:1.2}
+.ac-pct{font-size:12.5px;font-weight:900;white-space:nowrap;letter-spacing:-.2px}
+.ac-pct i{font-style:normal;font-weight:700;font-size:9.5px;color:var(--txt-l);margin-right:1px}
+.ac-pct.up{color:#dc2626}
+.ac-pct.dn{color:#16a34a}
+.ac-pct.flat{color:#94a3b8}
+.ac-dim{font-size:10px;font-weight:700;color:var(--txt-l);margin-top:2px}
+.ana-empty{font-size:13.5px;color:var(--txt-m);font-weight:600;padding:8px 2px;text-align:center}
 .chart-legends{display:flex;gap:10px;font-size:10px;color:var(--txt-m);flex-wrap:wrap}
 .chart-legends span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .chart-legends .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -453,14 +458,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
   <div class="hdr-brand">
     <img src="https://jnlib.sen.go.kr/resources/homepage/jnlib/img/jnlib_logo.png" alt="">
     <div class="divider"></div>
-    <span>공과금 관리</span>
+    <span>공공에너지 전기 관리</span>
   </div>
   <div class="hdr-tabs">
-    <button class="hdr-tab on" data-t="전기" onclick="setTab('전기')">⚡ 전기</button>
-    <button class="hdr-tab" data-t="수도" onclick="setTab('수도')">💧 수도</button>
+    <span class="hdr-tab on" data-t="전기">⚡ 공공에너지 전기</span>
   </div>
   <div class="hdr-year">
-    <button class="hdr-inputbtn" onclick="setPanel('table')">📋 입력</button>
+    <button class="hdr-inputbtn" onclick="setPanel('table')">📋 전기 입력</button>
     <button onclick="chgYear(-1)">‹</button>
     <span class="yr" id="yLabel">2025년</span>
     <button onclick="chgYear(1)">›</button>
@@ -473,7 +477,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
   <div class="top-row">
     <div class="card ai-card">
       <div class="card-head">
-        <h3><span class="ai-spark">✨</span><span class="ai-gt">AI 분석 · 조언</span></h3>
+        <h3><span class="ai-spark">✨</span><span class="ai-gt">AI 전기 분석 · 절약 조언</span></h3>
         <span class="tag" id="aiTag">자동</span>
       </div>
       <div class="ai-body" id="aiContent"><div class="ai-loading">분석 중</div></div>
@@ -481,8 +485,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
     <div class="card tabpanel">
       <div class="tabbar">
         <button class="tb on" data-pane="gauge" onclick="setPanel('gauge')">📊 월별 누적</button>
-        <button class="tb" data-pane="pdf" onclick="setPanel('pdf')">📷 PDF 업로드</button>
-        <button class="tb" data-pane="table" onclick="setPanel('table')">✏️ 입력표</button>
+        <button class="tb" data-pane="pdf" onclick="setPanel('pdf')">📷 전기 고지서 업로드</button>
+        <button class="tb" data-pane="table" onclick="setPanel('table')">✏️ 전기 입력표</button>
       </div>
       <div class="tabbody">
         <div class="tabpane" id="pane-gauge"><div class="bgauge" id="budgetGauge"></div></div>
@@ -490,13 +494,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
           <label class="dropzone" for="fileIn">
             <input type="file" id="fileIn" accept="image/*,.pdf" multiple onchange="handleUpload(this.files)" hidden>
             <div class="dz-ic">📄</div>
-            <div class="dz-t">고지서 PDF·이미지 올리기</div>
-            <div class="dz-d">클릭해서 파일 선택 — AI가 자동으로 값을 읽어 입력표에 채워요</div>
+            <div class="dz-t">전기요금 고지서 PDF·이미지 올리기</div>
+            <div class="dz-d">공공에너지 전기 입력용 값만 읽어옵니다. 실패하면 입력표에서 바로 수기로 보정하세요.</div>
           </label>
           <div id="uploadStatus" class="dz-status"></div>
         </div>
         <div class="tabpane hidden top" id="pane-table">
-          <div class="pane-cap">📋 <span id="tableTitle">전기</span> · <span id="tableYear">2026</span>년 — 셀을 고치면 아래 그래프·분석에 즉시 반영돼요</div>
+          <div class="pane-cap">📋 공공에너지 전기 · <span id="tableYear">2026</span>년 — 셀을 고치면 아래 그래프·분석에 즉시 반영돼요</div>
           <div class="pane-tablewrap"><table class="dtable" id="dataTable"></table></div>
         </div>
       </div>
@@ -506,7 +510,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
   <!-- Row 2: 월별 사용량 (크게) + 월별 기온 표 -->
   <div class="card chart-card">
     <div class="card-head">
-      <h3 id="chartTitle">📊 월별 사용량 — 올해 vs 작년</h3>
+      <h3 id="chartTitle">📊 월별 전기 사용량 — 올해 vs 작년</h3>
       <div class="chart-legends" id="chartLegends"></div>
     </div>
     <div class="chart-box"><canvas id="chartMain"></canvas></div>
@@ -521,9 +525,9 @@ var WORKER='https://bill-worker.hdh1231.workers.dev';
 var Y=new Date().getFullYear(),T='전기',FM=0;
 var charts={};
 var $=id=>document.getElementById(id);
-var UNITS={'전기':'kWh','수도':'m³'};
-var C={'전기':{main:'#2563eb',bg:'#eff6ff',icon:'⚡'},'수도':{main:'#0891b2',bg:'#ecfeff',icon:'💧'}};
-var D={'전기':{budget:{}},'수도':{budget:{}}};
+var UNITS={'전기':'kWh'};
+var C={'전기':{main:'#2563eb',bg:'#eff6ff',icon:'⚡'}};
+var D={'전기':{budget:{}}};
 var W={},CURRENT_W=null,NORMALS=null;
 
 // ─── 실제 데이터 (종로도서관 에너지 사용량 비교표) ─────────────────
@@ -532,12 +536,8 @@ var W={},CURRENT_W=null,NORMALS=null;
   // 전기 [사용량 kWh, 요금 원]
   D['전기'][2025]={1:{u:42055,a:7505640},2:{u:43416,a:7695610},3:{u:35612,a:6370920},4:{u:27897,a:4809520},5:{u:20732,a:3994390},6:{u:21814,a:4358800},7:{u:41603,a:8091150},8:{u:46765,a:16955990},9:{u:45547,a:8189380},10:{u:37084,a:5828830},11:{u:30081,a:5242370},12:{u:33548,a:6292870}};
   D['전기'][2026]={1:{u:42175,a:7491670},2:{u:49278,a:8478690},3:{u:29177,a:5460520},4:{u:28438,a:4852060},5:{u:21793,a:4099420}};
-  // 수도 [사용량 m³, 요금 원] — 격월 검침 (홀수월만)
-  D['수도'][2025]={1:{u:427,a:1304720},3:{u:459,a:1412240},5:{u:490,a:1516400},7:{u:503,a:1559080},9:{u:607,a:1909520},11:{u:465,a:1432400}};
-  D['수도'][2026]={1:{u:452,a:1388720},3:{u:468,a:1526460},5:{u:511,a:1690740}};
-  // 예산: 실제 연간 예산 (전기 1억560만원 / 수도 1200만원). 하단 표에서 수정 가능
+  // 예산: 실제 연간 전기 예산 (1억560만원). 하단 표에서 수정 가능
   D['전기'].budget={2025:105600000,2026:105600000};
-  D['수도'].budget={2025:12000000,2026:12000000};
 })();
 
 // ─── 실제 날씨 (Open-Meteo 무료·키 불필요) : 서울 종로 월평균기온 ───
@@ -605,9 +605,9 @@ function predict(mo){
 // 기대 사용량 = 전년동월 × 올해 추세 × 계절(기온)보정. 실제가 기대를 크게 벗어나면 '급증/이상'으로 판정 (단순 전월비가 아니라 계절을 감안한 진짜 튐).
 function latestYear(){var ys=[];for(var t in D){for(var y in D[t]){if(y==='budget')continue;if(D[t][y]&&Object.keys(D[t][y]).length)ys.push(+y);}}return ys.length?Math.max.apply(null,ys):new Date().getFullYear();}
 function yoyTrend(type,year){var cur=D[type][year]||{},prev=D[type][year-1]||{},a=0,b=0;for(var m=1;m<=12;m++){if(cur[m]&&cur[m].u&&prev[m]&&prev[m].u){a+=cur[m].u;b+=prev[m].u;}}return b>0?a/b:1;}
-function wFactor(type,m,tNow,tPrev){if(type!=='전기'||tNow==null||tPrev==null)return 1;var diff=tNow-tPrev;if(m>=6&&m<=9)return 1+diff*0.03;if(m>=11||m<=3)return 1-diff*0.03;return 1;} // 수도는 날씨 영향 거의 없음 → 보정 안 함
+function wFactor(type,m,tNow,tPrev){if(type!=='전기'||tNow==null||tPrev==null)return 1;var diff=tNow-tPrev;if(m>=6&&m<=9)return 1+diff*0.03;if(m>=11||m<=3)return 1-diff*0.03;return 1;}
 function expectedU(type,year,m){var prev=(D[type][year-1]||{})[m];if(!prev||!prev.u)return null;var tN=(W[year]||{})[m]?W[year][m].avg:null,tP=(W[year-1]||{})[m]?W[year-1][m].avg:null;return Math.round(prev.u*yoyTrend(type,year)*wFactor(type,m,tN,tP));}
-function detectAnomalies(type,year){var cur=D[type][year]||{},out=[];for(var m=1;m<=12;m++){var dm=cur[m];if(!dm||!dm.u)continue;var exp=expectedU(type,year,m);if(!exp)continue;var dev=(dm.u-exp)/exp,pct=Math.round(dev*100);if(dev>=0.18)out.push({month:m,kind:type==='수도'?'누수의심':'급증',pct:pct,exp:exp,act:dm.u,sev:dev>=0.35?'high':'medium'});else if(dev<=-0.18)out.push({month:m,kind:'급감',pct:pct,exp:exp,act:dm.u,sev:dev<=-0.35?'high':'medium'});}return out;}
+function detectAnomalies(type,year){var cur=D[type][year]||{},out=[];for(var m=1;m<=12;m++){var dm=cur[m];if(!dm||!dm.u)continue;var exp=expectedU(type,year,m);if(!exp)continue;var dev=(dm.u-exp)/exp,pct=Math.round(dev*100);if(dev>=0.18)out.push({month:m,kind:'급증',pct:pct,exp:exp,act:dm.u,sev:dev>=0.35?'high':'medium'});else if(dev<=-0.18)out.push({month:m,kind:'급감',pct:pct,exp:exp,act:dm.u,sev:dev<=-0.35?'high':'medium'});}return out;}
 function anomalyMap(type,year){var mp={};detectAnomalies(type,year).forEach(function(x){mp[x.month]=x;});return mp;}
 function baseLoad(type,year){var cur=D[type][year]||{},us=[];for(var m=1;m<=12;m++)if(cur[m]&&cur[m].u)us.push(cur[m].u);if(us.length<3)return null;var min=Math.min.apply(null,us),avg=us.reduce(function(a,b){return a+b;},0)/us.length;var prev=D[type][year-1]||{},pus=[];for(var m=1;m<=12;m++)if(prev[m]&&prev[m].u)pus.push(prev[m].u);var pmin=pus.length?Math.min.apply(null,pus):null;return{min:min,avg:Math.round(avg),ratio:avg?min/avg:0,prevMin:pmin,rise:pmin?Math.round((min-pmin)/pmin*100):null};}
 // 다음 달 요금 예측: 전년동월 × 올해추세 × 올해 평균단가
@@ -629,7 +629,7 @@ function sparkSVG(values,color,w,h){
     +'</svg>';
 }
 
-function setTab(t){T=t;loaded[t]=false;document.querySelectorAll('.hdr-tab').forEach(e=>e.classList.toggle('on',e.dataset.t===t));FM=0;render();}
+function setTab(){T='전기';loaded[T]=false;document.querySelectorAll('.hdr-tab').forEach(e=>e.classList.toggle('on',e.dataset.t===T));FM=0;render();}
 function chgYear(d){Y+=d;FM=0;render();}
 var PANE='gauge';
 function setPanel(p){PANE=p;document.querySelectorAll('.tb').forEach(function(b){b.classList.toggle('on',b.dataset.pane===p);});['gauge','pdf','table'].forEach(function(n){var el=$('pane-'+n);if(el)el.classList.toggle('hidden',n!==p);});}
@@ -642,7 +642,7 @@ function setBudget(v){D[T].budget[Y]=parseInt(v)||0;saveBudget(T,Y,D[T].budget[Y
 function typeWriter(el,text){if(!el)return;if(el._tw)clearInterval(el._tw);el.textContent='';el.classList.add('tw-typing');var i=0,sp=text.length>50?13:20;el._tw=setInterval(function(){el.textContent=text.slice(0,++i);if(i>=text.length){clearInterval(el._tw);el._tw=null;el.classList.remove('tw-typing');}},sp);}
 function renderBudgetGauge(){
   var el=$('budgetGauge');if(!el)return;
-  var data=D[T][Y]||{},budget=D[T].budget[Y]||0,nm=T==='수도'?'수도':'전기';
+  var data=D[T][Y]||{},budget=D[T].budget[Y]||0,nm='전기';
   var au=0,ac=0;for(var m=1;m<=12;m++){if(data[m]&&data[m].u&&data[m].a){au+=data[m].a/data[m].u;ac++;}}au=ac?au/ac:0;
   var man=function(v){return Math.round(v/10000);}; // 만원 단위
   var segs=[],actual=0,proj=0;
@@ -665,7 +665,7 @@ function renderBudgetGauge(){
   // 🤖 코치 한마디 (게이지와 같은 숫자: 사용량 YoY + 연말 전망 + 점검할 달)
   var uN=0,uP=0;for(m=1;m<=12;m++){if(data[m]&&data[m].u){uN+=data[m].u;if(prevY[m])uP+=prevY[m].u||0;}}
   var uYoy=uP?Math.round((uN-uP)/uP*100):null;
-  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증'||x.kind==='누수의심';}); // 추세(전기는 날씨까지) 감안해도 크게 튄 진짜 이상치만
+  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증';}); // 추세와 날씨까지 감안해도 크게 튄 진짜 이상치만
   var clv=over?'danger':(anoUp.length||(uYoy!=null&&uYoy>8))?'warn':'ok';
   var paceMsg=uYoy==null?'':(Math.abs(uYoy)<5?'올해는 작년이랑 거의 비슷하게 쓰고 있어요':uYoy>0?'올해는 작년보다 '+uYoy+'% 더 쓰고 있어요':'올해는 작년보다 '+Math.abs(uYoy)+'% 아껴 쓰고 있어요');
   var bMsg=over?'이대로 가면 연말에 약 '+won(projFull)+'까지 들어서 예산('+won(budget)+')을 '+won(projFull-budget)+' 넘길 수 있어요':'이대로면 연말까지 약 '+won(projFull)+' 써서 예산('+won(budget)+')보다 '+won(diff)+' 남길 것 같아요';
@@ -682,7 +682,7 @@ function renderBudgetGauge(){
 
 async function render(){
   $('yLabel').textContent=Y+'년';
-  $('tableTitle').textContent=T;$('tableYear').textContent=Y;
+  T='전기';$('tableYear').textContent=Y;
   await loadDB(T);
   if(!FM)FM=autoFM();
   renderAI();renderBudgetGauge();renderChart();renderTempTable();renderTable();
@@ -691,7 +691,7 @@ async function render(){
 // ─── 이상 경고 카드 (근거 크게: 작년 동월 → 올해 동월 사용량·요금 비교) ───
 function renderAlert(){
   var el=$('alertCard');if(!el)return;
-  var data=D[T][Y]||{},prev=D[T][Y-1]||{},nm=T==='수도'?'수도':'전기';
+  var data=D[T][Y]||{},prev=D[T][Y-1]||{},nm='전기';
   var anos=detectAnomalies(T,Y).filter(function(x){return x.kind!=='급감';});
   if(!anos.length){
     el.className='card alert-card ok';
@@ -708,14 +708,13 @@ function renderAlert(){
   var season=(mo>=6&&mo<=9)?'s':(mo>=11||mo<=3)?'w':'m';
   var weatherUp=tD!=null&&((season==='s'&&tD>0.5)||(season==='w'&&tD<-0.5));
   var reason;
-  if(x.kind==='누수의심')reason='수도는 날씨와 무관해요 → <b>누수·밸브</b>부터 점검하세요.';
-  else if(tD==null)reason='기온 데이터가 없어 비교는 못 했어요. 행사·설비를 확인하세요.';
+  if(tD==null)reason='기온 데이터가 없어 비교는 못 했어요. 행사·설비를 확인하세요.';
   else if(weatherUp)reason='올해 '+mo+'월이 작년보다 '+(season==='s'?'더워서':'추워서')+'('+(tD>0?'+':'')+tD+'°) 냉난방 영향은 있어요. 그래도 사용이 과하니 <b>설비도 점검</b>하세요.';
   else reason='기온은 작년과 '+(Math.abs(tD)<0.6?'거의 같은데':(tD>0?'오히려 +'+tD+'° 따뜻한데':tD+'° 추운데'))+' 사용이 +'+(uD||0)+'% → <b>날씨 탓이 아니에요.</b> 행사·임시설비·요금제 변경을 확인하세요.';
   el.className='card alert-card '+(x.sev==='high'?'danger':'warn');
   el.innerHTML=
     '<div class="alert-h">🚨 이상 경고'+(anos.length>1?'<span class="alert-more">외 '+(anos.length-1)+'건</span>':'')+'</div>'
-    +'<div class="alert-title">'+mo+'월 '+(x.kind==='누수의심'?'수도 누수 의심':nm+' 사용 급증')+'</div>'
+    +'<div class="alert-title">'+mo+'월 '+nm+' 사용 급증</div>'
     +'<div class="alert-cmp">'
     +'<div class="alert-row"><span class="alert-yr">작년 '+mo+'월분</span><span>'+fnum(pv.u)+' '+UNITS[T]+'</span><span>'+won(pv.a)+'</span></div>'
     +'<div class="alert-row now"><span class="alert-yr">올해 '+mo+'월분</span><span>'+fnum(cur.u)+' '+UNITS[T]+arrow(uD)+'</span><span>'+won(cur.a)+arrow(aD)+'</span></div>'
@@ -725,48 +724,80 @@ function renderAlert(){
 }
 
 // ─── 월별 평균기온 표 (차트 밑, 12개월 올해/작년 정렬 · 큰 차이 색강조) ───
-function renderTempTable(){
-  var el=$('tempTable');if(!el)return;
-  el.style.display='';
-  if(T==='수도'){renderWaterTable(el);return;} // 수도는 기온 대신 단가(원/m³) 표 + 요금 분해 설명
-  var cy=Y,py=Y-1,exMap={};monthlyExplain(T,cy).forEach(function(e){exMap[e.month]=e;});
-  function row(label,yr,isNow){
-    var h='<div class="tt-row '+(isNow?'now':'')+'"><span class="tt-lbl">'+label+'</span>';
-    for(var m=1;m<=12;m++){
-      var t=(W[yr]||{})[m];
-      h+='<span class="tt-cell">'+(t?t.avg+'°':'-')+'</span>';
-    }
-    return h+'</div>';
-  }
-  var er='<div class="tt-row expl-row"><span class="tt-lbl">한 줄 설명</span>';
-  for(var m=1;m<=12;m++){var e=exMap[m],cls=e?(e.explained?(e.yoy>0?'up':'dn'):'warn'):'';er+='<span class="tt-cell expl '+cls+'">'+(e?e.short:'')+'</span>';}
-  er+='</div>';
-  el.innerHTML=row('올해 기온',cy,true)+row('작년 기온',py,false)+er;
-}
-
-// 수도 표: 기온 대신 '1m³당 요금(단가)' 2줄 + 요금이 왜 변했나(단가 vs 사용) 한 줄 설명
-function renderWaterTable(el){
-  var cur=D['수도'][Y]||{},prev=D['수도'][Y-1]||{};
-  function priceRow(label,src,isNow){
-    var h='<div class="tt-row '+(isNow?'now':'')+'"><span class="tt-lbl">'+label+'</span>';
-    for(var m=1;m<=12;m++){var d=src[m],pr=(d&&d.u&&d.a)?Math.round(d.a/d.u):null;h+='<span class="tt-cell">'+(pr?fnum(pr):'-')+'</span>';}
-    return h+'</div>';
-  }
-  var er='<div class="tt-row expl-row"><span class="tt-lbl">한 줄 설명</span>';
+// 복합 해석: 작년比 요금이 크게(±7%↑) 바뀐 달을 '사용량 vs 단가' 조합 + (전기는)날씨로 한 문장 설명
+function composeExplain(type,year){
+  var cur=D[type][year]||{},prev=D[type][year-1]||{},out=[];
+  // 차트 12개월과 1:1 정렬되게 1~12월 칸을 항상 만든다.
   for(var m=1;m<=12;m++){
-    var c=cur[m],p=prev[m],txt='';
-    if(c&&p&&c.u&&p.u&&c.a&&p.a){
-      var aY=Math.round((c.a-p.a)/p.a*100),uY=Math.round((c.u-p.u)/p.u*100),pY=Math.round((c.a/c.u-p.a/p.u)/(p.a/p.u)*100);
-      if(Math.abs(aY)>=5){
-        if(Math.abs(pY)>=Math.abs(uY))txt='<span class="ex-emo">💧</span><span class="ex-w">물값 '+(pY>0?'올랐어요':'내렸어요')+'</span><span class="ex-p">1m³당 '+(pY>0?'+':'')+pY+'%</span>';
-        else txt='<span class="ex-emo">💧</span><span class="ex-w">사용 '+(uY>0?'늘었어요':'줄었어요')+'</span><span class="ex-p">작년比 '+(uY>0?'+':'')+uY+'%</span>';
+    var c=cur[m],p=prev[m];
+    if(!c||!c.u||!c.a){out.push({month:m,state:'future',emo:'',reason:'예정',pct:'',full:m+'월은 아직 고지서 전이에요'});continue;}
+    if(!p||!p.u||!p.a){out.push({month:m,state:'flat',emo:'📋',reason:'작년 기록 없어요',pct:'',full:'작년 같은 달 기록이 없어 비교가 어려워요'});continue;}
+    var u=Math.round((c.u-p.u)/p.u*100), a=Math.round((c.a-p.a)/p.a*100), pr=Math.round((c.a/c.u-p.a/p.u)/(p.a/p.u)*100);
+    var TT=5, uBig=Math.abs(u)>=TT, pBig=Math.abs(pr)>=TT;
+    var danS='단가가', danT='단가는', danA='단가도', danN='단가';
+    var aP=Math.abs(a)+'%', aVerb=a>0?'늘었어요':'줄었어요', emo='🔎', wWord='', wAdj='';
+    if(type==='전기'){
+      var tN=(W[year]||{})[m], tP=(W[year-1]||{})[m], tD=(tN&&tP)?(tN.avg-tP.avg):null;
+      var heat=(m>=11||m<=4), cool=(m>=7&&m<=10); emo='🔎';
+      if(tD!=null){
+        if(heat&&tD<=-0.5){emo='❄️';wWord='추워서';wAdj='작년보다 추웠어요';}
+        else if(heat&&tD>=0.5){emo='☀️';wWord='따뜻해서';wAdj='작년보다 따뜻했어요';}
+        else if(cool&&tD>=0.5){emo='🔥';wWord='더워서';wAdj='작년보다 더웠어요';}
+        else if(cool&&tD<=-0.5){emo='🍃';wWord='시원해서';wAdj='작년보다 시원했어요';}
       }
     }
-    er+='<span class="tt-cell expl">'+txt+'</span>';
+    var w2=wWord?wWord+' ':'';
+    var full, reason, state=a>0?'up':'dn', pct=(a>0?'▲':'▼')+aP;
+    if(Math.abs(a)<4){ // 요금 거의 변화 없음 — 칸은 채우되 차분히
+      state='flat'; emo='🟰'; pct='≈'; reason='작년과 비슷해요';
+      if(uBig&&pBig)      full=(u>0?'많이':'적게')+' 썼지만 '+danS+' '+(pr>0?'올라':'내려')+' 상쇄돼 요금은 작년과 비슷해요';
+      else if(uBig)       full='사용은 '+(u>0?'늘었':'줄었')+'지만 요금은 작년과 비슷해요';
+      else                full='작년과 거의 같아요 (안정적)';
+    } else {
+      // 칸에 바로 보이는 이유(구체 문장): 단가 주도면 '단가가 올랐어요', 전기 날씨 주도면 '작년보다 추웠어요', 아니면 사용
+      if(!uBig&&pBig)          reason=danS+(pr>0?' 올랐어요':' 내렸어요');
+      else if(type==='전기'&&wAdj) reason=wAdj;
+      else if(uBig)            reason=(u>0?'사용량이 증가했어요':'사용량이 감소했어요'); // 단가 그대로·사용만 변동 = 정상(특이사항 아님)
+      else                     reason='요금이 '+(a>0?'늘었어요':'줄었어요');
+      // 칸에 올리면 보이는 전체 문장(복합: 사용량·단가·날씨)
+      if(!uBig&&pBig)          full='사용량은 작년과 비슷한데, '+danS+' '+(pr>0?'올라':'내려')+'서 요금이 '+aP+' '+aVerb;
+      else if(uBig&&!pBig)     full=w2+'사용량이 '+(u>0?'늘어서':'줄어서')+' 요금이 '+aP+' '+aVerb+' ('+danT+' 작년과 비슷해요)';
+      else if(uBig&&pBig){
+        if((u>0)===(pr>0))     full=w2+(u>0?'많이':'적게')+' 쓴 데다 '+danA+' '+(pr>0?'올라':'내려')+'서 요금이 크게 '+aP+' '+aVerb;
+        else if(u>0)          full=w2+'많이 썼지만 '+danS+' 내려서, 요금은 '+(a>0?aP+'만 늘었어요':'오히려 '+aP+' 줄었어요');
+        else                  full=w2+'적게 썼지만 '+danS+' 올라서, 요금은 '+(a<0?aP+' 줄었어요':'오히려 '+aP+' 늘었어요');
+      }
+      else                    full='요금이 '+aP+' '+aVerb;
+    }
+    out.push({month:m,emo:emo,state:state,reason:reason,pct:pct,full:full});
   }
-  er+='</div>';
-  el.innerHTML=priceRow('올해 1m³당',cur,true)+priceRow('작년 1m³당',prev,false)+er;
+  return out;
 }
+// 차트 밑 '월별 분석' — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸=월/이모지/이유/요금%, 올리면 한 문장
+function renderTempTable(){
+  var el=$('tempTable');if(!el)return;el.style.display='';
+  var ex=composeExplain(T,Y);
+  if(!ex.length){el.innerHTML='<div class="ana-empty">📝 표시할 달이 없어요</div>';return;}
+  el.innerHTML='<div class="ana-head">💬 월별 분석 <b>· 날씨·단가가 어떻게 돼서 요금이 얼마나 바뀌었나</b> <span class="ana-hint">칸에 올리면 한 문장 설명</span></div>'
+    +'<div class="ana-list">'+ex.map(function(e){
+      var dim=(e.state==='future'||e.state==='skip');
+      return '<div class="ana-cell '+e.state+'" title="'+e.full+'">'
+        +'<div class="ac-top"><span class="ac-mo">'+e.month+'월</span>'+(dim?'':'<span class="ac-emo">'+e.emo+'</span>')+'</div>'
+        +(dim?'<span class="ac-dim">'+e.reason+'</span>'
+             :'<span class="ac-rs">'+e.reason+'</span>'+(e.pct?'<span class="ac-pct '+e.state+'"><i>요금</i> '+e.pct+'</span>':''))
+        +'</div>';
+    }).join('')+'</div>';
+  alignAnaGrid();requestAnimationFrame(alignAnaGrid); // 즉시 + 다음 프레임(차트 리사이즈 후) 두 번 맞춤
+}
+// 12칸을 차트 막대 영역(축 안쪽)에 정확히 정렬 — 각 칸이 그 달 막대 바로 아래 오게
+function alignAnaGrid(){
+  var el=$('tempTable');if(!el)return;
+  var ch=charts.main,list=el.querySelector('.ana-list');if(!ch||!ch.chartArea||!list)return;
+  var cv=ch.canvas.getBoundingClientRect(),tt=el.getBoundingClientRect();
+  list.style.paddingLeft=Math.max(0,(cv.left+ch.chartArea.left)-tt.left)+'px';
+  list.style.paddingRight=Math.max(0,tt.right-(cv.left+ch.chartArea.right))+'px';
+}
+window.addEventListener('resize',function(){requestAnimationFrame(alignAnaGrid);});
 
 // ─── 월 상세 (미니바 시각화) ───
 function renderFocus(){
@@ -865,24 +896,55 @@ function renderChart(){
     lastBars.push(prev[m]?prev[m].u:null);
   }
 
+  // 기온 점: 작년 점 + 올해 점, 같은 달끼리 선으로 연결
+  var tLast=[],tNow=[],hasTemp=false;
+  for(var mt=1;mt<=12;mt++){
+    var wl=(W[Y-1]||{})[mt],wn=(W[Y]||{})[mt];
+    var vl=(wl&&wl.avg!=null)?wl.avg:null, vn=(wn&&wn.avg!=null)?wn.avg:null;
+    tLast.push(vl);tNow.push(vn);if(vl!=null||vn!=null)hasTemp=true;
+  }
+  var tvals=tLast.concat(tNow).filter(function(v){return v!=null;});
+  var tMin=tvals.length?Math.min.apply(null,tvals):0, tMax=tvals.length?Math.max.apply(null,tvals):30;
+
   $('chartLegends').innerHTML=
     '<span><span class="sw" style="background:#cbd5e1"></span>작년</span>'
     +'<span><span class="sw" style="background:'+c.main+'"></span>올해</span>'
-    +'<span><span class="sw" style="background:#dc2626"></span>'+(T==='수도'?'누수의심':'급증')+'</span>'
+    +'<span><span class="sw" style="background:#dc2626"></span>급증</span>'
     +'<span><span class="sw" style="background:repeating-linear-gradient(135deg,#eef4fe,#eef4fe 3px,#9ec3fb 3px,#9ec3fb 5px)"></span>올해 예측</span>'
+    +(hasTemp?'<span><span class="sw" style="background:#94a3b8;border-radius:50%;width:9px;height:9px"></span>작년 기온</span><span><span class="sw" style="background:#f59e0b;border-radius:50%;width:9px;height:9px"></span>올해 기온</span>':'')
     +'<span style="color:var(--txt-l);margin-left:2px">막대 위 %=작년比 사용량</span>';
 
   // 월별 작년 대비 증감률 (주식 ▲▼) — 실측 월만, 올해 막대 위에 표기
   var monthYoY=[];for(var mm=1;mm<=12;mm++){var nb=nowBars[mm-1],lb=lastBars[mm-1],act=!!(data[mm]&&data[mm].u);monthYoY.push((act&&nb!=null&&lb)?Math.round((nb-lb)/lb*100):null);}
   var yoyBadge={id:'yoyBadge',afterDatasetsDraw:function(ch){var mt=ch.getDatasetMeta(1);if(!mt||mt.hidden)return;var x=ch.ctx;x.save();x.font='800 13px '+getComputedStyle(document.body).fontFamily;x.textAlign='center';x.textBaseline='middle';mt.data.forEach(function(b,i){var p=monthYoY[i];if(p==null)return;var t=p>0?'▲'+p+'%':(p<0?'▼'+Math.abs(p)+'%':'0%');var col=p>0?'#dc2626':(p<0?'#2563eb':'#64748b');var bg=p>0?'#fee2e2':(p<0?'#dbeafe':'#e2e8f0');var w=x.measureText(t).width+14,h=21,cx=b.x,cy=b.y-15;if(x.roundRect){x.beginPath();x.roundRect(cx-w/2,cy-h/2,w,h,9);x.fillStyle=bg;x.fill();}x.fillStyle=col;x.fillText(t,cx,cy);});x.restore();}};
+  // 기온 점: 각 연도 점을 '그 연도 막대 위'에 찍고(작년=회색·작년막대 / 올해=주황·올해막대), 같은 달 두 점을 선으로 연결
+  var tempDots={id:'tempDots',afterDatasetsDraw:function(ch){
+    if(!hasTemp)return;var y2=ch.scales.y2;if(!y2)return;
+    var mb0=ch.getDatasetMeta(0),mb1=ch.getDatasetMeta(1),x=ch.ctx;
+    function dot(px,py,fill){x.beginPath();x.arc(px,py,4.5,0,6.2832);x.fillStyle=fill;x.fill();x.lineWidth=1.6;x.strokeStyle='#fff';x.stroke();}
+    for(var i=0;i<12;i++){
+      var b0=mb0.data[i],b1=mb1.data[i];if(!b0||!b1)continue;
+      var lv=tLast[i],nv=tNow[i];
+      var lx=b0.x,nx=b1.x,ly=lv!=null?y2.getPixelForValue(lv):null,ny=nv!=null?y2.getPixelForValue(nv):null;
+      if(ly!=null&&ny!=null){x.save();x.strokeStyle='rgba(100,116,139,.55)';x.lineWidth=2;x.setLineDash([3,3]);x.beginPath();x.moveTo(lx,ly);x.lineTo(nx,ny);x.stroke();x.restore();}
+      if(ly!=null)dot(lx,ly,'#94a3b8');
+      if(ny!=null)dot(nx,ny,'#f59e0b');
+    }
+  }};
 
+  var ds=[
+    {label:'작년',data:lastBars,backgroundColor:'#cbd5e1',borderRadius:5,borderSkipped:false,categoryPercentage:.66,barPercentage:.92},
+    {label:'올해',data:nowBars,backgroundColor:nowColors,borderRadius:5,borderSkipped:false,categoryPercentage:.66,barPercentage:.92}
+  ];
+  if(hasTemp){
+    // 점은 tempDots 플러그인이 각 연도 막대 위에 직접 그림. 이 두 데이터셋은 안 보이게(°C축 스케일 + 툴팁만 담당).
+    ds.push({label:'작년 기온',data:tLast,type:'line',yAxisID:'y2',order:-1,showLine:false,pointRadius:0,pointHoverRadius:0,spanGaps:true});
+    ds.push({label:'올해 기온',data:tNow,type:'line',yAxisID:'y2',order:-1,showLine:false,pointRadius:0,pointHoverRadius:0,spanGaps:true});
+  }
   charts.main=new Chart($('chartMain'),{
     type:'bar',
-    plugins:[yoyBadge],
-    data:{labels,datasets:[
-      {label:'작년',data:lastBars,backgroundColor:'#cbd5e1',borderRadius:5,borderSkipped:false,categoryPercentage:.66,barPercentage:.92},
-      {label:'올해',data:nowBars,backgroundColor:nowColors,borderRadius:5,borderSkipped:false,categoryPercentage:.66,barPercentage:.92}
-    ]},
+    plugins:[yoyBadge,tempDots],
+    data:{labels,datasets:ds},
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:26}},
       animation:{duration:750,easing:'easeOutQuart',delay:function(ctx){return ctx.type==='data'&&ctx.mode==='default'?ctx.dataIndex*55:0;}},
@@ -892,7 +954,7 @@ function renderChart(){
         tooltip:{backgroundColor:'rgba(15,31,53,.95)',titleFont:{size:12,weight:'700'},bodyFont:{size:11},padding:11,cornerRadius:8,
           callbacks:{
             title:items=>{var mo=items[0].dataIndex+1;var an=anoM[mo];var tag='';if(an)tag=an.kind==='급감'?'  ↓급감 '+an.pct+'%':'  ⚠'+an.kind+' +'+an.pct+'%';return mo+'월'+tag;},
-            label:ctx=>{var v=ctx.parsed.y;if(v==null)return null;var mo=ctx.dataIndex+1,isNow=ctx.dataset.label==='올해',bd=isNow?(D[T][Y]||{})[mo]:null;return ' '+ctx.dataset.label+' '+fnum(v)+' '+UNITS[T]+(isNow&&!bd?' (예측)':'')+(bd&&bd.a?' · '+won(bd.a):'');},
+            label:ctx=>{if(ctx.dataset.yAxisID==='y2'){var tv=ctx.parsed.y;return tv==null?null:' '+ctx.dataset.label+' '+tv+'°C';}var v=ctx.parsed.y;if(v==null)return null;var mo=ctx.dataIndex+1,isNow=ctx.dataset.label==='올해',bd=isNow?(D[T][Y]||{})[mo]:null;return ' '+ctx.dataset.label+' '+fnum(v)+' '+UNITS[T]+(isNow&&!bd?' (예측)':'')+(bd&&bd.a?' · '+won(bd.a):'');},
             afterBody:items=>{var mo=items[0].dataIndex+1,n=(D[T][Y]||{})[mo],p=(D[T][Y-1]||{})[mo];if(n&&p&&p.u){var d=Math.round((n.u-p.u)/p.u*100);return '작년比 '+(d>0?'+':'')+d+'%';}return '';}
           }
         }
@@ -900,6 +962,7 @@ function renderChart(){
       onClick:(e,el)=>{if(el&&el.length){FM=el[0].index+1;}},
       scales:{
         y:{beginAtZero:true,title:{display:true,text:UNITS[T],font:{size:10,weight:'600'},color:c.main},ticks:{font:{size:10},color:'#64748b',maxTicksLimit:6,callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(0,0,0,.05)'},border:{display:false}},
+        y2:{display:hasTemp,position:'right',suggestedMin:tMin-2,suggestedMax:tMax+12,title:{display:true,text:'기온°C',font:{size:10,weight:'600'},color:'#f59e0b'},ticks:{font:{size:10},color:'#f59e0b',maxTicksLimit:6,callback:v=>v+'°'},grid:{drawOnChartArea:false},border:{display:false}},
         x:{ticks:{font:{size:11}},grid:{display:false}}
       }
     }
@@ -921,72 +984,30 @@ function renderAI(){
   el._ana=setTimeout(function(){renderAIFrame(el,arr,null);$('aiTag').textContent='자동 분석';},1700);
 }
 
-// 눈에 띄게 차이나는 달의 작년 대비 차이를 '그 검침기간 실제 날씨'로 설명 시도
-function monthlyExplain(type,year){
-  var cur=D[type][year]||{},prev=D[type][year-1]||{},out=[];
-  for(var m=1;m<=12;m++){
-    var c=cur[m],p=prev[m];if(!c||!p||!p.u||!c.u)continue;
-    var yoy=Math.round((c.u-p.u)/p.u*100); // 사용량(막대와 같은 기준)
-    var aYoy=(p.a&&c.a)?Math.round((c.a-p.a)/p.a*100):null; // 요금(난방비/냉방비)
-    if(Math.abs(yoy)<7)continue; // 눈에 띄게 차이나는 달만
-    var tN=(W[year]||{})[m],tP=(W[year-1]||{})[m];
-    var tD=(tN&&tP)?Math.round((tN.avg-tP.avg)*10)/10:null;
-    var heat=(m>=11||m<=4),cool=(m>=7&&m<=10),exp=false,emo='⚠️',word='',cost='';
-    if(type!=='수도'&&tD!=null){
-      if(heat&&yoy>0&&tD<=-0.5){exp=true;emo='❄️';word='더 추웠어요';cost='난방비';}
-      else if(heat&&yoy<0&&tD>=0.5){exp=true;emo='☀️';word='더 따뜻했어요';cost='난방비';}
-      else if(cool&&yoy>0&&tD>=0.5){exp=true;emo='🔥';word='더 더웠어요';cost='냉방비';}
-      else if(cool&&yoy<0&&tD<=-0.5){exp=true;emo='🍃';word='더 시원했어요';cost='냉방비';}
-    }
-    var arr=(yoy>0?'+':'')+yoy+'%',aArr=aYoy==null?'-':((aYoy>0?'+':'')+aYoy+'%');
-    var why,short;
-    if(exp){
-      why='작년보다 <b>'+Math.abs(tD)+'°</b> '+word+' → '+cost+(yoy>0?'가 더 나갔어요':'를 아꼈어요');
-      short='<span class="ex-emo">'+emo+'</span><span class="ex-w">'+word+'</span><span class="ex-p">'+cost+' '+aArr+'</span>';
-    }else if(type==='수도'){
-      exp=true; // 수도는 날씨와 무관 — 정상 변동을 경고로 띄우지 않음
-      why='수도는 날씨와 무관해요. 평소 사용 흐름이에요';
-      short='<span class="ex-emo">💧</span><span class="ex-w">'+(yoy>0?'사용 늘어요':'사용 줄어요')+'</span><span class="ex-p">'+arr+'</span>';
-    }else{
-      why='기온 영향은 아닌 것 같아요 — 행사·설비를 확인해 보세요';
-      short='<span class="ex-emo">🔎</span><span class="ex-w">확인 필요</span><span class="ex-p">요금 '+aArr+'</span>';
-    }
-    out.push({month:m,yoy:yoy,explained:exp,why:why,emo:emo,short:short});
-  }
-  return out;
-}
-
 // AI 분석 = 한 줄 일침 + 📅 월별 해명(날씨 근거) + 💡 권장 조치
 function renderAIFrame(el,arr,a){
   var data=D[T][Y]||{};
   var prev=D[T][Y-1]||{};
-  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증'||x.kind==='누수의심';}); // 추세(전기는 날씨까지) 감안해도 크게 튄 진짜 이상치만
+  var anoUp=detectAnomalies(T,Y).filter(function(x){return x.kind==='급증';}); // 추세와 날씨까지 감안해도 크게 튄 진짜 이상치만
 
   // 권장 조치 = '근거'(실제 데이터 신호)와 '팁'(일반 수칙) 구분 — 추정을 근거로 둔갑시키지 않음
   var fc=forecastNext(T,Y),nmx=fc?fc.month:0;
   if(!nmx){var lm=0;for(var mm=1;mm<=12;mm++)if(data[mm]&&(data[mm].u||data[mm].a))lm=mm;nmx=lm>=12?1:lm+1;}
   var actions=[];
   // 근거: 추세 감안해도 크게 튄 달만 (정상 변동은 안 건드림)
-  anoUp.slice(0,2).forEach(function(x){var c=data[x.month]||{},p=prev[x.month]||{},ay=(c.a&&p.a)?Math.round((c.a-p.a)/p.a*100):null;actions.push({ic:'🔎',tag:'근거',t:x.month+'월 확인',why:'작년 같은 달보다 '+(ay?'+'+ay+'% ':'')+'많이 나왔어요 · '+(T==='수도'?'누수 가능성 점검':'행사·임시설비 확인')});});
-  // 전기는 직원이 조정 가능한 절약 수칙(Tip). 수도는 사용 정상+단가 영향이라 '업무 지시' 대신 알아둘 정보(참고).
+  anoUp.slice(0,2).forEach(function(x){var c=data[x.month]||{},p=prev[x.month]||{},ay=(c.a&&p.a)?Math.round((c.a-p.a)/p.a*100):null;actions.push({ic:'🔎',tag:'근거',t:x.month+'월 확인',why:'작년 같은 달보다 '+(ay?'+'+ay+'% ':'')+'많이 나왔어요 · 행사·임시설비 확인'});});
+  // 직원이 조정 가능한 전기 절약 수칙(Tip)
   var tips,tipTag;
-  if(T==='전기'){
-    tipTag='Tip';
-    tips=[
-      (nmx>=6&&nmx<=9?{ic:'🌡️',t:'냉방 26℃ 이상',why:'여름 권장 26~28℃ · 1℃ 높이면 냉방전력 약 7% 절감'}:(nmx>=11||nmx<=3)?{ic:'🔥',t:'난방 20℃ 이하',why:'겨울 권장 18~20℃ · 1℃ 낮추면 난방전력 약 7% 절감'}:{ic:'🌡️',t:'냉난방 적정온도',why:'여름 26℃·겨울 20℃ · 1℃ 차이가 약 7%'}),
-      {ic:'🔌',t:'대기전력 차단',why:'안 쓰는 PC·복합기 콘센트 OFF · 대기전력이 전기의 약 6%'},
-      {ic:'💡',t:'LED·센서 조명',why:'형광등→LED 조명전력 50%↓ · 복도·화장실 인체감지'}
-    ];
-  }else{
-    tipTag='참고';
-    tips=[];
-    if(!anoUp.length)tips.push({ic:'📊',t:'사용량은 정상이에요',why:'올해 사용은 작년과 비슷해요 — 과사용 아니에요'});
-    tips.push({ic:'💧',t:'요금↑는 물값(단가) 영향',why:'사용이 그대로여도 1m³당 단가가 오르면 요금이 올라요'});
-  }
+  tipTag='Tip';
+  tips=[
+    (nmx>=6&&nmx<=9?{ic:'🌡️',t:'냉방 26℃ 이상',why:'여름 권장 26~28℃ · 1℃ 높이면 냉방전력 약 7% 절감'}:(nmx>=11||nmx<=3)?{ic:'🔥',t:'난방 20℃ 이하',why:'겨울 권장 18~20℃ · 1℃ 낮추면 난방전력 약 7% 절감'}:{ic:'🌡️',t:'냉난방 적정온도',why:'여름 26℃·겨울 20℃ · 1℃ 차이가 약 7%'}),
+    {ic:'🔌',t:'대기전력 차단',why:'안 쓰는 PC·복합기 콘센트 OFF · 대기전력이 전기의 약 6%'},
+    {ic:'💡',t:'LED·센서 조명',why:'형광등→LED 조명전력 50%↓ · 복도·화장실 인체감지'}
+  ];
   tips.forEach(function(g){g.tag=tipTag;});
   actions=actions.concat(tips).slice(0,3);
 
-  var blockH=(T==='수도'&&!anoUp.length)?'💡 알아두세요':'💡 이렇게 하세요';
+  var blockH='💡 이렇게 하세요';
   el.innerHTML='<div class="ai-block"><div class="ai-block-h">'+blockH+'</div><div class="ai-acts2">'+actions.map(function(x){return '<div class="ai-act2"><span class="ai-act-ic">'+x.ic+'</span><div class="ai-act-tx"><div class="ai-act-t">'+x.t+'</div><div class="ai-act-d"><span class="'+(x.tag==='근거'?'why-tag':'tip-tag')+'">'+x.tag+'</span>'+x.why+'</div></div></div>';}).join('')+'</div></div>';
 }
 
@@ -1001,7 +1022,7 @@ function renderTable(){
 }
 
 // OCR
-async function handleUpload(files){if(!files||!files.length)return;var st=$('uploadStatus');st.textContent='분석 중…';var results=[],total=0;for(var i=0;i<files.length;i++){var file=files[i],images=[];try{if(file.type==='application/pdf'){images=await pdfToImages(file);}else{var du=await readFile(file);images=[du.split(',')[1]];}for(var j=0;j<images.length;j++){total++;st.textContent='OCR '+total+'번째…';var result=await ocrImage(images[j]);if(result)results.push(result);}}catch(e){}}if(!results.length){st.textContent='인식 실패';}else{var msgs=[];results.forEach(async r=>{var type=r.bill_type||T,yr=r.year,mo=r.month;if(!yr||!mo)return;if(!D[type])D[type]={budget:{}};if(!D[type][yr])D[type][yr]={};if(!D[type][yr][mo])D[type][yr][mo]={u:0,a:0};if(r.usage_amount)D[type][yr][mo].u=r.usage_amount;if(r.bill_amount)D[type][yr][mo].a=r.bill_amount;await saveB(type,yr,mo,D[type][yr][mo].u,D[type][yr][mo].a);msgs.push(type+' '+yr+'/'+mo+'월 '+won(r.bill_amount||0));});st.textContent=results.length+'건 완료!';showToast(msgs);if(results[0].month)FM=results[0].month;}render();$('fileIn').value='';setTimeout(()=>st.textContent='',5000);}
+async function handleUpload(files){if(!files||!files.length)return;var st=$('uploadStatus');st.textContent='전기 고지서 분석 중…';var results=[],total=0;for(var i=0;i<files.length;i++){var file=files[i],images=[];try{if(file.type==='application/pdf'){images=await pdfToImages(file);}else{var du=await readFile(file);images=[du.split(',')[1]];}for(var j=0;j<images.length;j++){total++;st.textContent='OCR '+total+'번째…';var result=await ocrImage(images[j]);if(result)results.push(result);}}catch(e){}}if(!results.length){st.textContent='전기 고지서 값을 찾지 못했어요. 입력표에서 수기로 입력하세요.';}else{var msgs=[];results.forEach(async r=>{var type='전기',yr=r.year,mo=r.month;if(!yr||!mo)return;if(!D[type][yr])D[type][yr]={};if(!D[type][yr][mo])D[type][yr][mo]={u:0,a:0};if(r.usage_amount)D[type][yr][mo].u=r.usage_amount;if(r.bill_amount)D[type][yr][mo].a=r.bill_amount;await saveB(type,yr,mo,D[type][yr][mo].u,D[type][yr][mo].a);msgs.push('전기 '+yr+'/'+mo+'월 '+won(r.bill_amount||0));});st.textContent=results.length+'건 완료!';showToast(msgs);if(results[0].month)FM=results[0].month;}render();$('fileIn').value='';setTimeout(()=>st.textContent='',5000);}
 async function pdfToImages(file){if(!window.pdfjsLib)throw new Error('PDF 미지원');var ab=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:ab}).promise,imgs=[];for(var p=1;p<=Math.min(pdf.numPages,6);p++){var pg=await pdf.getPage(p),vp=pg.getViewport({scale:2}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;imgs.push(cv.toDataURL('image/jpeg',.85).split(',')[1]);}return imgs;}
 async function ocrImage(b64){try{var r=await fetch(WORKER+'/ocr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});var d=await r.json();return(d.ocr&&(d.ocr.year||d.ocr.bill_amount))?d.ocr:null;}catch(e){return null;}}
 function readFile(f){return new Promise(ok=>{var r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f);})}

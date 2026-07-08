@@ -13,20 +13,16 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // ── OCR: 고지서 이미지 인식 (자동 분류) ──
+      // ── OCR: 전기요금 고지서 이미지 인식 ──
       if (url.pathname === '/ocr' && request.method === 'POST') {
         const { image } = await request.json();
         if (!image) return jsonErr('이미지가 필요합니다', 400);
 
-        const prompt = `이 이미지는 한국 공공기관의 공과금 고지서입니다.
-어떤 종류의 고지서인지 자동 판별하고, 정보를 추출해서 JSON만 반환하세요 (설명 금지):
+        const prompt = `이 이미지는 한국 공공기관의 전기요금 고지서입니다.
+전기 사용량과 청구금액을 추출해서 JSON만 반환하세요 (설명 금지).
+전기요금 고지서가 아니면 모든 값은 null로 반환하세요:
 
-{"bill_type": "전기" 또는 "가스" 또는 "수도", "usage_amount": 사용량숫자, "usage_unit": "단위(kWh/m³/MJ 등)", "bill_amount": 청구금액숫자, "year": 연도숫자, "month": 월숫자}
-
-판별 기준:
-- "한국전력", "전기요금", "kWh" → "전기"
-- "도시가스", "가스요금", "MJ", "m³(가스)" → "가스"
-- "상수도", "수도요금", "수도사업소", "m³(수도)" → "수도"
+{"bill_type": "전기", "usage_amount": 사용량숫자, "usage_unit": "kWh", "bill_amount": 청구금액숫자, "year": 연도숫자, "month": 월숫자}
 
 - 사용량과 금액은 반드시 숫자만 (쉼표 제거)
 - 연도/월은 청구 기준 연월
@@ -49,6 +45,8 @@ export default {
         } catch(e) {
           parsed = { raw: raw, error: 'JSON 파싱 실패 — 수동 입력 필요' };
         }
+        parsed.bill_type = '전기';
+        parsed.usage_unit = 'kWh';
         return json({ ocr: parsed });
       }
 
