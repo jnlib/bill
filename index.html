@@ -260,13 +260,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ana-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6366f1,#22d3ee);animation:anaFill 1.7s ease forwards}
 @keyframes anaFill{from{width:0}to{width:100%}}
 .temptbl{flex:0 0 auto;margin:2px 16px 12px;border-top:1px solid var(--border);padding-top:8px}
-/* '이번 분석' 띠 — 차트가 기온점을 가져가서 비워진 공간에 작년比 요금 변동 해석을 넓게 */
+/* '이번 분석' 띠 — 사용량은 그래프가 담당하고, 아래는 요금과 검침기간 기온만 같은 틀로 비교 */
 .ana-head{font-size:12px;font-weight:700;color:var(--txt-m);margin-bottom:5px}
 .ana-head b{color:var(--txt);font-weight:800}
 .ana-hint{font-weight:600;color:var(--txt-l);font-size:10.5px;margin-left:4px}
-/* 월별 분석 — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸: 월/이모지/이유/요금% 세로 스택 */
+/* 월별 분석 — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸: 월/요금/금액/기온/판정 */
 .ana-list{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
-.ana-cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;text-align:center;background:var(--bg);border:1px solid var(--border);border-top-width:3px;border-radius:7px;padding:4px 3px;min-width:0}
+.ana-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;text-align:center;background:var(--bg);border:1px solid var(--border);border-top-width:3px;border-radius:7px;padding:4px 3px;min-width:0;min-height:64px}
+.ana-cell:hover,.ana-cell:focus,.ana-cell.open{z-index:20;outline:none}
 .ana-cell.up{border-top-color:#dc2626}
 .ana-cell.dn{border-top-color:#16a34a}
 .ana-cell.flat{border-top-color:#cbd5e1}
@@ -274,14 +275,34 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#ea
 .ac-top{display:flex;align-items:center;justify-content:center;gap:4px}
 .ac-mo{font-size:10.5px;font-weight:800;color:var(--txt-l)}
 .ac-emo{font-size:15px;line-height:1}
-.ac-rs{font-size:10.5px;font-weight:700;color:var(--txt);word-break:keep-all;line-height:1.2}
-.ac-pct{font-size:12.5px;font-weight:900;white-space:nowrap;letter-spacing:-.2px}
-.ac-pct i{font-style:normal;font-weight:700;font-size:9.5px;color:var(--txt-l);margin-right:1px}
-.ac-pct.up{color:#dc2626}
-.ac-pct.dn{color:#16a34a}
-.ac-pct.flat{color:#94a3b8}
+.ac-bill{font-size:11.5px;font-weight:900;white-space:nowrap;letter-spacing:0;line-height:1.1}
+.ac-bill.up{color:#dc2626}
+.ac-bill.dn{color:#16a34a}
+.ac-bill.flat{color:#94a3b8}
+.ac-amt{font-size:10px;font-weight:800;color:var(--txt-m);white-space:nowrap;line-height:1.1}
+.ac-temp{font-size:10.5px;font-weight:900;color:var(--txt);white-space:nowrap;line-height:1.1}
+.ac-temp.hot{color:#dc2626}
+.ac-temp.cold{color:#2563eb}
+.ac-temp.norm{color:#64748b}
 .ac-dim{font-size:10px;font-weight:700;color:var(--txt-l);margin-top:2px}
 .ana-empty{font-size:13.5px;color:var(--txt-m);font-weight:600;padding:8px 2px;text-align:center}
+.ana-pop{position:absolute;left:50%;bottom:calc(100% + 8px);width:230px;transform:translate(-50%,4px);opacity:0;pointer-events:none;background:#fff;border:1px solid rgba(15,23,42,.12);border-radius:10px;box-shadow:0 14px 35px rgba(15,23,42,.18);padding:11px 12px;text-align:left;transition:.12s ease}
+.ana-cell:hover .ana-pop,.ana-cell:focus .ana-pop,.ana-cell.open .ana-pop{opacity:1;transform:translate(-50%,0)}
+.ana-cell:nth-child(-n+2) .ana-pop{left:0;transform:translate(0,4px)}
+.ana-cell:nth-child(-n+2):hover .ana-pop,.ana-cell:nth-child(-n+2):focus .ana-pop,.ana-cell:nth-child(-n+2).open .ana-pop{transform:translate(0,0)}
+.ana-cell:nth-last-child(-n+2) .ana-pop{left:auto;right:0;transform:translate(0,4px)}
+.ana-cell:nth-last-child(-n+2):hover .ana-pop,.ana-cell:nth-last-child(-n+2):focus .ana-pop,.ana-cell:nth-last-child(-n+2).open .ana-pop{transform:translate(0,0)}
+.ana-pop::after{content:'';position:absolute;left:50%;bottom:-6px;width:12px;height:12px;background:#fff;border-right:1px solid rgba(15,23,42,.12);border-bottom:1px solid rgba(15,23,42,.12);transform:translateX(-50%) rotate(45deg)}
+.ana-cell:nth-child(-n+2) .ana-pop::after{left:22px}
+.ana-cell:nth-last-child(-n+2) .ana-pop::after{left:auto;right:22px}
+.ap-title{font-size:13px;font-weight:900;color:var(--txt);line-height:1.35;margin-bottom:8px}
+.ap-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--txt-m);padding:4px 0;border-top:1px solid #eef1f5}
+.ap-row b{font-size:13px;color:var(--txt);font-weight:900}
+.ap-row.now.up b{color:#dc2626}
+.ap-row.now.dn b{color:#16a34a}
+.ap-row.now.flat b{color:#64748b}
+.ap-talk{font-size:12px;line-height:1.45;color:var(--txt-m);font-weight:700;margin-top:8px;background:#f8fafc;border-radius:8px;padding:8px}
+.ap-temp{font-size:11.5px;color:#64748b;font-weight:800;margin-top:7px}
 .chart-legends{display:flex;gap:10px;font-size:10px;color:var(--txt-m);flex-wrap:wrap}
 .chart-legends span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .chart-legends .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
@@ -740,8 +761,8 @@ function renderAlert(){
     +'<div class="alert-note">→ '+reason+'</div>';
 }
 
-// ─── 월별 평균기온 표 (차트 밑, 12개월 올해/작년 정렬 · 큰 차이 색강조) ───
-// 복합 해석: 작년比 요금이 크게(±7%↑) 바뀐 달을 '사용량 vs 단가' 조합 + (전기는)날씨로 한 문장 설명
+// ─── 월별 요금·기온 분석 (사용량은 차트 담당) ───
+// 모든 달을 같은 틀(요금 증감 / 고지금액 / 검침기간 기온차 / 기온 판정)로 표시한다.
 function composeExplain(type,year){
   var cur=D[type][year]||{},prev=D[type][year-1]||{},out=[];
   // 차트 12개월과 1:1 정렬되게 1~12월 칸을 항상 만든다.
@@ -749,61 +770,59 @@ function composeExplain(type,year){
     var c=cur[m],p=prev[m];
     if(!c||!c.u||!c.a){out.push({month:m,state:'future',emo:'',reason:'예정',pct:'',full:m+'월은 아직 고지서 전이에요'});continue;}
     if(!p||!p.u||!p.a){out.push({month:m,state:'flat',emo:'📋',reason:'작년 기록 없어요',pct:'',full:'작년 같은 달 기록이 없어 비교가 어려워요'});continue;}
-    var u=Math.round((c.u-p.u)/p.u*100), a=Math.round((c.a-p.a)/p.a*100), pr=Math.round((c.a/c.u-p.a/p.u)/(p.a/p.u)*100);
-    var TT=5, uBig=Math.abs(u)>=TT, pBig=Math.abs(pr)>=TT;
-    var danS='단가가', danT='단가는', danA='단가도', danN='단가';
-    var aP=Math.abs(a)+'%', aVerb=a>0?'늘었어요':'줄었어요', emo='🔎', wWord='', wAdj='';
-    if(type==='전기'){
-      var tN=(W[year]||{})[m], tP=(W[year-1]||{})[m], tD=(tN&&tP)?(tN.avg-tP.avg):null;
-      var heat=(m>=11||m<=4), cool=(m>=7&&m<=10); emo='🔎';
-      if(tD!=null){
-        if(heat&&tD<=-0.5){emo='❄️';wWord='추워서';wAdj='작년보다 추웠어요';}
-        else if(heat&&tD>=0.5){emo='☀️';wWord='따뜻해서';wAdj='작년보다 따뜻했어요';}
-        else if(cool&&tD>=0.5){emo='🔥';wWord='더워서';wAdj='작년보다 더웠어요';}
-        else if(cool&&tD<=-0.5){emo='🍃';wWord='시원해서';wAdj='작년보다 시원했어요';}
-      }
-    }
-    var w2=wWord?wWord+' ':'';
-    var full, reason, state=a>0?'up':'dn', pct=(a>0?'▲':'▼')+aP;
-    if(Math.abs(a)<4){ // 요금 거의 변화 없음 — 칸은 채우되 차분히
-      state='flat'; emo='🟰'; pct='≈'; reason='작년과 비슷해요';
-      if(uBig&&pBig)      full=(u>0?'많이':'적게')+' 썼지만 '+danS+' '+(pr>0?'올라':'내려')+' 상쇄돼 요금은 작년과 비슷해요';
-      else if(uBig)       full='사용은 '+(u>0?'늘었':'줄었')+'지만 요금은 작년과 비슷해요';
-      else                full='작년과 거의 같아요 (안정적)';
-    } else {
-      // 칸에 바로 보이는 이유(구체 문장): 단가 주도면 '단가가 올랐어요', 전기 날씨 주도면 '작년보다 추웠어요', 아니면 사용
-      if(!uBig&&pBig)          reason=danS+(pr>0?' 올랐어요':' 내렸어요');
-      else if(type==='전기'&&wAdj) reason=wAdj;
-      else if(uBig)            reason=(u>0?'사용량이 증가했어요':'사용량이 감소했어요'); // 단가 그대로·사용만 변동 = 정상(특이사항 아님)
-      else                     reason='요금이 '+(a>0?'늘었어요':'줄었어요');
-      // 칸에 올리면 보이는 전체 문장(복합: 사용량·단가·날씨)
-      if(!uBig&&pBig)          full='사용량은 작년과 비슷한데, '+danS+' '+(pr>0?'올라':'내려')+'서 요금이 '+aP+' '+aVerb;
-      else if(uBig&&!pBig)     full=w2+'사용량이 '+(u>0?'늘어서':'줄어서')+' 요금이 '+aP+' '+aVerb+' ('+danT+' 작년과 비슷해요)';
-      else if(uBig&&pBig){
-        if((u>0)===(pr>0))     full=w2+(u>0?'많이':'적게')+' 쓴 데다 '+danA+' '+(pr>0?'올라':'내려')+'서 요금이 크게 '+aP+' '+aVerb;
-        else if(u>0)          full=w2+'많이 썼지만 '+danS+' 내려서, 요금은 '+(a>0?aP+'만 늘었어요':'오히려 '+aP+' 줄었어요');
-        else                  full=w2+'적게 썼지만 '+danS+' 올라서, 요금은 '+(a<0?aP+' 줄었어요':'오히려 '+aP+' 늘었어요');
-      }
-      else                    full='요금이 '+aP+' '+aVerb;
-    }
-    out.push({month:m,emo:emo,state:state,reason:reason,pct:pct,full:full});
+    var a=Math.round((c.a-p.a)/p.a*100);
+    var state=Math.abs(a)<4?'flat':(a>0?'up':'dn');
+    var pct=state==='flat'?'≈0%':(a>0?'▲':'▼')+Math.abs(a)+'%';
+    var tN=(W[year]||{})[m],tP=(W[year-1]||{})[m];
+    var tNow=tN&&tN.avg!=null?tN.avg:null,tPrev=tP&&tP.avg!=null?tP.avg:null;
+    var tD=(tNow!=null&&tPrev!=null)?Math.round((tNow-tPrev)*10)/10:null;
+    var heat=(m>=11||m<=3),cool=(m>=6&&m<=9),emo='🌡️',tempClass='norm',note='기온 영향 작음';
+    if(tD==null){note='기온 미확인';}
+    else if(cool&&tD>=0.5){emo='🔥';tempClass='hot';note='더움 영향';}
+    else if(cool&&tD<=-0.5){emo='🍃';tempClass='cold';note='시원함';}
+    else if(heat&&tD<=-0.5){emo='❄️';tempClass='cold';note='추위 영향';}
+    else if(heat&&tD>=0.5){emo='☀️';tempClass='hot';note='따뜻함';}
+    else if(Math.abs(tD)>=1){emo=tD>0?'🌡️':'🍃';tempClass=tD>0?'hot':'cold';note='기온차 있음';}
+    else if(state==='flat'){emo='🟰';}
+    var tempText=tD==null?'-':(tD>0?'+':'')+tD+'°';
+    var billText=state==='flat'?'요금 비슷':(a>20?'요금 크게↑':(a>0?'요금 올랐어요':'요금 줄었어요'));
+    var tempShort=tD==null?'기온 확인중':(note==='기온 영향 작음'?'기온 비슷':(note==='더움 영향'?'더웠어요 '+tempText:(note==='추위 영향'?'추웠어요 '+tempText:(note==='시원함'?'시원했어요 '+tempText:note+' '+tempText))));
+    var diff=c.a-p.a,diffTalk=Math.abs(diff)<10000?'작년이랑 거의 같은 금액이에요':(diff>0?'작년보다 '+won(diff)+' 더 나왔어요':'작년보다 '+won(Math.abs(diff))+' 덜 나왔어요');
+    var tempTalk=tD==null?'기온 자료는 아직 못 가져왔어요.':(note==='더움 영향'?'검침기간이 작년보다 더웠어요. 냉방 영향은 있어 보입니다.':(note==='추위 영향'?'검침기간이 작년보다 추웠어요. 난방 영향은 있어 보입니다.':(note==='기온 영향 작음'?'기온은 작년과 크게 다르지 않았어요. 요금 변화는 운영이나 설비 쪽도 같이 봐야 해요.':'검침기간 기온 차이도 같이 확인할 만해요.')));
+    var headline=state==='up'?(m+'월 요금이 올라갔어요'):(state==='dn'?(m+'월 요금은 내려갔어요'):(m+'월 요금은 안정적이에요'));
+    var pop='<div class="ana-pop"><div class="ap-title">'+headline+'</div>'
+      +'<div class="ap-row"><span>작년 '+m+'월분</span><b>'+won(p.a)+'</b></div>'
+      +'<div class="ap-row now '+state+'"><span>올해 '+m+'월분</span><b>'+won(c.a)+'</b></div>'
+      +'<div class="ap-talk">'+diffTalk+' '+tempTalk+'</div>'
+      +'<div class="ap-temp">검침기간 평균기온: 작년 '+(tPrev!=null?tPrev+'°':'-')+' → 올해 '+(tNow!=null?tNow+'°':'-')+' ('+tempText+')</div></div>';
+    var full=headline+' '+diffTalk+' '+tempTalk;
+    out.push({month:m,emo:emo,state:state,pct:pct,billText:billText,amount:won(c.a),temp:tempShort,tempClass:tempClass,pop:pop,full:full});
   }
   return out;
 }
-// 차트 밑 '월별 분석' — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸=월/이모지/이유/요금%, 올리면 한 문장
+// 차트 밑 '월별 분석' — 차트 12개월과 1:1 정렬되는 12칸 한 줄. 각 칸=월/요금/기온.
 function renderTempTable(){
   var el=$('tempTable');if(!el)return;el.style.display='';
   var ex=composeExplain(T,Y);
   if(!ex.length){el.innerHTML='<div class="ana-empty">📝 표시할 달이 없어요</div>';return;}
-  el.innerHTML='<div class="ana-head">💬 월별 분석 <b>· 날씨·단가가 어떻게 돼서 요금이 얼마나 바뀌었나</b> <span class="ana-hint">칸에 올리면 한 문장 설명</span></div>'
+  el.innerHTML='<div class="ana-head">💬 월별 요금·기온 <b>· 그래프는 사용량, 아래는 고지금액과 검침기간 평균기온</b> <span class="ana-hint">칸에 올리면 상세 비교</span></div>'
     +'<div class="ana-list">'+ex.map(function(e){
       var dim=(e.state==='future'||e.state==='skip');
-      return '<div class="ana-cell '+e.state+'" title="'+e.full+'">'
+      return '<div class="ana-cell '+e.state+'" tabindex="0" aria-label="'+e.full+'">'
         +'<div class="ac-top"><span class="ac-mo">'+e.month+'월</span>'+(dim?'':'<span class="ac-emo">'+e.emo+'</span>')+'</div>'
         +(dim?'<span class="ac-dim">'+e.reason+'</span>'
-             :'<span class="ac-rs">'+e.reason+'</span>'+(e.pct?'<span class="ac-pct '+e.state+'"><i>요금</i> '+e.pct+'</span>':''))
+             :'<span class="ac-bill '+e.state+'">'+e.billText+'</span><span class="ac-amt">'+e.amount+'</span><span class="ac-temp '+e.tempClass+'">'+e.temp+'</span>'+e.pop)
         +'</div>';
     }).join('')+'</div>';
+  el.querySelectorAll('.ana-cell').forEach(function(cell){
+    cell.addEventListener('mouseenter',function(){cell.classList.add('open');});
+    cell.addEventListener('mouseleave',function(){if(document.activeElement!==cell)cell.classList.remove('open');});
+    cell.addEventListener('click',function(){
+      el.querySelectorAll('.ana-cell.open').forEach(function(x){if(x!==cell)x.classList.remove('open');});
+      cell.classList.add('open');cell.focus();
+    });
+    cell.addEventListener('blur',function(){cell.classList.remove('open');});
+  });
   alignAnaGrid();requestAnimationFrame(alignAnaGrid); // 즉시 + 다음 프레임(차트 리사이즈 후) 두 번 맞춤
 }
 // 12칸을 차트 막대 영역(축 안쪽)에 정확히 정렬 — 각 칸이 그 달 막대 바로 아래 오게
